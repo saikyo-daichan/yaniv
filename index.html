@@ -3,20 +3,45 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ヤニブ (Yaniv) Final Edition v18</title>
+<title>ヤニブ (Yaniv) Final Edition v19</title>
 <style>
     /* 画面全体設定 */
     html, body {
-        min-height: 100dvh;
+        height: 100dvh;
         margin: 0;
         padding: 0;
-        overflow-x: hidden;
-        overflow-y: auto;
+        overflow: hidden; /* スクロール完全禁止（アプリライク） */
         background-color: #1b5e20;
         color: white;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         box-sizing: border-box;
     }
+
+    /* 縦画面（ポートレート）時のブロック画面 */
+    #portrait-warning {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; width: 100vw; height: 100dvh;
+        background-color: #1b5e20;
+        z-index: 9999;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        color: white;
+    }
+    .rotate-icon {
+        font-size: 70px;
+        margin-bottom: 20px;
+        animation: rotatePhone 2s infinite ease-in-out;
+    }
+    @keyframes rotatePhone {
+        0% { transform: rotate(0deg); }
+        50% { transform: rotate(-90deg); }
+        100% { transform: rotate(-90deg); }
+    }
+    .warning-text { font-size: 20px; font-weight: bold; line-height: 1.5; margin-bottom: 10px; }
+    .warning-sub { font-size: 14px; opacity: 0.8; }
 
     /* メインメニュー & 設定画面 */
     .menu-screen {
@@ -24,7 +49,7 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        min-height: 100dvh;
+        height: 100dvh;
         gap: 20px;
         box-sizing: border-box;
         padding: 20px;
@@ -46,7 +71,7 @@
     #game-container {
         display: none;
         flex-direction: column;
-        min-height: 100dvh;
+        height: 100dvh;
         width: 100vw;
         padding: 10px;
         box-sizing: border-box;
@@ -57,10 +82,10 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        margin-bottom: 10px;
+        margin-bottom: 5px;
     }
     #round-counter { font-size: 14px; color: #a5d6a7; font-weight: bold; }
-    #turn-indicator { font-size: 22px; font-weight: bold; color: #ffeb3b; }
+    #turn-indicator { font-size: 22px; font-weight: bold; color: #ffeb3b; min-height: 30px; }
 
     /* 十字グリッド */
     #game-table {
@@ -106,7 +131,7 @@
         justify-content: center; 
         align-items: center;
         background-color: rgba(0,0,0,0.4);
-        padding: 20px;
+        padding: 20px 30px;
         border-radius: 80px;
         border: 4px solid #388e3c;
         box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
@@ -115,7 +140,7 @@
     }
 
     .hand { display: flex; position: relative; justify-content: center; width: 100%; }
-    #area-0 .hand, #area-2 .hand { flex-direction: row; gap: 6px; padding-top: 15px; }
+    #area-0 .hand, #area-2 .hand { flex-direction: row; gap: 6px; padding-top: 10px; }
     .side-area .hand { flex-direction: column; align-items: center; gap: 0px; margin-top: 5px; }
     
     .card {
@@ -172,10 +197,10 @@
     .icon { font-size: 18px; background-color: rgba(255,255,255,0.2); border-radius: 50%; width: 28px; height: 28px; display: flex; justify-content: center; align-items: center; }
     .vp-score { color: #ffeb3b; font-size: 12px; }
     
-    .controls-wrapper { min-height: 50px; width: 100%; display: flex; justify-content: center; align-items: center; margin-top: 10px; }
+    .controls-wrapper { min-height: 45px; width: 100%; display: flex; justify-content: center; align-items: center; margin-top: 10px; }
     .controls { display: flex; gap: 10px; justify-content: center; width: 100%; flex-wrap: wrap; }
     
-    button { padding: 12px 15px; font-size: 14px; font-weight: bold; border: none; border-radius: 5px; cursor: pointer; background-color: #e0e0e0; transition: background-color 0.2s, transform 0.1s; }
+    button { padding: 10px 15px; font-size: 14px; font-weight: bold; border: none; border-radius: 5px; cursor: pointer; background-color: #e0e0e0; transition: background-color 0.2s, transform 0.1s; }
     button:active { transform: scale(0.95); }
     button:disabled { background-color: #546e7a; color: rgba(255,255,255,0.6); cursor: not-allowed; transform: none; }
     .btn-action { background-color: #2196f3; color: white; }
@@ -202,28 +227,58 @@
 
     .me-row { background-color: rgba(255, 235, 59, 0.15) !important; outline: 2px solid #ffeb3b; outline-offset: -2px; font-weight: bold; }
 
-    /* スマホ用レスポンシブデザイン */
-    @media (max-width: 768px) {
-        #game-table { grid-template-columns: 70px 1fr 70px; gap: 5px; }
-        #center-area { gap: 10px; padding: 15px; border-width: 2px; border-radius: 40px; }
+    /* ====== 縦画面（ポートレート）判定：スマホを縦にしている時に警告を出す ====== */
+    @media (max-width: 850px) and (orientation: portrait) {
+        #portrait-warning { display: flex; }
+        #main-menu, #settings-menu, #game-container, #modal-overlay { display: none !important; }
+    }
+
+    /* ====== スマホ横画面（ランドスケープ）用 最適化レイアウト ====== */
+    @media (max-height: 600px) and (orientation: landscape) {
+        #header-area { flex-direction: row; justify-content: space-between; height: 30px; margin-bottom: 5px; padding: 0 20px; }
+        #turn-indicator { font-size: 16px; min-height: auto; }
+        #round-counter { font-size: 12px; }
+
+        #game-table { grid-template-rows: auto 1fr auto; gap: 5px; }
+
+        #center-area { padding: 10px 20px; gap: 20px; border-width: 2px; border-radius: 60px; }
+
+        /* カードをスマホ用に縮小 */
         .card { width: 50px; height: 75px; border-radius: 5px; }
         .pile { width: 50px; height: 75px; }
-        .card-center { font-size: 18px; }
-        .card-corner { font-size: 10px; top: 2px; left: 4px; }
+        .card-center { font-size: 20px; }
+        .card-corner { font-size: 11px; top: 2px; left: 4px; }
         .card-corner br { display: none; }
-        #area-0 .card:not(:first-child), #area-2 .card:not(:first-child) { margin-left: -20px; }
-        #area-1 .card:not(:first-child), #area-3 .card:not(:first-child) { margin-top: -45px; }
-        #area-1 .card { margin-left: 10px; margin-right: 10px; margin-bottom: -15px; }
-        #area-3 .card { margin-left: 10px; margin-right: 10px; margin-bottom: -15px; }
+
+        /* 横向きカードのめり込み補正 */
+        #area-1 .card { margin: -15px 12px; }
+        #area-3 .card { margin: -15px 12px; }
+
+        .player-area { padding: 5px 10px; }
+        .area-header { margin-bottom: 2px; }
         .player-info { font-size: 12px; }
-        .icon { width: 22px; height: 22px; font-size: 14px; }
-        button { padding: 10px 12px; font-size: 12px; }
-        #turn-indicator { font-size: 18px; }
-        #result-table { font-size: 12px; }
+        .icon { width: 20px; height: 20px; font-size: 12px; }
+        .vp-score { font-size: 11px; }
+
+        .controls-wrapper { min-height: 35px; margin-top: 5px; }
+        button { padding: 6px 10px; font-size: 12px; }
+
+        .action-badge { font-size: 10px; padding: 3px 6px; top: -10px; }
+        
+        #result-modal { padding: 15px; }
+        #result-table { font-size: 12px; margin: 10px 0; }
+        #result-table th, #result-table td { padding: 4px; }
     }
 </style>
 </head>
 <body>
+
+<!-- 縦画面ブロック用オーバーレイ -->
+<div id="portrait-warning">
+    <div class="rotate-icon">📱</div>
+    <div class="warning-text">スマホを横向きにして<br>プレイしてください</div>
+    <div class="warning-sub">※PCの場合は画面の横幅を広げてください</div>
+</div>
 
 <div id="main-menu" class="menu-screen">
     <h1>YANIV</h1>
@@ -446,14 +501,9 @@
         gameEnded = false; createDeck();
         players.forEach(p => p.hand = deck.splice(0, 5));
         
-        // 【修正】最初の捨て札がJOKERにならないように引き直す
         let firstCard = deck.pop();
-        while (firstCard.type === 'joker') {
-            deck.unshift(firstCard);
-            firstCard = deck.pop();
-        }
-        discardSets = [ [firstCard] ]; 
-        selectedCards = [];
+        while (firstCard.type === 'joker') { deck.unshift(firstCard); firstCard = deck.pop(); }
+        discardSets = [ [firstCard] ]; selectedCards = [];
         
         document.getElementById('round-counter').textContent = `第 ${currentRound} / ${MAX_ROUNDS} ラウンド`;
         document.getElementById('deck-pile').className = `pile card back back-blue`;
@@ -464,17 +514,9 @@
 
     function handleModalNext() {
         document.getElementById('modal-overlay').style.display = 'none'; 
-        
-        if (modalActionState === 'next_round') { 
-            currentRound++; 
-            startRound(); 
-        } 
-        else if (modalActionState === 'show_final') { 
-            setTimeout(showFinalTotalRanking, 150); 
-        } 
-        else if (modalActionState === 'new_game') { 
-            switchScreen('main-menu'); 
-        }
+        if (modalActionState === 'next_round') { currentRound++; startRound(); } 
+        else if (modalActionState === 'show_final') { setTimeout(showFinalTotalRanking, 150); } 
+        else if (modalActionState === 'new_game') { switchScreen('main-menu'); }
     }
 
     function drawFromDeck() {
@@ -515,9 +557,14 @@
         return cardEl;
     }
 
+    // スマホ横画面・PCに応じた動的サイズ
     function getCardParams() {
-        const isMobile = window.innerWidth <= 768;
-        return { w: isMobile ? 50 : 72, h: isMobile ? 75 : 108, offset: isMobile ? 15 : 30 };
+        const isMobileLandscape = window.innerHeight <= 600 && window.innerWidth > window.innerHeight;
+        return { 
+            w: isMobileLandscape ? 50 : 72, 
+            h: isMobileLandscape ? 75 : 108, 
+            offset: isMobileLandscape ? 20 : 30 
+        };
     }
 
     function updateUI(revealAll = false) {
@@ -606,12 +653,9 @@
                 else if (scoreDrop === maxScoreDrop) { if (subset.length > bestPlay.length) bestPlay = subset; }
             }
         }
-        
         let finalPlay = bestPlay.length > 0 ? bestPlay : [hand[0]];
         if (finalPlay.length > 1) {
-            let jokers = finalPlay.filter(c => c.type === 'joker'); 
-            let normals = finalPlay.filter(c => c.type !== 'joker');
-            // 【修正】通常カードを小さい順に並べ、一番大きい数字が最後に捨てられるようにする
+            let jokers = finalPlay.filter(c => c.type === 'joker'); let normals = finalPlay.filter(c => c.type !== 'joker');
             normals.sort((a, b) => a.value - b.value);
             finalPlay = jokers.concat(normals);
         }
