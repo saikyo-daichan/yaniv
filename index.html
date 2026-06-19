@@ -7,7 +7,7 @@
 <style>
     * { box-sizing: border-box; }
 
-    /* 画面全体設定：スマホ縦画面でスワイプ更新などを完全ブロック */
+    /* 画面全体設定：絶対に1画面に収め、スクロールと引っ張り更新を完全禁止 */
     html, body {
         height: 100dvh;
         width: 100vw;
@@ -20,28 +20,52 @@
         touch-action: none; 
     }
 
-    /* メインメニュー & 設定画面 */
+    /* メインメニュー & 設定画面（シンプルでコンパクトな中央配置） */
     .menu-screen {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        height: 100%;
-        width: 100%;
+        height: 100dvh;
+        width: 100vw;
+        gap: 15px;
         padding: 20px;
     }
-    .menu-screen h1 { font-size: 42px; color: #ffeb3b; text-shadow: 2px 2px 0px #000; margin: 0 0 15px 0; }
-    .menu-panel { background-color: rgba(0,0,0,0.4); padding: 20px; border-radius: 15px; border: 2px solid #388e3c; width: 100%; max-width: 350px; text-align: left; }
-    .menu-panel h3 { margin-top: 0; color: #ffeb3b; text-align: center; }
-    .setting-item { display: flex; flex-direction: column; gap: 6px; margin-bottom: 15px; }
+    .menu-screen h1 { 
+        font-size: 36px; /* 文字サイズを少し抑えてスマートに */
+        color: #ffeb3b; 
+        text-shadow: 2px 2px 0px #000; 
+        margin: 0 0 10px 0; 
+        letter-spacing: 4px;
+    }
+    .menu-panel { 
+        background-color: rgba(0,0,0,0.4); 
+        padding: 20px; 
+        border-radius: 12px; 
+        border: 2px solid #388e3c; 
+        width: 100%; 
+        max-width: 320px; 
+        text-align: left; 
+    }
+    .menu-panel h3 { margin-top: 0; color: #ffeb3b; text-align: center; font-size: 16px; }
+    .setting-item { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
     .setting-item label { font-weight: bold; font-size: 13px; }
     
     .btn-large {
-        padding: 12px 30px; font-size: 18px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer;
-        background-color: #ffeb3b; color: #1b5e20; box-shadow: 0 4px 0 #c51162; transition: all 0.1s;
+        padding: 10px 24px; 
+        font-size: 16px; /* ボタン内の改行を防ぐサイズ */
+        font-weight: bold; 
+        border: none; 
+        border-radius: 6px; 
+        cursor: pointer;
+        background-color: #ffeb3b; 
+        color: #1b5e20; 
+        box-shadow: 0 4px 0 #c51162; 
+        transition: all 0.1s;
+        width: 180px; /* 幅を固定して綺麗に揃える */
     }
     .btn-large:active { transform: translateY(4px); box-shadow: none; }
-    .btn-secondary { background-color: #e0e0e0; color: #333; padding: 10px; font-size: 14px; font-weight: bold; border: none; border-radius: 5px; cursor: pointer; width: 100%; text-align: center; }
+    .btn-secondary { background-color: #e0e0e0; color: #333; padding: 10px; font-size: 13px; font-weight: bold; border: none; border-radius: 5px; cursor: pointer; width: 100%; text-align: center; }
 
     /* ゲーム画面コンテナ */
     #game-container {
@@ -62,11 +86,11 @@
     #round-counter { font-size: 14px; color: #a5d6a7; font-weight: bold; }
     #turn-indicator { font-size: 18px; font-weight: bold; color: #ffeb3b; }
 
-    /* 十字グリッド（PC・タブレット用ベース） */
+    /* 十字グリッド */
     #game-table {
         display: grid;
-        grid-template-columns: minmax(80px, 140px) 1fr minmax(80px, 140px); 
-        grid-template-rows: 130px 1fr 180px;    
+        grid-template-columns: minmax(60px, 140px) 1fr minmax(60px, 140px); 
+        grid-template-rows: 110px 1fr 180px;    
         align-items: center;
         justify-items: center;
         width: 100%;
@@ -103,23 +127,30 @@
     /* 中央エリア（山札・捨て札） */
     #center-area { 
         display: flex; 
-        gap: 30px; 
+        gap: 20px; 
         justify-content: center; 
         align-items: center;
         background-color: rgba(0,0,0,0.4);
-        padding: 20px;
+        padding: 15px;
         border-radius: 40px;
         border: 3px solid #388e3c;
         box-shadow: inset 0 0 15px rgba(0,0,0,0.8);
         width: 100%;
-        max-width: 350px;
+        max-width: 320px;
     }
 
     .hand { display: flex; position: relative; justify-content: center; width: 100%; }
-    #area-0 .hand, #area-2 .hand { flex-direction: row; gap: 0px; padding-top: 5px; }
+    #area-2 .hand { flex-direction: row; gap: 0px; padding-top: 5px; }
     .side-area .hand { flex-direction: column; align-items: center; gap: 0px; margin-top: 5px; }
     
-    /* カードのベースデザイン */
+    /* 【修正】あなたの手札：重ね合わせを完全に無くし、カード同士に選びやすい間隔（gap）を確保 */
+    #area-0 .hand { 
+        flex-direction: row; 
+        gap: 8px; /* カードとカードの間の明確な隙間 */
+        padding-top: 5px; 
+    }
+
+    /* カードのベースデザイン（PC・タブレット基準） */
     .card {
         width: 72px;
         height: 108px;
@@ -135,8 +166,8 @@
         flex-shrink: 0;
     }
 
-    /* PC基準の手札の重なり */
-    #area-0 .card:not(:first-child), #area-2 .card:not(:first-child) { margin-left: -20px; }
+    /* 敵の手札の重なり補正 */
+    #area-2 .card:not(:first-child) { margin-left: -20px; }
     #area-1 .card { transform: rotate(90deg); margin: -20px 15px; }
     #area-3 .card { transform: rotate(-90deg); margin: -20px 15px; }
     #area-1 .card:not(:first-child), #area-3 .card:not(:first-child) { margin-top: -40px; }
@@ -161,7 +192,7 @@
     .card-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 26px; font-weight: bold; }
     
     .card.selected {
-        transform: translateY(-10px) !important;
+        transform: translateY(-12px) !important;
         box-shadow: 0 8px 15px rgba(0,0,0,0.6);
         border: 2px solid #ffeb3b;
         z-index: 10;
@@ -207,66 +238,56 @@
     .me-row { background-color: rgba(255, 235, 59, 0.15) !important; outline: 2px solid #ffeb3b; outline-offset: -2px; font-weight: bold; }
 
     /* =========================================================
-       📱 スマホ縦画面（ポートレート）用・超最適化レイアウト
+       📱 スマホ縦画面用・パーツ別サイズメリハリ設定
        ========================================================= */
     @media (max-width: 768px) {
         #game-table {
-            /* 西・中央・東の幅を調整。南（あなた）は横幅いっぱいに使う */
             grid-template-columns: 55px 1fr 55px; 
-            grid-template-rows: 70px 1fr 180px; /* 下部(あなた)のエリアを広く確保 */
+            grid-template-rows: 70px 1fr 160px; /* あなたのエリア高を適正化 */
             gap: 5px;
         }
 
-        /* 南（あなた）のエリアを全幅（3カラム分）に拡張！これでカードがデカくても収まる */
         #area-0 { grid-column: 1 / span 3; width: 100%; max-width: none; }
-        
-        /* 中央エリア（山札・捨て札）の設定 */
         #center-area { gap: 15px; padding: 10px; border-width: 2px; border-radius: 20px; width: auto; max-width: 100%; }
 
-        /* ----------------------------------------------------
-           ★ サイズのメリハリ設定 ★
-           ---------------------------------------------------- */
-        
-        /* ① 自分のカード＆中央のカード（デカく！） */
-        #area-0 .card, #center-area .card, #center-area .pile { 
-            width: 64px; height: 96px; border-radius: 6px; border-width: 1px;
+        /* 【修正】あなたの手札＆中央のカード：画面幅いっぱいに広げ、重ね合わせを完全撤廃（gapで隙間を確保） */
+        #area-0 .hand {
+            gap: 6px; /* 1枚1枚が独立して並ぶため、押し間違いが完全に無くなります */
         }
-        /* 自分のカードの重なり（はみ出さないように） */
-        #area-0 .card:not(:first-child) { margin-left: -25px; }
+        #area-0 .card, #center-area .card, #center-area .pile { 
+            width: 58px; /* 縦画面で5枚並んでもはみ出さず、かつタップしやすい絶妙な大きさに調整 */
+            height: 87px; 
+            border-radius: 5px; 
+            border-width: 1px;
+        }
+        /* 自分の手札を重ねるマージンルールをクリア（上書き） */
+        #area-0 .card:not(:first-child) { margin-left: 0 !important; }
 
-        /* ② 敵（CPU）のカード（枚数がわかる限界まで極小化！） */
+        /* 敵（CPU）のカード：枚数が分かればよいため、引き続き超コンパクトに維持 */
         #area-1 .card, #area-2 .card, #area-3 .card { 
             width: 32px; height: 48px; border-radius: 3px; border-width: 1px;
         }
-        
-        /* 敵のカードの重なり調整 */
         #area-2 .card:not(:first-child) { margin-left: -12px; }
         #area-1 .card { margin: -10px 0; }
         #area-3 .card { margin: -10px 0; }
         #area-1 .card:not(:first-child), #area-3 .card:not(:first-child) { margin-top: -30px; }
 
-        /* カード内のフォント調整（大・小で分ける） */
-        #area-0 .card-center, #center-area .card-center { font-size: 24px; }
-        #area-0 .card-corner, #center-area .card-corner { font-size: 11px; top: 2px; left: 4px; }
-        
+        /* カード内の文字サイズ微調整 */
+        #area-0 .card-center, #center-area .card-center { font-size: 20px; }
+        #area-0 .card-corner, #center-area .card-corner { font-size: 10px; top: 2px; left: 4px; }
         #area-1 .card-center, #area-2 .card-center, #area-3 .card-center { font-size: 14px; }
         #area-1 .card-corner, #area-2 .card-corner, #area-3 .card-corner { font-size: 8px; top: 1px; left: 2px; }
-        .card-corner br { display: none; } /* JOKERなどの改行を削除して詰める */
+        .card-corner br { display: none; }
 
-        /* ---------------------------------------------------- */
-
-        /* CPUエリアのヘッダー・文字を極力小さく */
         .side-area .player-info, #area-2 .player-info { font-size: 10px; }
         .side-area .icon, #area-2 .icon { width: 16px; height: 16px; font-size: 10px; }
         .side-area .vp-score, #area-2 .vp-score { font-size: 9px; }
         
-        /* あなたのエリアの文字は操作しやすく維持 */
         #area-0 .player-info { font-size: 14px; }
         #area-0 .icon { width: 22px; height: 22px; font-size: 12px; }
         
-        /* 操作ボタン */
-        .controls-wrapper { min-height: 45px; margin-top: 8px; }
-        button { padding: 12px 5px; font-size: 13px; max-width: 110px; }
+        .controls-wrapper { min-height: 45px; margin-top: 5px; }
+        button { padding: 10px 5px; font-size: 13px; max-width: 110px; }
     }
 </style>
 </head>
@@ -362,7 +383,7 @@
                 <div class="player-info"><span class="icon" id="my-icon-display">🧑‍💻</span> あなた</div>
                 <div class="vp-score">👑 勝点: <span id="vp-0">0</span></div>
             </div>
-            <div style="font-size: 12px; margin-bottom:4px;">手札合計: <span id="sum-0">0</span></div>
+            <div style="font-size: 12px; margin-bottom:2px;">手札合計: <span id="sum-0">0</span></div>
             <div id="player-hand" class="hand"></div>
             
             <div class="controls-wrapper">
@@ -510,7 +531,7 @@
 
     function getCardParams() {
         const isMobile = window.innerWidth <= 768;
-        return { w: isMobile ? 64 : 72, h: isMobile ? 96 : 108, offset: isMobile ? 25 : 30 };
+        return { w: isMobile ? 58 : 72, h: isMobile ? 87 : 108, offset: isMobile ? 20 : 30 };
     }
 
     function updateUI(revealAll = false) {
@@ -611,17 +632,14 @@
             const targetTop = discardRect.top + (discardRect.height / 2) - (prm.h / 2);
             animCard.style.top = targetTop + 'px'; animCard.style.left = targetLeft + 'px'; animCard.style.transform = 'rotate(0deg)'; 
         });
-
         setTimeout(() => { animElements.forEach(el => el.remove()); callback(); }, 350);
     }
 
     function performDrawAnimation(drawSource, targetPlayerIndex, callback) {
-        playSound('draw'); const sourceId = drawSource === 'discard' ? 'discard-pile' : 'deck-pile'; const sourceEl = document.getElementById(sourceId);
-        if (!sourceEl) { callback(); return; }
-
-        const prm = getCardParams(); const animCard = document.createElement('div'); 
+        playSound('draw'); const prm = getCardParams(); const animCard = document.createElement('div'); 
         animCard.className = `card back ${(targetPlayerIndex === 0) ? myCardBackClass : 'back-blue'}`;
-        const sourceRect = sourceEl.getBoundingClientRect(); const targetEl = targetPlayerIndex === 0 ? document.getElementById('player-hand') : document.getElementById(`cpu${targetPlayerIndex}-hand`); const targetRect = targetEl.getBoundingClientRect();
+        const sourceRect = sourceEl = document.getElementById(drawSource === 'discard' ? 'discard-pile' : 'deck-pile').getBoundingClientRect();
+        const targetRect = (targetPlayerIndex === 0 ? document.getElementById('player-hand') : document.getElementById(`cpu${targetPlayerIndex}-hand`)).getBoundingClientRect();
 
         animCard.style.position = 'fixed'; animCard.style.top = sourceRect.top + 'px'; animCard.style.left = sourceRect.left + 'px'; animCard.style.margin = '0'; animCard.style.zIndex = '9999'; animCard.style.transform = 'rotate(0deg)'; animCard.style.transition = 'all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1)';
         document.body.appendChild(animCard); animCard.getBoundingClientRect(); 
@@ -639,7 +657,6 @@
         showActionMsg(playerIndex, drawSource === 'discard' ? "拾った！" : "引いた");
 
         cardsToDiscard.forEach(c => { const el = document.getElementById(`card-${c.id}`); if(el) el.style.opacity = '0'; });
-
         let cardToPickUp = null;
         if (drawSource === 'discard') { let topSet = discardSets[discardSets.length - 1]; cardToPickUp = topSet.pop(); if (topSet.length === 0) discardSets.pop(); } 
         else { cardToPickUp = drawFromDeck(); }
