@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ヤニブ (Yaniv) Final Edition v18</title>
+<style>
+    /* 画面全体設定 */
+    html, body {
+        min-height: 100dvh;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+        overflow-y: auto;
+        background-color: #1b5e20;
+        color: white;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        box-sizing: border-box;
+    }
+
+    /* メインメニュー & 設定画面 */
+    .menu-screen {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100dvh;
+        gap: 20px;
+        box-sizing: border-box;
+        padding: 20px;
+    }
+    .menu-screen h1 { font-size: 48px; color: #ffeb3b; text-shadow: 3px 3px 0px #000; margin: 0 0 10px 0; }
+    .menu-panel { background-color: rgba(0,0,0,0.4); padding: 30px; border-radius: 15px; border: 3px solid #388e3c; width: 100%; max-width: 400px; text-align: left; box-sizing: border-box; }
+    .menu-panel h3 { margin-top: 0; color: #ffeb3b; text-align: center; }
+    .setting-item { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+    .setting-item label { font-weight: bold; font-size: 14px; }
+    
+    .btn-large {
+        padding: 15px 40px; font-size: 20px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer;
+        background-color: #ffeb3b; color: #1b5e20; box-shadow: 0 5px 0 #c51162; transition: all 0.1s;
+    }
+    .btn-large:active { transform: translateY(5px); box-shadow: none; }
+    .btn-secondary { background-color: #e0e0e0; color: #333; padding: 10px 20px; font-size: 14px; font-weight: bold; border: none; border-radius: 5px; cursor: pointer; width: 100%; text-align: center; }
+
+    /* ゲーム画面コンテナ */
+    #game-container {
+        display: none;
+        flex-direction: column;
+        min-height: 100dvh;
+        width: 100vw;
+        padding: 10px;
+        box-sizing: border-box;
+    }
+
+    #header-area {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    #round-counter { font-size: 14px; color: #a5d6a7; font-weight: bold; }
+    #turn-indicator { font-size: 22px; font-weight: bold; color: #ffeb3b; }
+
+    /* 十字グリッド */
+    #game-table {
+        display: grid;
+        grid-template-columns: minmax(80px, 160px) 1fr minmax(80px, 160px); 
+        grid-template-rows: auto 1fr auto;    
+        align-items: center;
+        justify-items: center;
+        width: 100%;
+        max-width: 1000px;
+        margin: 0 auto;
+        gap: 10px;
+        flex: 1;
+    }
+
+    #area-2 { grid-column: 2; grid-row: 1; width: 100%; max-width: 420px; } 
+    #area-1 { grid-column: 1; grid-row: 2; width: 100%; height: 100%; justify-content: center; } 
+    #center-area { grid-column: 2; grid-row: 2; }                         
+    #area-3 { grid-column: 3; grid-row: 2; width: 100%; height: 100%; justify-content: center; } 
+    #area-0 { grid-column: 2; grid-row: 3; width: 100%; max-width: 550px; } 
+
+    .player-area {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: rgba(0,0,0,0.25);
+        padding: 10px;
+        border-radius: 10px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+        border: 2px solid transparent;
+        box-sizing: border-box;
+    }
+    .player-area.active {
+        box-shadow: 0 0 20px 4px rgba(255, 235, 59, 0.5);
+        border: 2px solid #ffeb3b;
+        background-color: rgba(0,0,0,0.35);
+    }
+
+    #center-area { 
+        display: flex; 
+        gap: 30px; 
+        justify-content: center; 
+        align-items: center;
+        background-color: rgba(0,0,0,0.4);
+        padding: 20px;
+        border-radius: 80px;
+        border: 4px solid #388e3c;
+        box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+        box-sizing: border-box;
+        width: 100%;
+    }
+
+    .hand { display: flex; position: relative; justify-content: center; width: 100%; }
+    #area-0 .hand, #area-2 .hand { flex-direction: row; gap: 6px; padding-top: 15px; }
+    .side-area .hand { flex-direction: column; align-items: center; gap: 0px; margin-top: 5px; }
+    
+    .card {
+        width: 72px;
+        height: 108px;
+        background-color: white;
+        color: black;
+        border-radius: 8px;
+        cursor: pointer;
+        user-select: none;
+        box-shadow: 2px 2px 5px rgba(0,0,0,0.4);
+        transition: transform 0.1s, box-shadow 0.1s;
+        border: 1px solid #ccc;
+        position: relative;
+        display: block;
+        flex-shrink: 0;
+    }
+
+    #area-1 .card { transform: rotate(90deg); margin: -25px 0; }
+    #area-3 .card { transform: rotate(-90deg); margin: -25px 0; }
+    #area-2 .card { transform: rotate(180deg); }
+
+    .card.red { color: #d32f2f; }
+    .card.black { color: #212121; }
+    .card.joker { color: #7b1fa2; }
+    
+    .card.back {
+        background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.1) 10px, rgba(255,255,255,0.1) 20px);
+        color: transparent !important;
+        border: 2px solid white;
+        cursor: default;
+    }
+    .back-blue { background-color: #0d47a1; }
+    .back-red { background-color: #b71c1c; }
+    .back-green { background-color: #2e7d32; }
+    .back-black { background-color: #212121; }
+    
+    .card-corner { position: absolute; top: 4px; left: 6px; font-size: 13px; font-weight: bold; line-height: 1.1; text-align: center; }
+    .card-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 26px; font-weight: bold; }
+    
+    .card.selected {
+        transform: translateY(-15px) !important;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.6);
+        border: 2px solid #ffeb3b;
+        z-index: 10;
+    }
+    .card.selected::after {
+        content: attr(data-order); position: absolute; top: -10px; right: -10px; background-color: #ffeb3b; color: black;
+        width: 22px; height: 22px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 13px; font-weight: bold; box-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+    }
+    
+    .area-header { display: flex; justify-content: space-between; width: 100%; margin-bottom: 3px; font-weight: bold; align-items: center; }
+    .player-info { display: flex; align-items: center; gap: 6px; font-size: 14px; }
+    .icon { font-size: 18px; background-color: rgba(255,255,255,0.2); border-radius: 50%; width: 28px; height: 28px; display: flex; justify-content: center; align-items: center; }
+    .vp-score { color: #ffeb3b; font-size: 12px; }
+    
+    .controls-wrapper { min-height: 50px; width: 100%; display: flex; justify-content: center; align-items: center; margin-top: 10px; }
+    .controls { display: flex; gap: 10px; justify-content: center; width: 100%; flex-wrap: wrap; }
+    
+    button { padding: 12px 15px; font-size: 14px; font-weight: bold; border: none; border-radius: 5px; cursor: pointer; background-color: #e0e0e0; transition: background-color 0.2s, transform 0.1s; }
+    button:active { transform: scale(0.95); }
+    button:disabled { background-color: #546e7a; color: rgba(255,255,255,0.6); cursor: not-allowed; transform: none; }
+    .btn-action { background-color: #2196f3; color: white; }
+    .btn-yaniv { background-color: #f44336; color: white; display: none; }
+
+    .pile-container { text-align: center; }
+    .pile-label { font-size: 12px; margin-bottom: 3px; font-weight: bold; }
+    .pile { width: 72px; height: 108px; border: 2px dashed rgba(255,255,255,0.4); border-radius: 8px; position: relative; }
+
+    .action-badge {
+        position: absolute; top: -15px; left: 50%; transform: translateX(-50%) translateY(10px);
+        background-color: #ff9800; color: white; padding: 4px 10px; border-radius: 6px; font-size: 12px;
+        font-weight: bold; opacity: 0; pointer-events: none; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        transition: opacity 0.3s, transform 0.3s;
+    }
+    .action-badge.show { opacity: 1; transform: translateX(-50%) translateY(-10px); }
+
+    #modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; }
+    #result-modal { background-color: #37474f; padding: 20px; border-radius: 15px; text-align: center; max-width: 95%; width: 500px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 2px solid #546e7a; }
+    #result-modal h2 { margin-top: 0; color: #ffeb3b; font-size: 20px; }
+    #result-table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 14px; }
+    #result-table th, #result-table td { padding: 8px 5px; border-bottom: 1px solid #546e7a; }
+    .btn-next { background-color: #4caf50; color: white; font-size: 16px; padding: 12px 24px; margin-top: 10px; width: 100%; }
+
+    .me-row { background-color: rgba(255, 235, 59, 0.15) !important; outline: 2px solid #ffeb3b; outline-offset: -2px; font-weight: bold; }
+
+    /* スマホ用レスポンシブデザイン */
+    @media (max-width: 768px) {
+        #game-table { grid-template-columns: 70px 1fr 70px; gap: 5px; }
+        #center-area { gap: 10px; padding: 15px; border-width: 2px; border-radius: 40px; }
+        .card { width: 50px; height: 75px; border-radius: 5px; }
+        .pile { width: 50px; height: 75px; }
+        .card-center { font-size: 18px; }
+        .card-corner { font-size: 10px; top: 2px; left: 4px; }
+        .card-corner br { display: none; }
+        #area-0 .card:not(:first-child), #area-2 .card:not(:first-child) { margin-left: -20px; }
+        #area-1 .card:not(:first-child), #area-3 .card:not(:first-child) { margin-top: -45px; }
+        #area-1 .card { margin-left: 10px; margin-right: 10px; margin-bottom: -15px; }
+        #area-3 .card { margin-left: 10px; margin-right: 10px; margin-bottom: -15px; }
+        .player-info { font-size: 12px; }
+        .icon { width: 22px; height: 22px; font-size: 14px; }
+        button { padding: 10px 12px; font-size: 12px; }
+        #turn-indicator { font-size: 18px; }
+        #result-table { font-size: 12px; }
+    }
+</style>
+</head>
+<body>
+
+<div id="main-menu" class="menu-screen">
+    <h1>YANIV</h1>
+    <button class="btn-large" onclick="startGame()">ゲーム開始</button>
+    <button class="btn-large" style="background-color: #e0e0e0; color: #333; box-shadow: 0 5px 0 #9e9e9e;" onclick="switchScreen('settings-menu')">設定</button>
+</div>
+
+<div id="settings-menu" class="menu-screen" style="display: none;">
+    <div class="menu-panel">
+        <h3>ゲーム設定</h3>
+        <div class="setting-item">
+            <label for="volume-slider">マスターボリューム (<span id="volume-val">80</span>%)</label>
+            <input type="range" id="volume-slider" min="0" max="100" value="80" oninput="updateVolume(this.value)">
+        </div>
+        <div class="setting-item">
+            <label for="back-color-select">あなたのカードの裏面色</label>
+            <select id="back-color-select" onchange="updateCardBack(this.value)" style="width:100%; padding:8px; border-radius:5px;">
+                <option value="back-blue">ブルー (デフォルト)</option>
+                <option value="back-red">レッド</option>
+                <option value="back-green">グリーン</option>
+                <option value="back-black">ブラック</option>
+            </select>
+            <small style="font-size:11px; opacity:0.8; margin-top:4px;">※マルチプレイ時に相手から見える色になります</small>
+        </div>
+        <div class="setting-item">
+            <label for="icon-select">あなたのアイコン</label>
+            <select id="icon-select" onchange="updatePlayerIcon(this.value)" style="width:100%; padding:8px; border-radius:5px;">
+                <option value="🧑‍💻">🧑‍💻 プログラマー</option>
+                <option value="🥷">🥷 忍者</option>
+                <option value="🦊">🦊 キツネ</option>
+                <option value="👑">👑 キング</option>
+                <option value="🎲">🎲 ダイス</option>
+            </select>
+        </div>
+        <button class="btn-secondary" onclick="switchScreen('main-menu')" style="margin-top: 10px;">メニューに戻る</button>
+    </div>
+</div>
+
+<div id="game-container">
+    <div id="header-area">
+        <div id="round-counter">第 1 / 5 ラウンド</div>
+        <div id="turn-indicator">ゲーム準備中...</div>
+    </div>
+
+    <div id="game-table">
+        <!-- 北 -->
+        <div id="area-2" class="player-area">
+            <div class="action-badge" id="action-2"></div>
+            <div class="area-header">
+                <div class="player-info"><span class="icon">👽</span> CPU 2</div>
+                <div class="vp-score">👑: <span id="vp-2">0</span></div>
+            </div>
+            <div style="font-size: 11px; margin-bottom:3px;">合計: <span id="sum-2">?</span></div>
+            <div id="cpu2-hand" class="hand"></div>
+        </div>
+
+        <!-- 西 -->
+        <div id="area-1" class="player-area side-area">
+            <div class="action-badge" id="action-1"></div>
+            <div class="area-header" style="justify-content:center; flex-direction:column;">
+                <div class="player-info" style="margin-bottom:4px;"><span class="icon">🤖</span> CPU 1</div>
+                <div class="vp-score" style="margin-bottom:2px;">👑: <span id="vp-1">0</span></div>
+                <div style="font-size: 11px;">合計: <span id="sum-1">?</span></div>
+            </div>
+            <div id="cpu1-hand" class="hand"></div>
+        </div>
+
+        <!-- 中央 -->
+        <div id="center-area">
+            <div class="pile-container">
+                <div class="pile-label">山札 (<span id="deck-count">0</span>)</div>
+                <div id="deck-pile" class="pile card back back-blue"></div>
+            </div>
+            <div class="pile-container">
+                <div class="pile-label">捨て札</div>
+                <div id="discard-pile" class="pile"></div>
+            </div>
+        </div>
+        
+        <!-- 東 -->
+        <div id="area-3" class="player-area side-area">
+            <div class="action-badge" id="action-3"></div>
+            <div class="area-header" style="justify-content:center; flex-direction:column;">
+                <div class="player-info" style="margin-bottom:4px;"><span class="icon">👾</span> CPU 3</div>
+                <div class="vp-score" style="margin-bottom:2px;">👑: <span id="vp-3">0</span></div>
+                <div style="font-size: 11px;">合計: <span id="sum-3">?</span></div>
+            </div>
+            <div id="cpu3-hand" class="hand"></div>
+        </div>
+
+        <!-- 南 (あなた) -->
+        <div id="area-0" class="player-area">
+            <div class="action-badge" id="action-0"></div>
+            <div class="area-header">
+                <div class="player-info"><span class="icon" id="my-icon-display">🧑‍💻</span> あなた</div>
+                <div class="vp-score">👑 勝点: <span id="vp-0">0</span></div>
+            </div>
+            <div style="font-size: 12px; margin-bottom:3px;">手札合計: <span id="sum-0">0</span></div>
+            <div id="player-hand" class="hand"></div>
+            
+            <div class="controls-wrapper">
+                <div class="controls" id="player-controls">
+                    <button id="draw-deck-btn" class="btn-action" disabled>カードを選択</button>
+                    <button id="draw-discard-btn" class="btn-action" disabled>カードを選択</button>
+                    <button id="yaniv-btn" class="btn-yaniv">ヤニブ！</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- モーダル -->
+<div id="modal-overlay">
+    <div id="result-modal">
+        <h2 id="modal-title">結果発表</h2>
+        <div id="modal-subtitle" style="margin-bottom: 10px; font-weight: bold;"></div>
+        <table id="result-table">
+            <thead>
+                <tr id="table-header-row">
+                    <th>順位</th><th>プレイヤー</th><th>手札合計</th><th>勝点増減</th><th>総勝点</th>
+                </tr>
+            </thead>
+            <tbody id="result-tbody"></tbody>
+        </table>
+        <button class="btn-next" id="modal-next-btn" onclick="handleModalNext()"></button>
+    </div>
+</div>
+
+<script>
+    const suits = ['♠', '♥', '♦', '♣'];
+    const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+    
+    const players = [
+        { id: 0, name: 'あなた', icon: '🧑‍💻', vp: 0, hand: [] },
+        { id: 1, name: 'CPU 1', icon: '🤖', vp: 0, hand: [] }, 
+        { id: 2, name: 'CPU 2', icon: '👽', vp: 0, hand: [] }, 
+        { id: 3, name: 'CPU 3', icon: '👾', vp: 0, hand: [] }  
+    ];
+
+    let deck = [];
+    let discardSets = []; 
+    let selectedCards = [];
+    let cardIdCounter = 0;
+    let currentTurn = 0;
+    let gameEnded = false;
+    let firstPlayer = Math.floor(Math.random() * 4); 
+    
+    let currentRound = 1;
+    const MAX_ROUNDS = 5;
+    let modalActionState = 'next_round'; 
+
+    let masterVolume = 0.8;
+    let myCardBackClass = 'back-blue'; 
+
+    function switchScreen(screenId) {
+        document.getElementById('main-menu').style.display = 'none';
+        document.getElementById('settings-menu').style.display = 'none';
+        document.getElementById('game-container').style.display = 'none';
+        document.getElementById('modal-overlay').style.display = 'none'; 
+        
+        if (screenId === 'game-container') {
+            document.getElementById('game-container').style.display = 'flex';
+        } else {
+            document.getElementById(screenId).style.display = 'flex';
+        }
+    }
+
+    function updateVolume(val) { masterVolume = val / 100; document.getElementById('volume-val').textContent = val; }
+    function updateCardBack(colorClass) { myCardBackClass = colorClass; }
+    function updatePlayerIcon(iconEmoji) { players[0].icon = iconEmoji; document.getElementById('my-icon-display').textContent = iconEmoji; }
+
+    function startGame() {
+        players.forEach(p => p.vp = 0);
+        currentRound = 1;
+        switchScreen('game-container');
+        startRound();
+    }
+
+    let audioCtx = null;
+    function initAudio() { if (!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } }
+    function playSound(type) {
+        if (masterVolume === 0) return;
+        initAudio(); if (!audioCtx) return;
+        const osc = audioCtx.createOscillator(); const gainNode = audioCtx.createGain();
+        osc.connect(gainNode); gainNode.connect(audioCtx.destination);
+        const now = audioCtx.currentTime;
+
+        if (type === 'click') {
+            osc.type = 'sine'; osc.frequency.setValueAtTime(600, now);
+            gainNode.gain.setValueAtTime(0.05 * masterVolume, now); gainNode.gain.linearRampToValueAtTime(0, now + 0.05);
+            osc.start(now); osc.stop(now + 0.05);
+        } else if (type === 'discard') {
+            osc.type = 'triangle'; osc.frequency.setValueAtTime(350, now); osc.frequency.exponentialRampToValueAtTime(150, now + 0.15);
+            gainNode.gain.setValueAtTime(0.15 * masterVolume, now); gainNode.gain.linearRampToValueAtTime(0, now + 0.15);
+            osc.start(now); osc.stop(now + 0.15);
+        } else if (type === 'draw') {
+            osc.type = 'sine'; osc.frequency.setValueAtTime(400, now); osc.frequency.exponentialRampToValueAtTime(700, now + 0.2);
+            gainNode.gain.setValueAtTime(0.1 * masterVolume, now); gainNode.gain.linearRampToValueAtTime(0, now + 0.2);
+            osc.start(now); osc.stop(now + 0.2);
+        } else if (type === 'yaniv') {
+            osc.type = 'square'; osc.frequency.setValueAtTime(523.25, now); osc.frequency.setValueAtTime(659.25, now + 0.08); osc.frequency.setValueAtTime(783.99, now + 0.16); osc.frequency.setValueAtTime(1046.50, now + 0.24);
+            gainNode.gain.setValueAtTime(0.1 * masterVolume, now); gainNode.gain.linearRampToValueAtTime(0, now + 0.5);
+            osc.start(now); osc.stop(now + 0.5);
+        } else if (type === 'asaf') {
+            osc.type = 'sawtooth'; osc.frequency.setValueAtTime(130, now); osc.frequency.linearRampToValueAtTime(100, now + 0.3);
+            gainNode.gain.setValueAtTime(0.2 * masterVolume, now); gainNode.gain.linearRampToValueAtTime(0, now + 0.3);
+            osc.start(now); osc.stop(now + 0.3);
+        }
+    }
+
+    function createDeck() {
+        deck = [];
+        suits.forEach(suit => { ranks.forEach((rank, index) => { deck.push({ id: cardIdCounter++, suit, rank, value: index + 1, type: 'normal' }); }); });
+        deck.push({ id: cardIdCounter++, suit: 'Joker', rank: '🃏', value: 0, type: 'joker' });
+        deck.push({ id: cardIdCounter++, suit: 'Joker', rank: '🃏', value: 0, type: 'joker' });
+        for (let i = deck.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]]; }
+    }
+
+    function startRound() {
+        gameEnded = false; createDeck();
+        players.forEach(p => p.hand = deck.splice(0, 5));
+        
+        // 【修正】最初の捨て札がJOKERにならないように引き直す
+        let firstCard = deck.pop();
+        while (firstCard.type === 'joker') {
+            deck.unshift(firstCard);
+            firstCard = deck.pop();
+        }
+        discardSets = [ [firstCard] ]; 
+        selectedCards = [];
+        
+        document.getElementById('round-counter').textContent = `第 ${currentRound} / ${MAX_ROUNDS} ラウンド`;
+        document.getElementById('deck-pile').className = `pile card back back-blue`;
+        
+        setTurn(firstPlayer); updateUI();
+        if (firstPlayer !== 0) { setTimeout(() => processCPUTurn(firstPlayer), 1000); }
+    }
+
+    function handleModalNext() {
+        document.getElementById('modal-overlay').style.display = 'none'; 
+        
+        if (modalActionState === 'next_round') { 
+            currentRound++; 
+            startRound(); 
+        } 
+        else if (modalActionState === 'show_final') { 
+            setTimeout(showFinalTotalRanking, 150); 
+        } 
+        else if (modalActionState === 'new_game') { 
+            switchScreen('main-menu'); 
+        }
+    }
+
+    function drawFromDeck() {
+        if (deck.length === 0 && discardSets.length > 1) {
+            const topSet = discardSets.pop(); discardSets.forEach(set => deck.push(...set)); discardSets = [topSet];
+            for (let i = deck.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]]; }
+        }
+        return deck.pop();
+    }
+
+    function setTurn(playerIndex) {
+        currentTurn = playerIndex;
+        for(let i=0; i<4; i++) document.getElementById(`area-${i}`).classList.remove('active');
+        document.getElementById(`area-${currentTurn}`).classList.add('active');
+        const turnNames = ["あなたのターン", "🤖 CPU 1 のターン...", "👽 CPU 2 のターン...", "👾 CPU 3 のターン..."];
+        document.getElementById('turn-indicator').textContent = turnNames[currentTurn];
+
+        if (currentTurn === 0 && !gameEnded) {
+            const score = getHandScore(players[0].hand);
+            document.getElementById('yaniv-btn').style.display = score <= 5 ? 'block' : 'none';
+        } else {
+            document.getElementById('yaniv-btn').style.display = 'none';
+        }
+    }
+
+    function createCardElement(card, isFaceUp, ownerIndex = -1) {
+        const cardEl = document.createElement('div'); cardEl.id = `card-${card.id}`;
+        if (!isFaceUp) { 
+            cardEl.className = `card back ${(ownerIndex === 0) ? myCardBackClass : 'back-blue'}`; 
+            return cardEl; 
+        }
+        cardEl.className = `card ${card.type === 'joker' ? 'joker' : (card.suit === '♥' || card.suit === '♦' ? 'red' : 'black')}`;
+        const tl = document.createElement('div'); tl.className = 'card-corner';
+        const center = document.createElement('div'); center.className = 'card-center';
+        if(card.type === 'joker'){ tl.innerHTML = 'JOKER'; center.textContent = '🃏'; } 
+        else { tl.innerHTML = card.rank + '<br>' + card.suit; center.textContent = card.suit; }
+        cardEl.appendChild(tl); cardEl.appendChild(center);
+        return cardEl;
+    }
+
+    function getCardParams() {
+        const isMobile = window.innerWidth <= 768;
+        return { w: isMobile ? 50 : 72, h: isMobile ? 75 : 108, offset: isMobile ? 15 : 30 };
+    }
+
+    function updateUI(revealAll = false) {
+        players[0].hand.sort((a, b) => a.value - b.value);
+
+        const playerContainer = document.getElementById('player-hand'); playerContainer.innerHTML = '';
+        players[0].hand.forEach((card) => {
+            const cardEl = createCardElement(card, true, 0);
+            const selIndex = selectedCards.indexOf(card);
+            if (selIndex > -1) { cardEl.classList.add('selected'); cardEl.setAttribute('data-order', selIndex + 1); }
+            if (currentTurn === 0 && !gameEnded) cardEl.onclick = () => { toggleCardSelection(card); playSound('click'); }
+            playerContainer.appendChild(cardEl);
+        });
+
+        for(let i=1; i<=3; i++) {
+            const container = document.getElementById(`cpu${i}-hand`); container.innerHTML = '';
+            players[i].hand.forEach((card) => container.appendChild(createCardElement(card, revealAll, i)));
+            document.getElementById(`sum-${i}`).textContent = revealAll ? getHandScore(players[i].hand) : "?";
+        }
+
+        const discardContainer = document.getElementById('discard-pile'); discardContainer.innerHTML = '';
+        if (discardSets.length > 0) {
+            const prm = getCardParams();
+            const topSet = discardSets[discardSets.length - 1];
+            const totalWidth = prm.w + (topSet.length - 1) * prm.offset; 
+            const startX = -(totalWidth / 2) + (prm.w / 2);
+            
+            topSet.forEach((card, i) => {
+                const cardEl = createCardElement(card, true); cardEl.style.position = 'absolute';
+                cardEl.style.transform = `translateX(${startX + i * prm.offset}px)`; cardEl.style.zIndex = i;
+                cardEl.style.boxShadow = "-3px 3px 8px rgba(0,0,0,0.5)"; discardContainer.appendChild(cardEl);
+            });
+        }
+
+        document.getElementById('deck-count').textContent = deck.length;
+        document.getElementById('sum-0').textContent = getHandScore(players[0].hand);
+        for(let i=0; i<4; i++) document.getElementById(`vp-${i}`).textContent = players[i].vp;
+
+        updateButtonStates();
+    }
+
+    function updateButtonStates() {
+        const controls = document.getElementById('player-controls');
+        const btnDeck = document.getElementById('draw-deck-btn');
+        const btnDiscard = document.getElementById('draw-discard-btn');
+
+        if (currentTurn !== 0 || gameEnded) { controls.style.display = 'none'; return; }
+        
+        controls.style.display = 'flex';
+        if (selectedCards.length === 0) { 
+            btnDeck.disabled = true; btnDiscard.disabled = true; 
+            btnDeck.textContent = "カードを選択"; btnDiscard.textContent = "カードを選択"; 
+        } else if (!isValidPlay(selectedCards)) { 
+            btnDeck.disabled = true; btnDiscard.disabled = true; 
+            btnDeck.textContent = "出せない役"; btnDiscard.textContent = "出せない役"; 
+        } else { 
+            btnDeck.disabled = false; btnDiscard.disabled = discardSets.length === 0; 
+            btnDeck.textContent = "山札から引く"; btnDiscard.textContent = "捨て札から拾う"; 
+        }
+    }
+
+    function getHandScore(hand) { return hand.reduce((sum, card) => sum + (card.type === 'joker' ? 0 : card.value), 0); }
+    function toggleCardSelection(card) { const index = selectedCards.indexOf(card); if (index > -1) selectedCards.splice(index, 1); else selectedCards.push(card); updateUI(); }
+    
+    function isValidPlay(cards) {
+        if (cards.length === 0) return false; if (cards.length === 1) return true;
+        const jokers = cards.filter(c => c.type === 'joker').length; const normals = cards.filter(c => c.type !== 'joker');
+        if (normals.every(c => c.value === normals[0].value)) return true;
+        if (cards.length >= 3) {
+            if (normals.length <= 1) return true; 
+            const sortedValues = [...new Set(normals.map(c => c.value))].sort((a, b) => a - b);
+            if (sortedValues.length !== normals.length) return false;
+            const gaps = sortedValues[sortedValues.length - 1] - sortedValues[0] - normals.length + 1;
+            if (gaps <= jokers) return true; 
+        }
+        return false;
+    }
+
+    function getBestPlayForAI(hand) {
+        const n = hand.length; let bestPlay = []; let maxScoreDrop = -1; 
+        for (let i = 1; i < (1 << n); i++) {
+            let subset = []; for (let j = 0; j < n; j++) if (i & (1 << j)) subset.push(hand[j]);
+            if (isValidPlay(subset)) {
+                let scoreDrop = getHandScore(subset);
+                if (scoreDrop > maxScoreDrop) { maxScoreDrop = scoreDrop; bestPlay = subset; } 
+                else if (scoreDrop === maxScoreDrop) { if (subset.length > bestPlay.length) bestPlay = subset; }
+            }
+        }
+        
+        let finalPlay = bestPlay.length > 0 ? bestPlay : [hand[0]];
+        if (finalPlay.length > 1) {
+            let jokers = finalPlay.filter(c => c.type === 'joker'); 
+            let normals = finalPlay.filter(c => c.type !== 'joker');
+            // 【修正】通常カードを小さい順に並べ、一番大きい数字が最後に捨てられるようにする
+            normals.sort((a, b) => a.value - b.value);
+            finalPlay = jokers.concat(normals);
+        }
+        return finalPlay;
+    }
+
+    function performDiscardAnimation(cardsToDiscard, sourcePlayerIndex, callback) {
+        playSound('discard'); const prm = getCardParams();
+        const discardPile = document.getElementById('discard-pile'); const discardRect = discardPile.getBoundingClientRect(); let animElements = [];
+
+        cardsToDiscard.forEach((card, i) => {
+            const cardEl = document.getElementById(`card-${card.id}`); let startRect;
+            if (cardEl) { startRect = cardEl.getBoundingClientRect(); } else { startRect = document.getElementById(`area-${sourcePlayerIndex}`).getBoundingClientRect(); }
+
+            const animCard = createCardElement(card, true); animCard.style.position = 'fixed'; animCard.style.top = startRect.top + 'px'; animCard.style.left = startRect.left + 'px'; animCard.style.margin = '0'; animCard.style.zIndex = 1000 + i;
+            let initialRotate = '0deg'; if (sourcePlayerIndex === 1) initialRotate = '90deg'; if (sourcePlayerIndex === 2) initialRotate = '180deg'; if (sourcePlayerIndex === 3) initialRotate = '-90deg';
+            
+            animCard.style.transform = `rotate(${initialRotate})`; animCard.style.transition = 'all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1)';
+            document.body.appendChild(animCard); animElements.push(animCard);
+        });
+
+        document.body.getBoundingClientRect();
+        const totalWidth = prm.w + (cardsToDiscard.length - 1) * prm.offset; const startX = -(totalWidth / 2) + (prm.w / 2);
+
+        animElements.forEach((animCard, i) => {
+            const targetLeft = discardRect.left + (discardRect.width / 2) - (prm.w / 2) + startX + (i * prm.offset); 
+            const targetTop = discardRect.top + (discardRect.height / 2) - (prm.h / 2);
+            animCard.style.top = targetTop + 'px'; animCard.style.left = targetLeft + 'px'; animCard.style.transform = 'rotate(0deg)'; 
+        });
+
+        setTimeout(() => { animElements.forEach(el => el.remove()); callback(); }, 350);
+    }
+
+    function performDrawAnimation(drawSource, targetPlayerIndex, callback) {
+        playSound('draw'); const sourceId = drawSource === 'discard' ? 'discard-pile' : 'deck-pile'; const sourceEl = document.getElementById(sourceId);
+        if (!sourceEl) { callback(); return; }
+
+        const prm = getCardParams();
+        const animCard = document.createElement('div'); 
+        const bClass = (targetPlayerIndex === 0) ? myCardBackClass : 'back-blue';
+        animCard.className = `card back ${bClass}`;
+        
+        const sourceRect = sourceEl.getBoundingClientRect(); const targetEl = targetPlayerIndex === 0 ? document.getElementById('player-hand') : document.getElementById(`cpu${targetPlayerIndex}-hand`); const targetRect = targetEl.getBoundingClientRect();
+
+        animCard.style.position = 'fixed'; animCard.style.top = sourceRect.top + 'px'; animCard.style.left = sourceRect.left + 'px'; animCard.style.margin = '0'; animCard.style.zIndex = '9999'; animCard.style.transform = 'rotate(0deg)'; animCard.style.transition = 'all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1)';
+        document.body.appendChild(animCard); animCard.getBoundingClientRect(); 
+        
+        let finalRotate = '0deg'; if (targetPlayerIndex === 1) finalRotate = '90deg'; if (targetPlayerIndex === 2) finalRotate = '180deg'; if (targetPlayerIndex === 3) finalRotate = '-90deg';
+
+        animCard.style.top = targetRect.top + (targetRect.height/2) - (prm.h / 2) + 'px'; animCard.style.left = targetRect.left + (targetRect.width/2) - (prm.w / 2) + 'px'; animCard.style.transform = `rotate(${finalRotate})`; animCard.style.opacity = '0.3';
+        setTimeout(() => { animCard.remove(); callback(); }, 350);
+    }
+
+    function showActionMsg(index, text) { const badge = document.getElementById(`action-${index}`); badge.textContent = text; badge.classList.add('show'); setTimeout(() => badge.classList.remove('show'), 2000); }
+
+    function executeTurnSequence(playerIndex, cardsToDiscard, drawSource) {
+        if (playerIndex === 0) { document.getElementById('player-controls').style.display = 'none'; }
+        showActionMsg(playerIndex, drawSource === 'discard' ? "拾った！" : "引いた");
+
+        cardsToDiscard.forEach(c => { const el = document.getElementById(`card-${c.id}`); if(el) el.style.opacity = '0'; });
+
+        let cardToPickUp = null;
+        if (drawSource === 'discard') { let topSet = discardSets[discardSets.length - 1]; cardToPickUp = topSet.pop(); if (topSet.length === 0) discardSets.pop(); } 
+        else { cardToPickUp = drawFromDeck(); }
+
+        performDiscardAnimation(cardsToDiscard, playerIndex, () => {
+            cardsToDiscard.forEach(c => { const idx = players[playerIndex].hand.findIndex(hc => hc.id === c.id); if (idx > -1) players[playerIndex].hand.splice(idx, 1); });
+            discardSets.push(cardsToDiscard); updateUI(); 
+
+            if (cardToPickUp) { performDrawAnimation(drawSource, playerIndex, () => { players[playerIndex].hand.push(cardToPickUp); updateUI(); passTurn(); }); } 
+            else { passTurn(); }
+        });
+    }
+
+    function executeTurn(drawSource) { if (currentTurn !== 0) return; const cardsToDiscard = [...selectedCards]; selectedCards = []; executeTurnSequence(0, cardsToDiscard, drawSource); }
+    function passTurn() { if (gameEnded) return; let nextTurn = (currentTurn + 1) % 4; setTurn(nextTurn); updateUI(); if (nextTurn !== 0) setTimeout(() => processCPUTurn(nextTurn), 800); }
+
+    function processCPUTurn(cpuIndex) {
+        const hand = players[cpuIndex].hand; if (getHandScore(hand) <= 5) { declareYaniv(cpuIndex); return; }
+        if (hand.length > 0) {
+            const cardsToDiscard = getBestPlayForAI(hand); let drawSource = 'deck';
+            if (discardSets.length > 0) {
+                const topSet = discardSets[discardSets.length - 1];
+                if (topSet.length > 0 && getHandScore([topSet[topSet.length - 1]]) <= 3 && deck.length > 0) { drawSource = 'discard'; }
+            }
+            executeTurnSequence(cpuIndex, cardsToDiscard, drawSource);
+        } else { passTurn(); }
+    }
+
+    document.getElementById('draw-deck-btn').addEventListener('click', () => executeTurn('deck'));
+    document.getElementById('draw-discard-btn').addEventListener('click', () => executeTurn('discard'));
+    document.getElementById('yaniv-btn').addEventListener('click', () => declareYaniv(0));
+
+    function declareYaniv(declarerIndex) {
+        gameEnded = true; document.getElementById('turn-indicator').textContent = `${players[declarerIndex].name} が ヤニブ宣言！`;
+        for(let i=0; i<4; i++) document.getElementById(`area-${i}`).classList.remove('active');
+        updateUI(true); setTimeout(() => calculateAndShowResults(declarerIndex), 1500);
+    }
+
+    function calculateAndShowResults(declarerIndex) {
+        const scores = players.map(p => getHandScore(p.hand)); const declarerScore = scores[declarerIndex]; const maxScore = Math.max(...scores); 
+        const otherScores = scores.filter((_, i) => i !== declarerIndex); const othersMin = Math.min(...otherScores); const isAsaf = othersMin <= declarerScore; 
+
+        let vpChanges = [0, 0, 0, 0]; let modalSub = "";
+
+        if (isAsaf) {
+            playSound('asaf'); modalSub = "🚨 ヤニブ返し（アサフ）発生！ 🚨"; document.getElementById('modal-title').style.color = "#f44336";
+            vpChanges[declarerIndex] = -2; for(let i=0; i<4; i++) { if (i !== declarerIndex && scores[i] === othersMin) vpChanges[i] = 1; }
+        } else {
+            playSound('yaniv'); modalSub = "✨ ヤニブ成功！ ✨"; document.getElementById('modal-title').style.color = "#ffeb3b";
+            vpChanges[declarerIndex] = 1; for(let i=0; i<4; i++) { if (scores[i] === maxScore) vpChanges[i] = -1; }
+        }
+
+        for(let i=0; i<4; i++) players[i].vp += vpChanges[i];
+        let losers = []; scores.forEach((s, i) => { if (s === maxScore) losers.push(i); }); firstPlayer = losers[Math.floor(Math.random() * losers.length)];
+
+        let resultsData = players.map((p, i) => { return { id: p.id, name: p.name, icon: p.icon, score: scores[i], change: vpChanges[i], vp: p.vp, isDeclarer: i === declarerIndex }; });
+
+        if (isAsaf) {
+            let declarerObj = resultsData.find(r => r.id === declarerIndex); let others = resultsData.filter(r => r.id !== declarerIndex);
+            others.sort((a, b) => a.score - b.score); let asafWinner = others.shift(); resultsData = [asafWinner, ...others, declarerObj];
+        } else { resultsData.sort((a, b) => a.score - b.score); }
+
+        document.getElementById('table-header-row').innerHTML = `<th>順位</th><th>プレイヤー</th><th>手札合計</th><th>勝点増減</th><th>総勝点</th>`;
+        const tbody = document.getElementById('result-tbody'); tbody.innerHTML = '';
+        
+        resultsData.forEach((res, index) => {
+            let displayRank = index + 1; if (isAsaf && index === 3) displayRank = 4; 
+            const tr = document.createElement('tr');
+            if (res.id === 0) tr.className = 'me-row'; else if (res.isDeclarer) tr.style.backgroundColor = "rgba(255,255,255,0.05)";
+            let changeText = res.change > 0 ? `+${res.change}` : res.change; let color = res.change > 0 ? '#4caf50' : (res.change < 0 ? '#f44336' : 'white');
+            tr.innerHTML = `<td>${displayRank}位</td><td>${res.icon} ${res.name} ${res.isDeclarer ? '(宣言)' : ''}</td><td>${res.score}</td><td style="color: ${color}; font-weight: bold;">${changeText}</td><td>${res.vp}</td>`;
+            tbody.appendChild(tr);
+        });
+
+        document.getElementById('modal-title').textContent = `結果発表（第 ${currentRound} 試合）`; document.getElementById('modal-title').style.color = "white"; document.getElementById('modal-subtitle').textContent = modalSub; document.getElementById('modal-overlay').style.display = 'flex';
+        
+        const nextBtn = document.getElementById('modal-next-btn');
+        if (currentRound === MAX_ROUNDS) { modalActionState = 'show_final'; nextBtn.textContent = "最終結果を見る"; } else { modalActionState = 'next_round'; nextBtn.textContent = "次のラウンドへ"; }
+        for(let i=0; i<4; i++) document.getElementById(`vp-${i}`).textContent = players[i].vp;
+    }
+
+    function showFinalTotalRanking() {
+        playSound('yaniv');
+        document.getElementById('modal-title').textContent = "🏆 最終総合ランキング発表 🏆"; document.getElementById('modal-title').style.color = "#ffeb3b"; document.getElementById('modal-subtitle').textContent = "5ラウンドにおよぶ全ての試合が終了しました！";
+        
+        let finalData = players.map(p => ({ id: p.id, name: p.name, icon: p.icon, vp: p.vp })); finalData.sort((a, b) => b.vp - a.vp); 
+        document.getElementById('table-header-row').innerHTML = `<th>順位</th><th>プレイヤー</th><th colspan="3">総合勝点</th>`;
+
+        const tbody = document.getElementById('result-tbody'); tbody.innerHTML = '';
+        let rank = 1;
+        finalData.forEach((res, index) => {
+            if (index > 0 && res.vp < finalData[index - 1].vp) rank = index + 1;
+            const tr = document.createElement('tr'); if (res.id === 0) tr.className = 'me-row';
+            tr.innerHTML = `<td>${rank}位</td><td>${res.icon} ${res.name}</td><td colspan="3" style="font-weight: bold; color: #ffeb3b; font-size: 16px;">${res.vp} 点</td>`;
+            tbody.appendChild(tr);
+        });
+
+        modalActionState = 'new_game'; document.getElementById('modal-next-btn').textContent = "メインメニューへ";
+        document.getElementById('modal-overlay').style.display = 'flex';
+    }
+</script>
+</body>
+</html>
