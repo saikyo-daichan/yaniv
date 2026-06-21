@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ヤニブ (Yaniv) Final Edition v25</title>
+<title>ヤニブ (Yaniv) v3.01</title>
 <style>
     * { box-sizing: border-box; }
 
-    /* 画面全体設定 */
+    /* 画面全体設定：絶対に1画面に収め、スクロールと引っ張り更新を完全禁止 */
     html, body {
         height: 100dvh;
-        width: 100%;
+        width: 100vw;
         margin: 0;
         padding: 0;
         overflow: hidden;
@@ -20,7 +20,7 @@
         touch-action: none; 
     }
 
-    /* 縦画面ブロック */
+    /* 縦画面ブロック用 */
     #portrait-warning {
         display: none;
         position: fixed;
@@ -39,18 +39,30 @@
     .warning-sub { font-size: 14px; opacity: 0.8; }
 
     /* メインメニュー & 設定画面 */
-    .menu-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; width: 100%; padding: 20px; }
-    .menu-screen h1 { font-size: 42px; color: #ffeb3b; text-shadow: 2px 2px 0px #000; margin: 0 0 15px 0; }
+    .menu-screen { 
+        display: flex; flex-direction: column; align-items: center; justify-content: center; 
+        height: 100%; width: 100%; padding: 20px; position: relative; 
+    }
+    .menu-screen h1 { font-size: 42px; color: #ffeb3b; text-shadow: 2px 2px 0px #000; margin: 0 0 15px 0; letter-spacing: 2px; }
     .menu-panel { background-color: rgba(0,0,0,0.4); padding: 20px; border-radius: 15px; border: 2px solid #388e3c; width: 100%; max-width: 350px; text-align: left; }
     .menu-panel h3 { margin-top: 0; color: #ffeb3b; text-align: center; }
     .setting-item { display: flex; flex-direction: column; gap: 6px; margin-bottom: 15px; }
     .setting-item label { font-weight: bold; font-size: 13px; }
-    .btn-large { padding: 12px 30px; font-size: 18px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; background-color: #ffeb3b; color: #1b5e20; box-shadow: 0 4px 0 #c51162; transition: all 0.1s; }
+    
+    /* 【修正】メインメニューのボタンを横長にし、絶対に改行させない */
+    .btn-large { 
+        padding: 15px 20px; font-size: 18px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; 
+        background-color: #ffeb3b; color: #1b5e20; box-shadow: 0 4px 0 #c51162; transition: all 0.1s; 
+        width: 80%; max-width: 280px; white-space: nowrap; 
+    }
     .btn-large:active { transform: translateY(4px); box-shadow: none; }
     .btn-secondary { background-color: #e0e0e0; color: #333; padding: 10px; font-size: 14px; font-weight: bold; border: none; border-radius: 5px; cursor: pointer; width: 100%; text-align: center; }
 
+    /* バージョン表記 */
+    .version-text { position: absolute; bottom: 15px; right: 20px; font-size: 12px; color: rgba(255,255,255,0.5); font-weight: bold; }
+
     /* ゲーム画面コンテナ */
-    #game-container { display: none; flex-direction: column; height: 100dvh; width: 100%; padding: 5px; }
+    #game-container { display: none; flex-direction: column; height: 100dvh; width: 100vw; padding: 5px; }
     #header-area { display: flex; justify-content: space-between; align-items: center; padding: 5px 15px; height: 40px; }
     #round-counter { font-size: 14px; color: #a5d6a7; font-weight: bold; }
     #turn-indicator { font-size: 18px; font-weight: bold; color: #ffeb3b; }
@@ -59,14 +71,14 @@
     #game-table {
         display: grid;
         grid-template-columns: minmax(80px, 140px) 1fr minmax(80px, 140px); 
-        grid-template-rows: 130px 1fr 180px;    
+        grid-template-rows: 110px 1fr 150px;    
         align-items: center; justify-items: center; width: 100%; max-width: 1000px; margin: 0 auto; gap: 5px; flex: 1; min-height: 0; 
     }
     #area-2 { grid-column: 2; grid-row: 1; width: 100%; max-width: 350px; height: 100%; } 
     #area-1 { grid-column: 1; grid-row: 2; width: 100%; height: 100%; justify-content: center; } 
     #center-area { grid-column: 2; grid-row: 2; }                         
     #area-3 { grid-column: 3; grid-row: 2; width: 100%; height: 100%; justify-content: center; } 
-    #area-0 { grid-column: 2; grid-row: 3; width: 100%; max-width: 500px; height: 100%; justify-content: flex-end; } 
+    #area-0 { grid-column: 2; grid-row: 3; width: 100%; max-width: 450px; height: 100%; justify-content: flex-end; } 
 
     .player-area {
         position: relative; display: flex; flex-direction: column; align-items: center;
@@ -75,28 +87,21 @@
     .player-area.active { box-shadow: 0 0 15px 3px rgba(255, 235, 59, 0.5); border: 2px solid #ffeb3b; background-color: rgba(0,0,0,0.35); }
 
     #center-area { 
-        display: flex; gap: 30px; justify-content: center; align-items: center;
-        background-color: rgba(0,0,0,0.4); padding: 20px; border-radius: 40px; border: 3px solid #388e3c; box-shadow: inset 0 0 15px rgba(0,0,0,0.8); width: 100%; max-width: 350px;
+        display: flex; gap: 20px; justify-content: center; align-items: center;
+        background-color: rgba(0,0,0,0.4); padding: 15px; border-radius: 40px; border: 3px solid #388e3c; box-shadow: inset 0 0 15px rgba(0,0,0,0.8); width: 100%; max-width: 300px;
     }
 
     .hand { display: flex; position: relative; justify-content: center; width: 100%; }
-    #area-2 .hand { flex-direction: row; gap: 0px; padding-top: 5px; }
+    #area-0 .hand, #area-2 .hand { flex-direction: row; gap: 0px; padding-top: 5px; }
     .side-area .hand { flex-direction: column; align-items: center; gap: 0px; margin-top: 5px; }
-    #area-0 .hand { flex-direction: row; gap: 12px; padding-top: 10px; flex-wrap: wrap; } 
     
-    .card { width: 72px; height: 108px; background-color: white; color: black; border-radius: 6px; cursor: pointer; user-select: none; box-shadow: 2px 2px 4px rgba(0,0,0,0.4); transition: transform 0.1s; border: 1px solid #ccc; position: relative; flex-shrink: 0; }
-    
-    #area-0 .card { width: 90px; height: 135px; border-radius: 8px; } 
-    #area-1 .card, #area-2 .card, #area-3 .card { width: 40px; height: 60px; border-radius: 4px; } 
-    #center-area .card, .pile { width: 72px; height: 108px; } 
-
-    #area-0 .card-center { font-size: 32px; }
-    #area-0 .card-corner { font-size: 14px; top: 4px; left: 6px; }
-
-    #area-2 .card:not(:first-child) { margin-left: -20px; }
-    #area-1 .card { transform: rotate(90deg); margin: -20px 15px; }
-    #area-3 .card { transform: rotate(-90deg); margin: -20px 15px; }
-    #area-1 .card:not(:first-child), #area-3 .card:not(:first-child) { margin-top: -40px; }
+    .card { width: 60px; height: 90px; background-color: white; color: black; border-radius: 6px; cursor: pointer; user-select: none; box-shadow: 2px 2px 4px rgba(0,0,0,0.4); transition: transform 0.1s; border: 1px solid #ccc; position: relative; flex-shrink: 0; }
+    #area-0 .hand { gap: 6px; } 
+    #area-0 .card:not(:first-child) { margin-left: 0 !important; }
+    #area-2 .card:not(:first-child) { margin-left: -15px; }
+    #area-1 .card { transform: rotate(90deg); margin: -15px 15px; }
+    #area-3 .card { transform: rotate(-90deg); margin: -15px 15px; }
+    #area-1 .card:not(:first-child), #area-3 .card:not(:first-child) { margin-top: -35px; }
     #area-2 .card { transform: rotate(180deg); }
 
     .card.red { color: #d32f2f; }
@@ -105,98 +110,93 @@
     .card.back { background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.1) 10px, rgba(255,255,255,0.1) 20px); color: transparent !important; border: 2px solid white; cursor: default; }
     .back-blue { background-color: #0d47a1; } .back-red { background-color: #b71c1c; } .back-green { background-color: #2e7d32; } .back-black { background-color: #212121; }
     
-    .card-corner { position: absolute; top: 3px; left: 4px; font-size: 12px; font-weight: bold; line-height: 1.1; text-align: center; }
-    .card-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 26px; font-weight: bold; }
+    .card-corner { position: absolute; top: 3px; left: 4px; font-size: 11px; font-weight: bold; line-height: 1.1; text-align: center; }
+    .card-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 22px; font-weight: bold; }
     
     .card.selected { transform: translateY(-10px) !important; box-shadow: 0 8px 15px rgba(0,0,0,0.6); border: 2px solid #ffeb3b; z-index: 10; }
-    .card.selected::after { content: attr(data-order); position: absolute; top: -8px; right: -8px; background-color: #ffeb3b; color: black; width: 20px; height: 20px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 12px; font-weight: bold; box-shadow: 1px 1px 3px rgba(0,0,0,0.5); }
+    .card.selected::after { content: attr(data-order); position: absolute; top: -8px; right: -8px; background-color: #ffeb3b; color: black; width: 18px; height: 18px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 11px; font-weight: bold; box-shadow: 1px 1px 3px rgba(0,0,0,0.5); }
     
-    .area-header { display: flex; justify-content: space-between; width: 100%; margin-bottom: 5px; font-weight: bold; align-items: center; }
-    .player-info { display: flex; align-items: center; gap: 8px; font-size: 16px; }
+    .area-header { display: flex; justify-content: space-between; width: 100%; margin-bottom: 2px; font-weight: bold; align-items: center; }
+    .player-info { display: flex; align-items: center; gap: 4px; font-size: 13px; }
     
-    /* ★ アイコンと画像スタイル（サイズアップ） ★ */
-    .icon { background-color: rgba(255,255,255,0.2); border-radius: 50%; width: 36px; height: 36px; display: flex; justify-content: center; align-items: center; overflow: hidden; flex-shrink: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.4); }
+    .icon { background-color: rgba(255,255,255,0.2); border-radius: 50%; width: 24px; height: 24px; display: flex; justify-content: center; align-items: center; overflow: hidden; flex-shrink: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.4); }
     .icon img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 
-    /* 設定画面用のプレビュー枠 */
-    .icon-preview-box { width: 48px; height: 48px; background-color: rgba(255,255,255,0.15); border: 2px solid #ffeb3b; border-radius: 50%; display: flex; justify-content: center; align-items: center; overflow: hidden; flex-shrink: 0; }
+    .icon-preview-box { width: 42px; height: 42px; background-color: rgba(255,255,255,0.15); border: 2px solid #ffeb3b; border-radius: 50%; display: flex; justify-content: center; align-items: center; overflow: hidden; flex-shrink: 0; }
     .icon-preview-box img { width: 100%; height: 100%; object-fit: cover; }
 
-    .vp-score { color: #ffeb3b; font-size: 13px; font-weight: bold; }
+    .vp-score { color: #ffeb3b; font-size: 12px; font-weight: bold; }
     
-    .controls-wrapper { min-height: 45px; width: 100%; display: flex; justify-content: center; align-items: center; margin-top: 10px; }
-    .controls { display: flex; gap: 10px; justify-content: center; width: 100%; }
-    button { padding: 12px 15px; font-size: 14px; font-weight: bold; border: none; border-radius: 5px; cursor: pointer; background-color: #e0e0e0; transition: background-color 0.2s; flex: 1; max-width: 140px; }
+    .controls-wrapper { min-height: 40px; width: 100%; display: flex; justify-content: center; align-items: center; margin-top: 8px; }
+    .controls { display: flex; gap: 8px; justify-content: center; width: 100%; }
+    button { padding: 8px 10px; font-size: 12px; font-weight: bold; border: none; border-radius: 5px; cursor: pointer; background-color: #e0e0e0; transition: background-color 0.2s; flex: 1; max-width: 130px; }
     button:active { transform: scale(0.95); }
     button:disabled { background-color: #546e7a; color: rgba(255,255,255,0.6); cursor: not-allowed; }
     .btn-action { background-color: #2196f3; color: white; }
     .btn-yaniv { background-color: #f44336; color: white; display: none; }
 
     .pile-container { text-align: center; }
-    .pile-label { font-size: 12px; margin-bottom: 3px; font-weight: bold; }
-    .pile { width: 72px; height: 108px; border: 2px dashed rgba(255,255,255,0.4); border-radius: 6px; position: relative; }
+    .pile-label { font-size: 11px; margin-bottom: 3px; font-weight: bold; }
+    .pile { width: 60px; height: 90px; border: 2px dashed rgba(255,255,255,0.4); border-radius: 6px; position: relative; }
 
-    .action-badge {
-        position: absolute; top: -10px; left: 50%; transform: translateX(-50%) translateY(10px); background-color: #ff9800; color: white; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; opacity: 0; pointer-events: none; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.5); transition: opacity 0.3s, transform 0.3s;
-    }
+    .action-badge { position: absolute; top: -10px; left: 50%; transform: translateX(-50%) translateY(10px); background-color: #ff9800; color: white; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; opacity: 0; pointer-events: none; z-index: 100; box-shadow: 0 3px 6px rgba(0,0,0,0.5); transition: opacity 0.3s, transform 0.3s; }
     .action-badge.show { opacity: 1; transform: translateX(-50%) translateY(-10px); }
 
     #modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; }
-    #result-modal { background-color: #37474f; padding: 20px; border-radius: 12px; text-align: center; width: 95%; max-width: 450px; max-height: 95dvh; overflow-y: auto; box-shadow: 0 5px 20px rgba(0,0,0,0.5); border: 2px solid #546e7a; }
-    #result-modal h2 { margin-top: 0; color: #ffeb3b; font-size: 20px; margin-bottom: 5px; }
+    #result-modal { background-color: #37474f; padding: 15px; border-radius: 12px; text-align: center; width: 95%; max-width: 450px; max-height: 95dvh; overflow-y: auto; box-shadow: 0 5px 20px rgba(0,0,0,0.5); border: 2px solid #546e7a; }
+    #result-modal h2 { margin-top: 0; color: #ffeb3b; font-size: 18px; margin-bottom: 5px; }
     #result-modal h3 { margin: 5px 0; font-size: 14px; }
-    #result-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13px; }
-    #result-table th, #result-table td { padding: 8px 4px; border-bottom: 1px solid #546e7a; }
-    .btn-next { background-color: #4caf50; color: white; font-size: 16px; padding: 12px; margin-top: 10px; width: 100%; border-radius: 8px; }
-
+    #result-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 12px; }
+    #result-table th, #result-table td { padding: 6px 4px; border-bottom: 1px solid #546e7a; }
+    .btn-next { background-color: #4caf50; color: white; font-size: 15px; padding: 10px; margin-top: 5px; width: 100%; border-radius: 8px; }
     .me-row { background-color: rgba(255, 235, 59, 0.15) !important; outline: 2px solid #ffeb3b; outline-offset: -2px; font-weight: bold; }
 
-    /* ====== スマホ特化レイアウト ====== */
+    /* ====== 📱 スマホ特化レイアウト（完全1画面ロック） ====== */
     @media (max-width: 768px) {
-        /* 【修正1】西と東のエリアをさらに細くし、中央に寄せる */
         #game-table { 
-            grid-template-columns: 55px 1fr 55px; 
-            grid-template-rows: 85px 1fr 150px; 
+            /* 【修正】左右のカラムを細くして中央に寄せる。画面端のパディングも設けてはみ出しを防止 */
+            grid-template-columns: 65px 1fr 65px; 
+            grid-template-rows: 75px 1fr 135px; 
             gap: 2px; 
+            width: 100%;
+            max-width: 100vw;
+            padding: 0 5px; 
         }
-        #center-area { gap: 10px; padding: 10px; border-width: 2px; border-radius: 30px; }
+        #center-area { gap: 10px; padding: 8px; border-width: 2px; border-radius: 20px; width: 100%; max-width: 180px; }
         
-        /* 【修正2】あなたの手札：5枚がどんなスマホでも必ず1列に収まる安全サイズに調整 */
-        #area-0 .hand { gap: 6px; padding-top: 5px; flex-wrap: nowrap; } 
-        #area-0 .card { width: 56px; height: 84px; border-radius: 5px; } 
+        #area-0 .hand { gap: 4px; padding-top: 5px; flex-wrap: nowrap; } 
+        #area-0 .card { width: 54px; height: 81px; border-radius: 5px; } 
         #area-0 .card-center { font-size: 22px; }
         #area-0 .card-corner { font-size: 10px; top: 2px; left: 4px; }
         #area-0 .card:not(:first-child) { margin-left: 0 !important; }
 
         /* 敵は極限まで小さく！ */
-        #area-1 .card, #area-2 .card, #area-3 .card { width: 28px; height: 42px; border-radius: 3px; border-width: 1px; }
+        #area-1 .card, #area-2 .card, #area-3 .card { width: 26px; height: 39px; border-radius: 3px; border-width: 1px; }
         #area-2 .card:not(:first-child) { margin-left: -12px; }
         
-        /* 西と東のカード：横に出っ張らないようにマージンを調整 */
+        /* 【修正】西と東のカード：横に出っ張らないようにマージンを完全消去 */
         #area-1 .card { margin: -10px 0; }
         #area-3 .card { margin: -10px 0; }
-        #area-1 .card:not(:first-child), #area-3 .card:not(:first-child) { margin-top: -24px; }
+        #area-1 .card:not(:first-child), #area-3 .card:not(:first-child) { margin-top: -20px; }
 
-        /* 中央の山札・捨て札 (被らないように少し縮小) */
-        #center-area .card, .pile { width: 50px; height: 75px; border-width: 1px; border-radius: 4px; }
-        #center-area .card-center { font-size: 18px; }
+        /* 中央の山札・捨て札 */
+        #center-area .card, .pile { width: 44px; height: 66px; border-width: 1px; border-radius: 4px; }
+        #center-area .card-center { font-size: 16px; }
         #center-area .card-corner { font-size: 9px; }
-
         .card-corner br { display: none; }
         
-        /* 【修正3】西と東のアイコンと名前を縦並び(縦積み)にして横幅を節約 */
-        .side-area .player-info { flex-direction: column; gap: 2px; text-align: center; }
-        .side-area .player-info { font-size: 11px; }
-        .side-area .icon { width: 26px; height: 26px; font-size: 12px; margin-right: 0 !important; }
+        /* 【修正】西と東のアイコンと名前を縦積みにして横幅を節約 */
+        .player-area { padding: 4px; } /* 余白を削ってスリムに */
+        .side-area .player-info { flex-direction: column; gap: 2px; text-align: center; font-size: 10px; }
+        .side-area .icon { width: 22px; height: 22px; font-size: 10px; margin-right: 0 !important; }
+        .side-area .vp-score { font-size: 9px; }
         
-        /* あなたと北のアイコンはそのまま大きめに */
-        #area-0 .player-info, #area-2 .player-info { font-size: 13px; }
-        #area-0 .icon, #area-2 .icon { width: 30px; height: 30px; font-size: 14px; }
+        /* あなたと北のアイコンサイズ */
+        #area-0 .player-info, #area-2 .player-info { font-size: 12px; }
+        #area-0 .icon, #area-2 .icon { width: 26px; height: 26px; font-size: 12px; }
         
-        .vp-score { font-size: 10px; }
-        
-        .controls-wrapper { min-height: 40px; margin-top: 6px; }
-        button { padding: 8px 6px; font-size: 13px; }
+        .controls-wrapper { min-height: 35px; margin-top: 4px; }
+        button { padding: 8px 4px; font-size: 12px; }
     }
 </style>
 </head>
@@ -212,6 +212,7 @@
     <h1>YANIV</h1>
     <button class="btn-large" onclick="startGame()">ゲーム開始</button>
     <button class="btn-large" style="background-color: #e0e0e0; color: #333; box-shadow: 0 4px 0 #9e9e9e;" onclick="switchScreen('settings-menu')">設定</button>
+    <div class="version-text">v3.01</div>
 </div>
 
 <div id="settings-menu" class="menu-screen" style="display: none;">
@@ -255,7 +256,6 @@
     </div>
 
     <div id="game-table">
-        <!-- 北 -->
         <div id="area-2" class="player-area">
             <div class="action-badge" id="action-2"></div>
             <div class="area-header">
@@ -266,18 +266,16 @@
             <div id="cpu2-hand" class="hand"></div>
         </div>
 
-        <!-- 西 -->
         <div id="area-1" class="player-area side-area">
             <div class="action-badge" id="action-1"></div>
             <div class="area-header" style="justify-content:center; flex-direction:column;">
-                <div class="player-info" style="margin-bottom:4px;"><span class="icon"><img src="icon_default.png" alt="icon"></span> CPU 1</div>
+                <div class="player-info" style="margin-bottom:2px;"><span class="icon"><img src="icon_default.png" alt="icon"></span> CPU 1</div>
                 <div class="vp-score" style="margin-bottom:2px;">🍺 <span id="drink-1">0</span> 杯</div>
                 <div style="font-size: 10px;">合計: <span id="sum-1">?</span></div>
             </div>
             <div id="cpu1-hand" class="hand"></div>
         </div>
 
-        <!-- 中央 -->
         <div id="center-area">
             <div class="pile-container">
                 <div class="pile-label">山札 (<span id="deck-count">0</span>)</div>
@@ -289,18 +287,16 @@
             </div>
         </div>
         
-        <!-- 東 -->
         <div id="area-3" class="player-area side-area">
             <div class="action-badge" id="action-3"></div>
             <div class="area-header" style="justify-content:center; flex-direction:column;">
-                <div class="player-info" style="margin-bottom:4px;"><span class="icon"><img src="icon_default.png" alt="icon"></span> CPU 3</div>
+                <div class="player-info" style="margin-bottom:2px;"><span class="icon"><img src="icon_default.png" alt="icon"></span> CPU 3</div>
                 <div class="vp-score" style="margin-bottom:2px;">🍺 <span id="drink-3">0</span> 杯</div>
                 <div style="font-size: 10px;">合計: <span id="sum-3">?</span></div>
             </div>
             <div id="cpu3-hand" class="hand"></div>
         </div>
 
-        <!-- 南 (あなた) -->
         <div id="area-0" class="player-area">
             <div class="action-badge" id="action-0"></div>
             <div class="area-header">
@@ -312,8 +308,8 @@
             
             <div class="controls-wrapper">
                 <div class="controls" id="player-controls">
-                    <button id="draw-deck-btn" class="btn-action" disabled>選択</button>
-                    <button id="draw-discard-btn" class="btn-action" disabled>選択</button>
+                    <button id="draw-deck-btn" class="btn-action" disabled>山から引く</button>
+                    <button id="draw-discard-btn" class="btn-action" disabled>場から拾う</button>
                     <button id="yaniv-btn" class="btn-yaniv">ヤニブ！</button>
                 </div>
             </div>
@@ -321,7 +317,6 @@
     </div>
 </div>
 
-<!-- モーダル -->
 <div id="modal-overlay">
     <div id="result-modal">
         <h2 id="modal-title">結果発表</h2>
@@ -473,7 +468,7 @@
 
     function getCardParams() {
         const isMobile = window.innerWidth <= 768;
-        return { w: isMobile ? 56 : 72, h: isMobile ? 84 : 108, offset: isMobile ? 25 : 30 };
+        return { w: isMobile ? 54 : 72, h: isMobile ? 81 : 108, offset: isMobile ? 25 : 30 };
     }
 
     function updateUI(revealAll = false) {
@@ -613,6 +608,7 @@
         showActionMsg(playerIndex, drawSource === 'discard' ? "拾った！" : "引いた");
 
         cardsToDiscard.forEach(c => { const el = document.getElementById(`card-${c.id}`); if(el) el.style.opacity = '0'; });
+
         let cardToPickUp = null;
         if (drawSource === 'discard') { let topSet = discardSets[discardSets.length - 1]; cardToPickUp = topSet.pop(); if (topSet.length === 0) discardSets.pop(); } 
         else { cardToPickUp = drawFromDeck(); }
