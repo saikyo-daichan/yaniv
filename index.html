@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ヤニブ (Yaniv) v5.0 Multiplayer Lobby</title>
+<title>ヤニブ (Yaniv) v5.01 Network Base</title>
 <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 <style>
     * { box-sizing: border-box; }
@@ -30,10 +30,8 @@
 
     .version-text { position: absolute; bottom: 15px; right: 20px; font-size: 12px; color: rgba(255,255,255,0.5); font-weight: bold; }
 
-    /* 入力フォーム類 */
     input[type="text"], input[type="number"], select { padding: 8px; border-radius: 5px; border: 1px solid #ccc; width: 100%; font-size: 14px; }
     
-    /* ロビーUI */
     .room-id-box { background:#fff; color:#000; padding:12px; text-align:center; border-radius:8px; margin-bottom:15px; font-weight:bold; font-size:16px; user-select:all; border: 3px dashed #ffeb3b; }
     .player-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; }
     .player-slot { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.1); padding: 8px 12px; border-radius: 8px; font-size: 14px; font-weight: bold; }
@@ -44,8 +42,81 @@
     .icon-preview-box { width: 42px; height: 42px; background-color: rgba(255,255,255,0.15); border: 2px solid #ffeb3b; border-radius: 50%; display: flex; justify-content: center; align-items: center; overflow: hidden; flex-shrink: 0; }
     .icon-preview-box img { width: 100%; height: 100%; object-fit: cover; }
 
-    /* ゲーム画面（非表示のまま今回は置いておく） */
-    #game-container { display: none; }
+    /* ====== ゲーム画面設定 (v3.04準拠) ====== */
+    #game-container { display: none; flex-direction: column; height: 100dvh; width: 100vw; padding: 5px; }
+    #header-area { display: flex; justify-content: space-between; align-items: center; padding: 5px 15px; height: 35px; }
+    #round-counter { font-size: 14px; color: #a5d6a7; font-weight: bold; }
+    #turn-indicator { font-size: 18px; font-weight: bold; color: #ffeb3b; }
+
+    #game-table { display: grid; grid-template-columns: minmax(80px, 140px) 1fr minmax(80px, 140px); grid-template-rows: 120px 1fr 160px; align-items: center; justify-items: center; width: 100%; max-width: 1000px; margin: 0 auto; gap: 5px; flex: 1; min-height: 0; }
+    #area-2 { grid-column: 2; grid-row: 1; width: 100%; max-width: 350px; height: 100%; } 
+    #area-1 { grid-column: 1; grid-row: 2; width: 100%; height: 100%; justify-content: center; } 
+    #center-area { grid-column: 2; grid-row: 2; }                         
+    #area-3 { grid-column: 3; grid-row: 2; width: 100%; height: 100%; justify-content: center; } 
+    #area-0 { grid-column: 2; grid-row: 3; width: 100%; max-width: 500px; height: 100%; justify-content: flex-end; } 
+
+    .player-area { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; background-color: rgba(0,0,0,0.25); padding: 8px; border-radius: 10px; border: 2px solid transparent; transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s; }
+    .player-area.active { box-shadow: 0 0 15px 3px rgba(255, 235, 59, 0.5); border: 2px solid #ffeb3b; background-color: rgba(0,0,0,0.35); }
+
+    .h-row { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 14px; font-weight: bold; width: 100%; margin-bottom: 12px; flex-wrap: wrap; }
+    .v-col { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 12px; font-weight: bold; margin-bottom: 5px; }
+
+    #center-area { display: flex; gap: 20px; justify-content: center; align-items: center; background-color: rgba(0,0,0,0.4); padding: 15px; border-radius: 40px; border: 3px solid #388e3c; box-shadow: inset 0 0 15px rgba(0,0,0,0.8); width: 100%; max-width: 300px; }
+
+    .hand { display: flex; position: relative; justify-content: center; width: 100%; }
+    #area-0 .hand, #area-2 .hand { flex-direction: row; gap: 0px; padding-top: 5px; }
+    .side-area .hand { flex-direction: column; align-items: center; gap: 0px; margin-top: 5px; }
+    
+    .card { width: 60px; height: 90px; background-color: white; color: black; border-radius: 6px; cursor: pointer; user-select: none; box-shadow: 2px 2px 4px rgba(0,0,0,0.4); transition: transform 0.1s; border: 1px solid #ccc; position: relative; flex-shrink: 0; }
+    #area-0 .card { width: 90px; height: 135px; border-radius: 8px; } 
+    #area-1 .card, #area-2 .card, #area-3 .card { width: 40px; height: 60px; border-radius: 4px; } 
+    #center-area .card, .pile { width: 72px; height: 108px; } 
+    #area-0 .card-center { font-size: 32px; } #area-0 .card-corner { font-size: 14px; top: 4px; left: 6px; }
+
+    #area-0 .hand { gap: 8px; } #area-0 .card:not(:first-child) { margin-left: 0 !important; }
+    #area-2 .card:not(:first-child) { margin-left: -20px; } #area-1 .card { transform: rotate(90deg); margin: -20px 15px; } #area-3 .card { transform: rotate(-90deg); margin: -20px 15px; }
+    #area-1 .card:not(:first-child), #area-3 .card:not(:first-child) { margin-top: -40px; } #area-2 .card { transform: rotate(180deg); }
+
+    .card.red { color: #d32f2f; } .card.black { color: #212121; } .card.joker { color: #7b1fa2; }
+    .card.back { background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.1) 10px, rgba(255,255,255,0.1) 20px); color: transparent !important; border: 2px solid white; cursor: default; }
+    .back-blue { background-color: #0d47a1; } .back-red { background-color: #b71c1c; } .back-green { background-color: #2e7d32; } .back-black { background-color: #212121; }
+    
+    .card-corner { position: absolute; top: 3px; left: 4px; font-size: 11px; font-weight: bold; line-height: 1.1; text-align: center; }
+    .card-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 22px; font-weight: bold; }
+    .card.selected { transform: translateY(-10px) !important; box-shadow: 0 8px 15px rgba(0,0,0,0.6); border: 2px solid #ffeb3b; z-index: 10; }
+    .card.selected::after { content: attr(data-order); position: absolute; top: -8px; right: -8px; background-color: #ffeb3b; color: black; width: 18px; height: 18px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 11px; font-weight: bold; box-shadow: 1px 1px 3px rgba(0,0,0,0.5); }
+    
+    .icon { background-color: rgba(255,255,255,0.2); border-radius: 50%; width: 28px; height: 28px; display: flex; justify-content: center; align-items: center; overflow: hidden; flex-shrink: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.4); }
+    .icon img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+    .vp-score { color: #ffeb3b; font-weight: bold; } .sum-text { font-weight: normal; }
+    
+    .controls-wrapper { min-height: 40px; width: 100%; display: flex; justify-content: center; align-items: center; margin-top: 8px; }
+    .controls { display: flex; gap: 8px; justify-content: center; width: 100%; }
+    button { padding: 8px 10px; font-size: 13px; font-weight: bold; border: none; border-radius: 5px; cursor: pointer; background-color: #e0e0e0; transition: background-color 0.2s; flex: 1; max-width: 120px; }
+    button:active { transform: scale(0.95); } button:disabled { background-color: #546e7a; color: rgba(255,255,255,0.6); cursor: not-allowed; }
+    .btn-action { background-color: #2196f3; color: white; } .btn-yaniv { background-color: #f44336; color: white; display: none; }
+
+    .pile-container { text-align: center; } .pile-label { font-size: 11px; margin-bottom: 3px; font-weight: bold; } .pile { width: 60px; height: 90px; border: 2px dashed rgba(255,255,255,0.4); border-radius: 6px; position: relative; }
+    .action-badge { position: absolute; top: -10px; left: 50%; transform: translateX(-50%) translateY(10px); background-color: #ff9800; color: white; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; opacity: 0; pointer-events: none; z-index: 100; box-shadow: 0 3px 6px rgba(0,0,0,0.5); transition: opacity 0.3s, transform 0.3s; }
+    .action-badge.show { opacity: 1; transform: translateX(-50%) translateY(-10px); }
+
+    #modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; }
+    #result-modal { background-color: #37474f; padding: 15px; border-radius: 12px; text-align: center; width: 95%; max-width: 450px; max-height: 95dvh; overflow-y: auto; box-shadow: 0 5px 20px rgba(0,0,0,0.5); border: 2px solid #546e7a; }
+    #result-modal h2 { margin-top: 0; color: #ffeb3b; font-size: 18px; margin-bottom: 5px; } #result-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 12px; }
+    #result-table th, #result-table td { padding: 6px 4px; border-bottom: 1px solid #546e7a; } .btn-next { background-color: #4caf50; color: white; font-size: 15px; padding: 10px; margin-top: 5px; width: 100%; border-radius: 8px; }
+    .me-row { background-color: rgba(255, 235, 59, 0.15) !important; outline: 2px solid #ffeb3b; outline-offset: -2px; font-weight: bold; }
+
+    @media (max-width: 768px) {
+        #game-table { grid-template-columns: 55px 1fr 55px; grid-template-rows: 85px 1fr 140px; gap: 2px; width: 100%; max-width: 100vw; padding: 0 2px; justify-content: center; }
+        #center-area { gap: 10px; padding: 8px; border-width: 2px; border-radius: 20px; width: 100%; max-width: 180px; }
+        #area-1, #area-3 { align-items: center; }
+        .h-row { gap: 6px; font-size: 11px; margin-bottom: 8px; } .h-row .icon { width: 20px; height: 20px; }
+        .v-col { gap: 2px; font-size: 9px; margin-bottom: 4px; } .v-col .icon { width: 18px; height: 18px; }
+        #area-0 .hand { gap: 4px; padding-top: 5px; flex-wrap: nowrap; } #area-0 .card { width: 52px; height: 78px; border-radius: 5px; } #area-0 .card-center { font-size: 20px; } #area-0 .card-corner { font-size: 9px; top: 2px; left: 3px; } #area-0 .card:not(:first-child) { margin-left: -2px !important; }
+        #area-1 .card, #area-2 .card, #area-3 .card { width: 24px; height: 36px; border-radius: 3px; border-width: 1px; } #area-2 .card:not(:first-child) { margin-left: -12px; } #area-1 .card { margin: -10px 0; } #area-3 .card { margin: -10px 0; } #area-1 .card:not(:first-child), #area-3 .card:not(:first-child) { margin-top: -20px; }
+        #center-area .card, .pile { width: 42px; height: 63px; border-width: 1px; border-radius: 4px; } #center-area .card-center { font-size: 16px; } #center-area .card-corner { font-size: 9px; } .card-corner br { display: none; }
+        .player-area { padding: 4px; } .controls-wrapper { min-height: 35px; margin-top: 4px; } button { padding: 8px 4px; font-size: 12px; max-width: 90px; }
+    }
 </style>
 </head>
 <body>
@@ -61,15 +132,24 @@
     <button class="btn-large" style="background-color: #2196f3; color: white; box-shadow: 0 4px 0 #0d47a1;" onclick="switchScreen('room-join-screen')">部屋に参加 (ゲスト)</button>
     <button class="btn-large" style="background-color: #4caf50; color: white; box-shadow: 0 4px 0 #2e7d32;" onclick="startGameOffline()">ひとりで遊ぶ (CPU戦)</button>
     <button class="btn-large" style="background-color: #e0e0e0; color: #333; box-shadow: 0 4px 0 #9e9e9e;" onclick="switchScreen('settings-menu')">設定</button>
-    <div class="version-text">v5.0 Lobby Sync</div>
+    <div class="version-text">v5.01 State Sync</div>
 </div>
 
 <div id="settings-menu" class="menu-screen" style="display: none;">
     <div class="menu-panel">
         <h3>ゲーム設定</h3>
         <div class="setting-item">
-            <label>あなたの名前</label>
-            <input type="text" id="my-name-input" value="あなた" maxlength="8">
+            <label>あなたの名前 (最大5文字)</label>
+            <input type="text" id="my-name-input" value="あなた" maxlength="5">
+        </div>
+        <div class="setting-item">
+            <label for="back-color-select">カードの裏面色</label>
+            <select id="back-color-select" onchange="updateCardBack(this.value)">
+                <option value="back-blue">ブルー (デフォルト)</option>
+                <option value="back-red">レッド</option>
+                <option value="back-green">グリーン</option>
+                <option value="back-black">ブラック</option>
+            </select>
         </div>
         <div class="setting-item">
             <label>あなたのアイコン</label>
@@ -103,6 +183,10 @@
         <div id="custom-settings" style="display: none; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; margin-bottom: 10px;">
             <div class="setting-item"><label>負けの杯数</label><input type="number" id="custom-lose-drink" value="1" min="0" max="10"></div>
             <div class="setting-item"><label>ヤニブ返しの杯数</label><input type="number" id="custom-asaf-drink" value="2" min="0" max="10"></div>
+            <div class="setting-item" style="flex-direction: row; align-items: center; gap: 10px;">
+                <input type="checkbox" id="custom-all-drink" style="width: 20px; height: 20px;">
+                <label for="custom-all-drink" style="margin: 0;">負け全員に杯数が付く</label>
+            </div>
         </div>
         <div class="setting-item">
             <label>試合数 (ラウンド数)</label>
@@ -117,8 +201,8 @@
     <div class="menu-panel">
         <h3>部屋に参加 (ゲスト)</h3>
         <div class="setting-item">
-            <label>部屋ID (ホストから教えてもらう)</label>
-            <input type="text" id="join-room-id" placeholder="例: yaniv-abc12" style="font-size:18px; font-weight:bold; text-align:center;">
+            <label>部屋ID (5桁の数字)</label>
+            <input type="text" id="join-room-id" placeholder="例: 12345" maxlength="5" style="font-size:24px; font-weight:bold; text-align:center; letter-spacing:4px;">
         </div>
         <button class="btn-success" style="background-color: #2196f3;" onclick="joinRoom()">参加する</button>
         <button class="btn-secondary" onclick="switchScreen('main-menu')" style="margin-top: 10px;">戻る</button>
@@ -128,30 +212,78 @@
 <div id="room-waiting-screen" class="menu-screen" style="display: none;">
     <div class="menu-panel">
         <h3 id="lobby-title">待機ロビー</h3>
-        
         <div class="room-id-box" id="room-id-display">接続準備中...</div>
-        
-        <div class="player-list" id="lobby-players">
-            </div>
-
+        <div class="player-list" id="lobby-players"></div>
         <div id="host-controls" style="display: none;">
             <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                <button class="btn-secondary" style="background-color: #2196f3; color: white;" onclick="addCPU()">+ CPU追加</button>
-                <button class="btn-secondary" style="background-color: #f44336; color: white;" onclick="removeCPU()">- CPU削除</button>
+                <button class="btn-secondary" style="background-color: #2196f3; color: white;" onclick="addCPU()">+ CPU</button>
+                <button class="btn-secondary" style="background-color: #f44336; color: white;" onclick="removeCPU()">- CPU</button>
             </div>
             <button class="btn-success" onclick="startNetworkGame()" style="font-size: 18px;">ゲーム開始！</button>
         </div>
-
         <div id="guest-controls" style="display: none; text-align: center; color: #ffeb3b; font-weight: bold; margin-bottom: 10px;">
             ホストがゲームを開始するのを待っています...
         </div>
-
         <button class="btn-secondary" onclick="leaveRoom()" style="margin-top: 10px;">退出して戻る</button>
     </div>
 </div>
 
 <div id="game-container">
-    <h2 style="text-align:center; margin-top:50px;">【マッチングテスト成功！】<br>※ゲーム画面への同期は次のステップで行います※</h2>
+    <div id="header-area">
+        <div id="turn-indicator">準備中...</div>
+        <div id="round-counter">第 1 / 5 ラウンド</div>
+    </div>
+    <div id="game-table">
+        <div id="area-2" class="player-area">
+            <div class="action-badge" id="action-2"></div>
+            <div class="h-row">
+                <span class="icon" id="icon-2"><img src="icon_default.png"></span>
+                <span class="player-name" id="name-2">CPU 2</span>
+                <span class="vp-score">🍺 <span id="drink-2">0</span></span>
+                <span class="sum-text">計: <span id="sum-2">?</span></span>
+            </div>
+            <div id="cpu2-hand" class="hand"></div>
+        </div>
+        <div id="area-1" class="player-area side-area">
+            <div class="action-badge" id="action-1"></div>
+            <div class="v-col">
+                <span class="icon" id="icon-1"><img src="icon_default.png"></span>
+                <span class="player-name" id="name-1">CPU 1</span>
+                <span class="vp-score">🍺<span id="drink-1">0</span></span>
+                <span class="sum-text">計:<span id="sum-1">?</span></span>
+            </div>
+            <div id="cpu1-hand" class="hand"></div>
+        </div>
+        <div id="center-area">
+            <div class="pile-container"><div class="pile-label">山札 (<span id="deck-count">0</span>)</div><div id="deck-pile" class="pile card back back-blue"></div></div>
+            <div class="pile-container"><div class="pile-label">捨て札</div><div id="discard-pile" class="pile"></div></div>
+        </div>
+        <div id="area-3" class="player-area side-area">
+            <div class="action-badge" id="action-3"></div>
+            <div class="v-col">
+                <span class="icon" id="icon-3"><img src="icon_default.png"></span>
+                <span class="player-name" id="name-3">CPU 3</span>
+                <span class="vp-score">🍺<span id="drink-3">0</span></span>
+                <span class="sum-text">計:<span id="sum-3">?</span></span>
+            </div>
+            <div id="cpu3-hand" class="hand"></div>
+        </div>
+        <div id="area-0" class="player-area">
+            <div class="action-badge" id="action-0"></div>
+            <div class="h-row">
+                <span class="icon" id="icon-0"><img src="icon_default.png"></span>
+                <span class="player-name" id="name-0">あなた</span>
+                <span class="vp-score">🍺 <span id="drink-0">0</span></span>
+                <span class="sum-text">計: <span id="sum-0">0</span></span>
+            </div>
+            <div id="player-hand" class="hand"></div>
+            <div class="controls-wrapper" id="player-controls">
+                <button id="draw-deck-btn" class="btn-action" disabled>山から引く</button>
+                <button id="draw-discard-btn" class="btn-action" disabled>場から拾う</button>
+                <button id="yaniv-btn" class="btn-yaniv">ヤニブ！</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -162,20 +294,25 @@
     let myIconStr = '<img src="icon_default.png" alt="icon">';
     
     let players = [
-        { id: 0, name: myName, icon: myIconStr, isReal: true, isActive: true },
-        { id: 1, name: 'CPU 1', icon: '<img src="icon_default.png" alt="icon">', isReal: false, isActive: false }, 
-        { id: 2, name: 'CPU 2', icon: '<img src="icon_default.png" alt="icon">', isReal: false, isActive: false }, 
-        { id: 3, name: 'CPU 3', icon: '<img src="icon_default.png" alt="icon">', isReal: false, isActive: false }  
+        { id: 0, name: myName, icon: myIconStr, drinks: 0, hand: [], isReal: true, isActive: true },
+        { id: 1, name: 'CPU 1', icon: '<img src="icon_default.png">', drinks: 0, hand: [], isReal: false, isActive: false }, 
+        { id: 2, name: 'CPU 2', icon: '<img src="icon_default.png">', drinks: 0, hand: [], isReal: false, isActive: false }, 
+        { id: 3, name: 'CPU 3', icon: '<img src="icon_default.png">', drinks: 0, hand: [], isReal: false, isActive: false }  
     ];
 
+    let activePlayers = []; 
+    let deck = []; let discardSets = []; let selectedCards = []; let cardIdCounter = 0;
+    let currentTurn = 0; let gameEnded = false; let firstPlayer = 0; 
+    let currentRound = 1; let MAX_ROUNDS = 5; 
+    let masterVolume = 0.8; let myCardBackClass = 'back-blue'; 
     let ruleType = "KD"; 
     
     // --- 通信(PeerJS)用変数 ---
     let peer = null;
     let isHost = true;
-    let hostConnection = null; // ゲスト用：ホストとの接続
-    let guestConnections = []; // ホスト用：ゲスト達の接続リスト
-    let myNetworkId = 0;       // ゲーム内の自分のID (ホストは常に0)
+    let hostConnection = null; 
+    let guestConnections = []; 
+    let myNetworkId = 0; // ホストは常に0
 
     function switchScreen(screenId) {
         document.querySelectorAll('.menu-screen').forEach(el => el.style.display = 'none');
@@ -183,13 +320,16 @@
         document.getElementById(screenId).style.display = 'flex'; 
     }
 
+    function updateVolume(val) { masterVolume = val / 100; document.getElementById('volume-val').textContent = val; }
+    function updateCardBack(colorClass) { myCardBackClass = colorClass; }
+    
     function updatePlayerIcon(fileName) { 
         myIconStr = `<img src="${fileName}" alt="icon">`;
         document.getElementById('icon-preview').innerHTML = myIconStr; 
     }
 
     function saveSettingsAndReturn() {
-        myName = document.getElementById('my-name-input').value || "ゲスト";
+        myName = document.getElementById('my-name-input').value.trim() || "ゲスト";
         players[0].name = myName;
         players[0].icon = myIconStr;
         switchScreen('main-menu');
@@ -201,109 +341,78 @@
     }
 
     // -----------------------------------------
-    // 【ホスト側】部屋を作成してIDを発行する
+    // 【ホスト側】部屋を作成してIDを発行
     // -----------------------------------------
     function createRoom() {
-        isHost = true;
-        myNetworkId = 0;
-        players[0].name = myName;
-        players[0].icon = myIconStr;
-        players[0].isReal = true;
-        players[0].isActive = true;
-        
-        // とりあえず初期状態はCPUを3人入れておく
-        players[1] = { id: 1, name: 'CPU 1', icon: '<img src="icon_default.png">', isReal: false, isActive: true };
-        players[2] = { id: 2, name: 'CPU 2', icon: '<img src="icon_default.png">', isReal: false, isActive: true };
-        players[3] = { id: 3, name: 'CPU 3', icon: '<img src="icon_default.png">', isReal: false, isActive: true };
+        isHost = true; myNetworkId = 0;
+        players[0].name = myName; players[0].icon = myIconStr; players[0].isReal = true; players[0].isActive = true;
+        players[1] = { id: 1, name: 'CPU 1', icon: '<img src="icon_default.png">', drinks: 0, hand: [], isReal: false, isActive: true };
+        players[2] = { id: 2, name: 'CPU 2', icon: '<img src="icon_default.png">', drinks: 0, hand: [], isReal: false, isActive: true };
+        players[3] = { id: 3, name: 'CPU 3', icon: '<img src="icon_default.png">', drinks: 0, hand: [], isReal: false, isActive: true };
 
         document.getElementById('host-controls').style.display = 'block';
         document.getElementById('guest-controls').style.display = 'none';
         document.getElementById('lobby-title').textContent = "待機ロビー (ホスト)";
         switchScreen('room-waiting-screen');
         
-        // Randomな部屋IDを生成してPeerJSに登録
-        const randomId = 'yaniv-' + Math.random().toString(36).substr(2, 6);
+        // ★ 5桁の数字IDを生成し、内部ではプレフィックスをつける
+        const displayId = String(Math.floor(10000 + Math.random() * 90000));
+        const internalId = 'ynv-room-' + displayId;
+        
         document.getElementById('room-id-display').innerHTML = `部屋を生成中...`;
-
-        peer = new Peer(randomId);
+        peer = new Peer(internalId);
 
         peer.on('open', (id) => {
-            // 生成完了！友達に教えるIDを表示
-            document.getElementById('room-id-display').innerHTML = `部屋ID: <span style="color:#e91e63;">${id}</span><br><span style="font-size:10px; color:#555;">友達にこのIDを教えてください</span>`;
+            document.getElementById('room-id-display').innerHTML = `部屋ID: <span style="font-size:28px; color:#e91e63; letter-spacing:4px;">${displayId}</span><br><span style="font-size:10px; color:#555;">友達にこの数字を教えてください</span>`;
             updateLobbyUI();
         });
 
-        // ゲストから接続要求が来た時の処理
         peer.on('connection', (conn) => {
             guestConnections.push(conn);
-
             conn.on('data', (data) => {
-                if (data.type === 'JOIN_REQUEST') {
-                    handleGuestJoin(data.name, data.icon, conn);
-                }
+                if (data.type === 'JOIN_REQUEST') handleGuestJoin(data.name, data.icon, conn);
             });
-
             conn.on('close', () => {
-                // ゲストが切断した時の処理
                 guestConnections = guestConnections.filter(c => c !== conn);
-                removeGuestFromLobby(conn.peer);
+                // 退出処理(省略)
             });
         });
     }
 
-    // ホスト：ゲストの参加を処理し、空き枠に入れる
     function handleGuestJoin(guestName, guestIcon, conn) {
-        // CPUの枠、または非アクティブな枠を探して人間プレイヤーで上書き
         let slotIndex = players.findIndex(p => p.id !== 0 && !p.isReal);
-        
         if (slotIndex !== -1) {
-            players[slotIndex] = { id: slotIndex, name: guestName, icon: guestIcon, isReal: true, isActive: true, peerId: conn.peer };
-            
-            // ゲストに「あなたはプレイヤー〇番だよ」と教える
+            players[slotIndex] = { id: slotIndex, name: guestName, icon: guestIcon, drinks: 0, hand: [], isReal: true, isActive: true, peerId: conn.peer };
             conn.send({ type: 'JOIN_ACCEPTED', yourId: slotIndex });
-            
             updateLobbyUI();
-            broadcastLobbyState(); // 全員に最新のロビー状態を送信
+            broadcastLobbyState(); 
         } else {
             conn.send({ type: 'JOIN_REJECTED', reason: '部屋が満員です' });
         }
     }
 
-    // ホスト：CPU枠の操作
     function addCPU() {
         let added = false;
         for(let i=1; i<=3; i++){
-            if(!players[i].isActive) { 
-                players[i] = { id: i, name: `CPU ${i}`, icon: '<img src="icon_default.png">', isReal: false, isActive: true };
-                added = true; break; 
-            }
+            if(!players[i].isActive) { players[i] = { id: i, name: `CPU ${i}`, icon: '<img src="icon_default.png">', drinks:0, hand:[], isReal: false, isActive: true }; added = true; break; }
         }
-        if(!added) alert("これ以上追加できません (最大4人)");
-        updateLobbyUI();
-        broadcastLobbyState();
+        if(!added) alert("最大4人です");
+        updateLobbyUI(); broadcastLobbyState();
     }
 
     function removeCPU() {
         let count = players.filter(p => p.isActive).length;
         if(count <= 2) { alert("最低2人は必要です"); return; }
-        // 一番後ろのCPUを消す
         for(let i=3; i>=1; i--){
-            if(players[i].isActive && !players[i].isReal) { 
-                players[i].isActive = false; 
-                break; 
-            }
+            if(players[i].isActive && !players[i].isReal) { players[i].isActive = false; break; }
         }
-        updateLobbyUI();
-        broadcastLobbyState();
+        updateLobbyUI(); broadcastLobbyState();
     }
 
-    // ホスト：全員のロビー画面を同期させる
     function broadcastLobbyState() {
         if(!isHost) return;
         const cleanPlayers = players.map(p => ({ id: p.id, name: p.name, icon: p.icon, isReal: p.isReal, isActive: p.isActive }));
-        guestConnections.forEach(conn => {
-            conn.send({ type: 'LOBBY_UPDATE', players: cleanPlayers });
-        });
+        guestConnections.forEach(conn => conn.send({ type: 'LOBBY_UPDATE', players: cleanPlayers }));
     }
 
     // -----------------------------------------
@@ -311,108 +420,246 @@
     // -----------------------------------------
     function joinRoom() {
         isHost = false;
-        const hostId = document.getElementById('join-room-id').value.trim();
-        if(!hostId) { alert("部屋IDを入力してください"); return; }
+        const inputId = document.getElementById('join-room-id').value.trim();
+        if(!inputId || inputId.length !== 5) { alert("5桁の部屋IDを入力してください"); return; }
+        
+        // 入力された5桁の数字にプレフィックスをつけて通信
+        const hostId = 'ynv-room-' + inputId;
 
         document.getElementById('host-controls').style.display = 'none';
         document.getElementById('guest-controls').style.display = 'block';
         document.getElementById('lobby-title').textContent = "待機ロビー (ゲスト)";
         switchScreen('room-waiting-screen');
-        
-        document.getElementById('room-id-display').innerHTML = `部屋 <span style="color:#e91e63;">${hostId}</span> に接続中...`;
+        document.getElementById('room-id-display').innerHTML = `<span style="color:#e91e63; font-size:24px; letter-spacing:4px;">${inputId}</span> に接続中...`;
 
-        peer = new Peer(); // ゲストはID指定なしでOK
+        peer = new Peer(); 
 
         peer.on('open', () => {
-            // ホストへ接続
             hostConnection = peer.connect(hostId);
-
             hostConnection.on('open', () => {
-                // 接続成功！自分のプロフィールを送る
                 document.getElementById('room-id-display').innerHTML = `ホストに接続完了！`;
                 hostConnection.send({ type: 'JOIN_REQUEST', name: myName, icon: myIconStr });
             });
 
             hostConnection.on('data', (data) => {
-                if (data.type === 'JOIN_ACCEPTED') {
-                    myNetworkId = data.yourId; // ホストから割り当てられたIDを保存
-                } 
-                else if (data.type === 'JOIN_REJECTED') {
-                    alert("入室失敗: " + data.reason);
-                    leaveRoom();
-                }
-                else if (data.type === 'LOBBY_UPDATE') {
-                    // ホストから最新のメンバー一覧をもらって画面更新
-                    players = data.players;
-                    updateLobbyUI();
-                }
-                else if (data.type === 'GAME_START') {
-                    // ホストが開始ボタンを押した！
-                    switchScreen('game-container');
+                if (data.type === 'JOIN_ACCEPTED') { myNetworkId = data.yourId; } 
+                else if (data.type === 'JOIN_REJECTED') { alert("入室失敗: " + data.reason); leaveRoom(); }
+                else if (data.type === 'LOBBY_UPDATE') { players = data.players; updateLobbyUI(); }
+                else if (data.type === 'GAME_START') { switchScreen('game-container'); }
+                // ★ ホストから盤面データが送られてきたら、ゲストの画面を更新！
+                else if (data.type === 'SYNC_STATE') {
+                    players = data.state.players;
+                    discardSets = data.state.discardSets;
+                    currentTurn = data.state.currentTurn;
+                    currentRound = data.state.currentRound;
+                    MAX_ROUNDS = data.state.MAX_ROUNDS;
+                    document.getElementById('round-counter').textContent = `第 ${currentRound} / ${MAX_ROUNDS} ラウンド`;
+                    updateUI(true); // ゲストは全てのカードを描画（仮）
+                    setTurn(currentTurn);
                 }
             });
-
-            hostConnection.on('close', () => {
-                alert("ホストとの接続が切れました。");
-                leaveRoom();
-            });
+            hostConnection.on('close', () => { alert("接続が切れました。"); leaveRoom(); });
         });
-        
-        peer.on('error', (err) => {
-            alert("接続エラー: 部屋IDが間違っている可能性があります。");
-            leaveRoom();
-        });
+        peer.on('error', (err) => { alert("エラー: 部屋が見つかりません。"); leaveRoom(); });
     }
 
-    // -----------------------------------------
-    // ロビーUIの描画処理 (ホスト・ゲスト共通)
-    // -----------------------------------------
     function updateLobbyUI() {
         const list = document.getElementById('lobby-players');
         list.innerHTML = '';
-        
         players.forEach(p => {
             if(p.isActive) {
-                let badge = p.isReal ? `<span style="color:#4caf50;">👤プレイヤー</span>` : `<span style="color:#9e9e9e;">🤖 CPU</span>`;
-                if(p.id === myNetworkId) badge = `<span style="color:#ffeb3b;">⭐ あなた</span>`;
-                
-                list.innerHTML += `
-                    <div class="player-slot">
-                        <div style="display:flex; align-items:center; gap:10px;">
-                            <div class="icon-small">${p.icon}</div>
-                            ${p.name}
-                        </div>
-                        ${badge}
-                    </div>
-                `;
+                let badge = p.isReal ? `<span style="color:#4caf50;">👤人</span>` : `<span style="color:#9e9e9e;">🤖CPU</span>`;
+                if(p.id === myNetworkId) badge = `<span style="color:#ffeb3b;">⭐あなた</span>`;
+                list.innerHTML += `<div class="player-slot"><div style="display:flex; align-items:center; gap:10px;"><div class="icon-small">${p.icon}</div>${p.name}</div>${badge}</div>`;
             } else {
                 list.innerHTML += `<div class="player-slot empty">空き枠</div>`;
             }
         });
     }
 
-    // 退出処理
     function leaveRoom() {
         if(peer) peer.destroy();
         peer = null; hostConnection = null; guestConnections = [];
         switchScreen('main-menu');
     }
 
-    // オフライン1人用開始
+    // -----------------------------------------
+    // ゲーム進行 (ホスト主導モデル)
+    // -----------------------------------------
     function startGameOffline() {
-        isHost = true;
-        // すぐに通信テスト画面(仮のゲーム画面)へ
-        document.getElementById('game-container').innerHTML = `<h2 style="text-align:center; margin-top:50px;">【オフラインCPU戦】<br>※ゲーム処理は次のステップ！※</h2>`;
+        isHost = true; MAX_ROUNDS = 5; ruleType = "KD";
+        players.forEach(p => { p.isActive = true; p.drinks = 0; });
+        activePlayers = players;
         switchScreen('game-container');
+        startRound();
     }
 
-    // オンラインゲーム開始 (ホストのみ実行可能)
     function startNetworkGame() {
-        // ゲスト全員に「ゲーム画面に移行しろ！」と命令を送る
+        MAX_ROUNDS = parseInt(document.getElementById('room-rounds').value) || 5;
         guestConnections.forEach(conn => conn.send({ type: 'GAME_START' }));
         switchScreen('game-container');
+        
+        activePlayers = players.filter(p => p.isActive);
+        activePlayers.forEach(p => p.drinks = 0);
+        let activeIds = activePlayers.map(p => p.id);
+        firstPlayer = activeIds[Math.floor(Math.random() * activeIds.length)];
+        
+        startRound();
     }
 
+    const suits = ['♠', '♥', '♦', '♣'];
+    const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+
+    function createDeck() {
+        deck = []; cardIdCounter = 0;
+        suits.forEach(suit => { ranks.forEach((rank, index) => { deck.push({ id: cardIdCounter++, suit, rank, value: index + 1, type: 'normal' }); }); });
+        deck.push({ id: cardIdCounter++, suit: 'Joker', rank: '🃏', value: 0, type: 'joker' }, { id: cardIdCounter++, suit: 'Joker', rank: '🃏', value: 0, type: 'joker' });
+        for (let i = deck.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]]; }
+    }
+
+    function startRound() {
+        if(!isHost) return; // ゲストはホストからのデータを待つだけ
+        gameEnded = false; createDeck();
+        activePlayers = players.filter(p => p.isActive);
+        
+        activePlayers.forEach(p => p.hand = deck.splice(0, 5));
+        let firstCard = deck.pop(); 
+        while (firstCard.type === 'joker') { deck.unshift(firstCard); firstCard = deck.pop(); }
+        discardSets = [ [firstCard] ]; selectedCards = [];
+        
+        document.getElementById('round-counter').textContent = `第 ${currentRound} / ${MAX_ROUNDS} ラウンド`;
+        
+        // ★ ホストが盤面を作成したら、ゲストに送信して同期させる！
+        broadcastGameState();
+        
+        setTurn(firstPlayer); updateUI();
+        if (firstPlayer !== 0 && !players[firstPlayer].isReal) { setTimeout(() => processCPUTurn(firstPlayer), 1000); }
+    }
+
+    function broadcastGameState() {
+        if(!isHost) return;
+        const state = {
+            players: players, 
+            discardSets: discardSets,
+            deckCount: deck.length,
+            currentTurn: currentTurn,
+            currentRound: currentRound,
+            MAX_ROUNDS: MAX_ROUNDS
+        };
+        guestConnections.forEach(conn => conn.send({ type: 'SYNC_STATE', state: state }));
+    }
+
+    // --- ここから下の描画(updateUI)周りはv3.04と同じ ---
+    function setTurn(playerIndex) {
+        currentTurn = playerIndex;
+        players.forEach(p => document.getElementById(`area-${p.id}`).classList.remove('active'));
+        document.getElementById(`area-${currentTurn}`).classList.add('active');
+        const name = players[currentTurn].name;
+        document.getElementById('turn-indicator').textContent = currentTurn === myNetworkId ? "あなたのターン" : `${name} のターン...`;
+        
+        if (currentTurn === myNetworkId && !gameEnded) {
+            const score = getHandScore(players[myNetworkId].hand);
+            document.getElementById('yaniv-btn').style.display = score <= 5 ? 'block' : 'none';
+        } else {
+            document.getElementById('yaniv-btn').style.display = 'none';
+        }
+    }
+
+    function createCardElement(card, isFaceUp, ownerIndex = -1) {
+        const cardEl = document.createElement('div'); cardEl.id = `card-${card.id}`;
+        // ネットワーク対戦時、自分以外の「人間」の手札は裏向きにする処理が必要ですが、今回はテスト用に全て表向きか、自キャラのみ表に
+        let showFace = isFaceUp || ownerIndex === myNetworkId; 
+        
+        if (!showFace) { cardEl.className = `card back back-blue`; return cardEl; }
+        cardEl.className = `card ${card.type === 'joker' ? 'joker' : (card.suit === '♥' || card.suit === '♦' ? 'red' : 'black')}`;
+        const tl = document.createElement('div'); tl.className = 'card-corner'; const center = document.createElement('div'); center.className = 'card-center';
+        if(card.type === 'joker'){ tl.innerHTML = 'JOKER'; tl.style.fontSize = '10px'; center.textContent = '🃏'; } 
+        else { tl.innerHTML = card.rank + '<br>' + card.suit; center.textContent = card.suit; }
+        cardEl.appendChild(tl); cardEl.appendChild(center);
+        return cardEl;
+    }
+
+    function getCardParams() {
+        const isMobile = window.innerWidth <= 768;
+        return { w: isMobile ? 52 : 72, h: isMobile ? 78 : 108, offset: isMobile ? 25 : 30 };
+    }
+
+    function updateUI(revealAll = false) {
+        // UI非表示制御
+        document.getElementById('area-1').style.display = players[1].isActive ? 'flex' : 'none';
+        document.getElementById('area-2').style.display = players[2].isActive ? 'flex' : 'none';
+        document.getElementById('area-3').style.display = players[3].isActive ? 'flex' : 'none';
+
+        // 名前・アイコン更新
+        players.forEach(p => {
+            if(p.isActive) {
+                document.getElementById(`name-${p.id}`).textContent = p.name;
+                document.getElementById(`icon-${p.id}`).innerHTML = p.icon;
+                document.getElementById(`drink-${p.id}`).textContent = p.drinks;
+            }
+        });
+
+        const myHand = players[myNetworkId].hand;
+        myHand.sort((a, b) => a.value - b.value);
+        
+        // 自キャラの手札は常に area-0(南) に描画する処理（簡易版）
+        const playerContainer = document.getElementById('player-hand'); playerContainer.innerHTML = '';
+        myHand.forEach((card) => {
+            const cardEl = createCardElement(card, true, myNetworkId); const selIndex = selectedCards.indexOf(card);
+            if (selIndex > -1) { cardEl.classList.add('selected'); cardEl.setAttribute('data-order', selIndex + 1); }
+            if (currentTurn === myNetworkId && !gameEnded) cardEl.onclick = () => { toggleCardSelection(card); playSound('click'); }
+            playerContainer.appendChild(cardEl);
+        });
+        document.getElementById('sum-0').textContent = getHandScore(myHand);
+
+        // 敵の描画
+        [1,2,3].forEach(uiIndex => {
+            if(!players[uiIndex].isActive) return;
+            // マルチプレイではIDと座席のマッピングが必要ですが、今回はCPUと自分のID=0前提の簡易描画
+            const container = document.getElementById(`cpu${uiIndex}-hand`); container.innerHTML = '';
+            players[uiIndex].hand.forEach((card) => container.appendChild(createCardElement(card, revealAll, uiIndex)));
+            document.getElementById(`sum-${uiIndex}`).textContent = revealAll ? getHandScore(players[uiIndex].hand) : "?";
+        });
+
+        const discardContainer = document.getElementById('discard-pile'); discardContainer.innerHTML = '';
+        if (discardSets.length > 0) {
+            const prm = getCardParams(); const topSet = discardSets[discardSets.length - 1];
+            const totalWidth = prm.w + (topSet.length - 1) * prm.offset; const startX = -(totalWidth / 2) + (prm.w / 2);
+            topSet.forEach((card, i) => {
+                const cardEl = createCardElement(card, true); cardEl.style.position = 'absolute';
+                cardEl.style.transform = `translateX(${startX + i * prm.offset}px)`; cardEl.style.zIndex = i;
+                cardEl.style.boxShadow = "-2px 2px 5px rgba(0,0,0,0.5)"; discardContainer.appendChild(cardEl);
+            });
+        }
+        document.getElementById('deck-count').textContent = deck.length;
+        updateButtonStates();
+    }
+
+    function updateButtonStates() {
+        const controls = document.getElementById('player-controls');
+        const btnDeck = document.getElementById('draw-deck-btn'); const btnDiscard = document.getElementById('draw-discard-btn');
+        if (currentTurn !== myNetworkId || gameEnded) { controls.style.display = 'none'; return; }
+        controls.style.display = 'flex';
+        if (selectedCards.length === 0) { btnDeck.disabled = true; btnDiscard.disabled = true; } 
+        else if (!isValidPlay(selectedCards)) { btnDeck.disabled = true; btnDiscard.disabled = true; } 
+        else { btnDeck.disabled = false; btnDiscard.disabled = discardSets.length === 0; }
+    }
+
+    function getHandScore(hand) { return hand.reduce((sum, card) => sum + (card.type === 'joker' ? 0 : card.value), 0); }
+    function toggleCardSelection(card) { const index = selectedCards.indexOf(card); if (index > -1) selectedCards.splice(index, 1); else selectedCards.push(card); updateUI(); }
+    
+    function isValidPlay(cards) {
+        if (cards.length === 0) return false; if (cards.length === 1) return true;
+        const jokers = cards.filter(c => c.type === 'joker').length; const normals = cards.filter(c => c.type !== 'joker');
+        if (normals.every(c => c.value === normals[0].value)) return true;
+        if (cards.length >= 3) {
+            if (normals.length <= 1) return true; 
+            const sortedValues = [...new Set(normals.map(c => c.value))].sort((a, b) => a - b);
+            if (sortedValues.length !== normals.length) return false;
+            if ((sortedValues[sortedValues.length - 1] - sortedValues[0] - normals.length + 1) <= jokers) return true; 
+        }
+        return false;
+    }
 </script>
 </body>
 </html>
