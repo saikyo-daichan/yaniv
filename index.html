@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ヤニブ (Yaniv) Final Edition v21</title>
+<title>ヤニブ (Yaniv) Final Edition v23</title>
 <style>
     * { box-sizing: border-box; }
 
-    /* 画面全体設定：絶対に1画面に収め、スクロールと引っ張り更新を完全禁止 */
+    /* 画面全体設定 */
     html, body {
         height: 100dvh;
         width: 100vw;
@@ -20,278 +20,157 @@
         touch-action: none; 
     }
 
-    /* メインメニュー & 設定画面（シンプルでコンパクトな中央配置） */
-    .menu-screen {
-        display: flex;
+    /* 縦画面ブロック */
+    #portrait-warning {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; width: 100vw; height: 100dvh;
+        background-color: #1b5e20;
+        z-index: 9999;
         flex-direction: column;
-        align-items: center;
         justify-content: center;
-        height: 100dvh;
-        width: 100vw;
-        gap: 15px;
-        padding: 20px;
+        align-items: center;
+        text-align: center;
+        color: white;
     }
-    .menu-screen h1 { 
-        font-size: 36px; /* 文字サイズを少し抑えてスマートに */
-        color: #ffeb3b; 
-        text-shadow: 2px 2px 0px #000; 
-        margin: 0 0 10px 0; 
-        letter-spacing: 4px;
-    }
-    .menu-panel { 
-        background-color: rgba(0,0,0,0.4); 
-        padding: 20px; 
-        border-radius: 12px; 
-        border: 2px solid #388e3c; 
-        width: 100%; 
-        max-width: 320px; 
-        text-align: left; 
-    }
-    .menu-panel h3 { margin-top: 0; color: #ffeb3b; text-align: center; font-size: 16px; }
-    .setting-item { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+    .rotate-icon { font-size: 70px; margin-bottom: 20px; animation: rotatePhone 2s infinite ease-in-out; }
+    @keyframes rotatePhone { 0% { transform: rotate(0deg); } 50% { transform: rotate(-90deg); } 100% { transform: rotate(-90deg); } }
+    .warning-text { font-size: 20px; font-weight: bold; line-height: 1.5; margin-bottom: 10px; }
+    .warning-sub { font-size: 14px; opacity: 0.8; }
+
+    /* メインメニュー & 設定画面 */
+    .menu-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; width: 100%; padding: 20px; }
+    .menu-screen h1 { font-size: 42px; color: #ffeb3b; text-shadow: 2px 2px 0px #000; margin: 0 0 15px 0; }
+    .menu-panel { background-color: rgba(0,0,0,0.4); padding: 20px; border-radius: 15px; border: 2px solid #388e3c; width: 100%; max-width: 350px; text-align: left; }
+    .menu-panel h3 { margin-top: 0; color: #ffeb3b; text-align: center; }
+    .setting-item { display: flex; flex-direction: column; gap: 6px; margin-bottom: 15px; }
     .setting-item label { font-weight: bold; font-size: 13px; }
-    
-    .btn-large {
-        padding: 10px 24px; 
-        font-size: 16px; /* ボタン内の改行を防ぐサイズ */
-        font-weight: bold; 
-        border: none; 
-        border-radius: 6px; 
-        cursor: pointer;
-        background-color: #ffeb3b; 
-        color: #1b5e20; 
-        box-shadow: 0 4px 0 #c51162; 
-        transition: all 0.1s;
-        width: 180px; /* 幅を固定して綺麗に揃える */
-    }
+    .btn-large { padding: 12px 30px; font-size: 18px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; background-color: #ffeb3b; color: #1b5e20; box-shadow: 0 4px 0 #c51162; transition: all 0.1s; }
     .btn-large:active { transform: translateY(4px); box-shadow: none; }
-    .btn-secondary { background-color: #e0e0e0; color: #333; padding: 10px; font-size: 13px; font-weight: bold; border: none; border-radius: 5px; cursor: pointer; width: 100%; text-align: center; }
+    .btn-secondary { background-color: #e0e0e0; color: #333; padding: 10px; font-size: 14px; font-weight: bold; border: none; border-radius: 5px; cursor: pointer; width: 100%; text-align: center; }
 
     /* ゲーム画面コンテナ */
-    #game-container {
-        display: none;
-        flex-direction: column;
-        height: 100dvh;
-        width: 100vw;
-        padding: 5px;
-    }
-
-    #header-area {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 5px 15px;
-        height: 40px;
-    }
+    #game-container { display: none; flex-direction: column; height: 100dvh; width: 100vw; padding: 5px; }
+    #header-area { display: flex; justify-content: space-between; align-items: center; padding: 5px 15px; height: 35px; }
     #round-counter { font-size: 14px; color: #a5d6a7; font-weight: bold; }
     #turn-indicator { font-size: 18px; font-weight: bold; color: #ffeb3b; }
 
     /* 十字グリッド */
     #game-table {
         display: grid;
-        grid-template-columns: minmax(60px, 140px) 1fr minmax(60px, 140px); 
-        grid-template-rows: 110px 1fr 180px;    
-        align-items: center;
-        justify-items: center;
-        width: 100%;
-        max-width: 1000px;
-        margin: 0 auto;
-        gap: 5px;
-        flex: 1;
-        min-height: 0; 
+        grid-template-columns: minmax(80px, 140px) 1fr minmax(80px, 140px); 
+        grid-template-rows: 110px 1fr 150px;    
+        align-items: center; justify-items: center; width: 100%; max-width: 1000px; margin: 0 auto; gap: 5px; flex: 1; min-height: 0; 
     }
-
     #area-2 { grid-column: 2; grid-row: 1; width: 100%; max-width: 350px; height: 100%; } 
     #area-1 { grid-column: 1; grid-row: 2; width: 100%; height: 100%; justify-content: center; } 
     #center-area { grid-column: 2; grid-row: 2; }                         
     #area-3 { grid-column: 3; grid-row: 2; width: 100%; height: 100%; justify-content: center; } 
-    #area-0 { grid-column: 2; grid-row: 3; width: 100%; max-width: 500px; height: 100%; justify-content: flex-end; } 
+    #area-0 { grid-column: 2; grid-row: 3; width: 100%; max-width: 450px; height: 100%; justify-content: flex-end; } 
 
     .player-area {
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        background-color: rgba(0,0,0,0.25);
-        padding: 8px;
-        border-radius: 10px;
-        border: 2px solid transparent;
-        transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+        position: relative; display: flex; flex-direction: column; align-items: center;
+        background-color: rgba(0,0,0,0.25); padding: 8px; border-radius: 10px; border: 2px solid transparent; transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
     }
-    .player-area.active {
-        box-shadow: 0 0 15px 3px rgba(255, 235, 59, 0.5);
-        border: 2px solid #ffeb3b;
-        background-color: rgba(0,0,0,0.35);
-    }
+    .player-area.active { box-shadow: 0 0 15px 3px rgba(255, 235, 59, 0.5); border: 2px solid #ffeb3b; background-color: rgba(0,0,0,0.35); }
 
-    /* 中央エリア（山札・捨て札） */
     #center-area { 
-        display: flex; 
-        gap: 20px; 
-        justify-content: center; 
-        align-items: center;
-        background-color: rgba(0,0,0,0.4);
-        padding: 15px;
-        border-radius: 40px;
-        border: 3px solid #388e3c;
-        box-shadow: inset 0 0 15px rgba(0,0,0,0.8);
-        width: 100%;
-        max-width: 320px;
+        display: flex; gap: 20px; justify-content: center; align-items: center;
+        background-color: rgba(0,0,0,0.4); padding: 15px; border-radius: 40px; border: 3px solid #388e3c; box-shadow: inset 0 0 15px rgba(0,0,0,0.8); width: 100%; max-width: 300px;
     }
 
     .hand { display: flex; position: relative; justify-content: center; width: 100%; }
-    #area-2 .hand { flex-direction: row; gap: 0px; padding-top: 5px; }
+    #area-0 .hand, #area-2 .hand { flex-direction: row; gap: 0px; padding-top: 5px; }
     .side-area .hand { flex-direction: column; align-items: center; gap: 0px; margin-top: 5px; }
     
-    /* 【修正】あなたの手札：重ね合わせを完全に無くし、カード同士に選びやすい間隔（gap）を確保 */
-    #area-0 .hand { 
-        flex-direction: row; 
-        gap: 8px; /* カードとカードの間の明確な隙間 */
-        padding-top: 5px; 
-    }
-
-    /* カードのベースデザイン（PC・タブレット基準） */
-    .card {
-        width: 72px;
-        height: 108px;
-        background-color: white;
-        color: black;
-        border-radius: 6px;
-        cursor: pointer;
-        user-select: none;
-        box-shadow: 2px 2px 4px rgba(0,0,0,0.4);
-        transition: transform 0.1s;
-        border: 1px solid #ccc;
-        position: relative;
-        flex-shrink: 0;
-    }
-
-    /* 敵の手札の重なり補正 */
-    #area-2 .card:not(:first-child) { margin-left: -20px; }
-    #area-1 .card { transform: rotate(90deg); margin: -20px 15px; }
-    #area-3 .card { transform: rotate(-90deg); margin: -20px 15px; }
-    #area-1 .card:not(:first-child), #area-3 .card:not(:first-child) { margin-top: -40px; }
+    .card { width: 60px; height: 90px; background-color: white; color: black; border-radius: 6px; cursor: pointer; user-select: none; box-shadow: 2px 2px 4px rgba(0,0,0,0.4); transition: transform 0.1s; border: 1px solid #ccc; position: relative; flex-shrink: 0; }
+    #area-0 .card:not(:first-child), #area-2 .card:not(:first-child) { margin-left: -15px; }
+    #area-1 .card { transform: rotate(90deg); margin: -15px 15px; }
+    #area-3 .card { transform: rotate(-90deg); margin: -15px 15px; }
+    #area-1 .card:not(:first-child), #area-3 .card:not(:first-child) { margin-top: -35px; }
     #area-2 .card { transform: rotate(180deg); }
 
     .card.red { color: #d32f2f; }
     .card.black { color: #212121; }
     .card.joker { color: #7b1fa2; }
+    .card.back { background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.1) 10px, rgba(255,255,255,0.1) 20px); color: transparent !important; border: 2px solid white; cursor: default; }
+    .back-blue { background-color: #0d47a1; } .back-red { background-color: #b71c1c; } .back-green { background-color: #2e7d32; } .back-black { background-color: #212121; }
     
-    .card.back {
-        background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.1) 10px, rgba(255,255,255,0.1) 20px);
-        color: transparent !important;
-        border: 2px solid white;
-        cursor: default;
-    }
-    .back-blue { background-color: #0d47a1; }
-    .back-red { background-color: #b71c1c; }
-    .back-green { background-color: #2e7d32; }
-    .back-black { background-color: #212121; }
+    .card-corner { position: absolute; top: 3px; left: 4px; font-size: 11px; font-weight: bold; line-height: 1.1; text-align: center; }
+    .card-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 22px; font-weight: bold; }
     
-    .card-corner { position: absolute; top: 3px; left: 4px; font-size: 12px; font-weight: bold; line-height: 1.1; text-align: center; }
-    .card-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 26px; font-weight: bold; }
-    
-    .card.selected {
-        transform: translateY(-12px) !important;
-        box-shadow: 0 8px 15px rgba(0,0,0,0.6);
-        border: 2px solid #ffeb3b;
-        z-index: 10;
-    }
-    .card.selected::after {
-        content: attr(data-order); position: absolute; top: -8px; right: -8px; background-color: #ffeb3b; color: black;
-        width: 20px; height: 20px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 12px; font-weight: bold; box-shadow: 1px 1px 3px rgba(0,0,0,0.5);
-    }
+    .card.selected { transform: translateY(-10px) !important; box-shadow: 0 8px 15px rgba(0,0,0,0.6); border: 2px solid #ffeb3b; z-index: 10; }
+    .card.selected::after { content: attr(data-order); position: absolute; top: -8px; right: -8px; background-color: #ffeb3b; color: black; width: 18px; height: 18px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 11px; font-weight: bold; box-shadow: 1px 1px 3px rgba(0,0,0,0.5); }
     
     .area-header { display: flex; justify-content: space-between; width: 100%; margin-bottom: 2px; font-weight: bold; align-items: center; }
-    .player-info { display: flex; align-items: center; gap: 4px; font-size: 14px; }
-    .icon { font-size: 16px; background-color: rgba(255,255,255,0.2); border-radius: 50%; width: 26px; height: 26px; display: flex; justify-content: center; align-items: center; }
-    .vp-score { color: #ffeb3b; font-size: 12px; }
+    .player-info { display: flex; align-items: center; gap: 4px; font-size: 13px; }
     
-    .controls-wrapper { min-height: 45px; width: 100%; display: flex; justify-content: center; align-items: center; margin-top: 10px; }
-    .controls { display: flex; gap: 10px; justify-content: center; width: 100%; }
-    button { padding: 12px 15px; font-size: 14px; font-weight: bold; border: none; border-radius: 5px; cursor: pointer; background-color: #e0e0e0; transition: background-color 0.2s; flex: 1; max-width: 140px; }
+    /* アイコンコンテナと画像用スタイル */
+    .icon { font-size: 16px; background-color: rgba(255,255,255,0.2); border-radius: 50%; width: 24px; height: 24px; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+    .icon img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+
+    .vp-score { color: #ffeb3b; font-size: 12px; font-weight: bold; }
+    
+    .controls-wrapper { min-height: 40px; width: 100%; display: flex; justify-content: center; align-items: center; margin-top: 8px; }
+    .controls { display: flex; gap: 8px; justify-content: center; width: 100%; }
+    button { padding: 8px 10px; font-size: 12px; font-weight: bold; border: none; border-radius: 5px; cursor: pointer; background-color: #e0e0e0; transition: background-color 0.2s; flex: 1; max-width: 130px; }
     button:active { transform: scale(0.95); }
     button:disabled { background-color: #546e7a; color: rgba(255,255,255,0.6); cursor: not-allowed; }
     .btn-action { background-color: #2196f3; color: white; }
     .btn-yaniv { background-color: #f44336; color: white; display: none; }
 
     .pile-container { text-align: center; }
-    .pile-label { font-size: 12px; margin-bottom: 3px; font-weight: bold; }
-    .pile { width: 72px; height: 108px; border: 2px dashed rgba(255,255,255,0.4); border-radius: 6px; position: relative; }
+    .pile-label { font-size: 11px; margin-bottom: 3px; font-weight: bold; }
+    .pile { width: 60px; height: 90px; border: 2px dashed rgba(255,255,255,0.4); border-radius: 6px; position: relative; }
 
     .action-badge {
-        position: absolute; top: -10px; left: 50%; transform: translateX(-50%) translateY(10px);
-        background-color: #ff9800; color: white; padding: 4px 10px; border-radius: 6px; font-size: 12px;
-        font-weight: bold; opacity: 0; pointer-events: none; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-        transition: opacity 0.3s, transform 0.3s;
+        position: absolute; top: -10px; left: 50%; transform: translateX(-50%) translateY(10px); background-color: #ff9800; color: white; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; opacity: 0; pointer-events: none; z-index: 100; box-shadow: 0 3px 6px rgba(0,0,0,0.5); transition: opacity 0.3s, transform 0.3s;
     }
     .action-badge.show { opacity: 1; transform: translateX(-50%) translateY(-10px); }
 
     #modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; }
-    #result-modal { background-color: #37474f; padding: 20px; border-radius: 12px; text-align: center; width: 95%; max-width: 450px; max-height: 95dvh; overflow-y: auto; box-shadow: 0 5px 20px rgba(0,0,0,0.5); border: 2px solid #546e7a; }
-    #result-modal h2 { margin-top: 0; color: #ffeb3b; font-size: 20px; margin-bottom: 5px; }
+    #result-modal { background-color: #37474f; padding: 15px; border-radius: 12px; text-align: center; width: 95%; max-width: 450px; max-height: 95dvh; overflow-y: auto; box-shadow: 0 5px 20px rgba(0,0,0,0.5); border: 2px solid #546e7a; }
+    #result-modal h2 { margin-top: 0; color: #ffeb3b; font-size: 18px; margin-bottom: 5px; }
     #result-modal h3 { margin: 5px 0; font-size: 14px; }
-    #result-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13px; }
-    #result-table th, #result-table td { padding: 8px 4px; border-bottom: 1px solid #546e7a; }
-    .btn-next { background-color: #4caf50; color: white; font-size: 16px; padding: 12px; margin-top: 10px; width: 100%; border-radius: 8px; }
+    #result-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 12px; }
+    #result-table th, #result-table td { padding: 6px 4px; border-bottom: 1px solid #546e7a; }
+    .btn-next { background-color: #4caf50; color: white; font-size: 15px; padding: 10px; margin-top: 5px; width: 100%; border-radius: 8px; }
 
     .me-row { background-color: rgba(255, 235, 59, 0.15) !important; outline: 2px solid #ffeb3b; outline-offset: -2px; font-weight: bold; }
 
-    /* =========================================================
-       📱 スマホ縦画面用・パーツ別サイズメリハリ設定
-       ========================================================= */
+    /* ====== スマホ特化レイアウト ====== */
     @media (max-width: 768px) {
-        #game-table {
-            grid-template-columns: 55px 1fr 55px; 
-            grid-template-rows: 70px 1fr 160px; /* あなたのエリア高を適正化 */
-            gap: 5px;
-        }
-
-        #area-0 { grid-column: 1 / span 3; width: 100%; max-width: none; }
-        #center-area { gap: 15px; padding: 10px; border-width: 2px; border-radius: 20px; width: auto; max-width: 100%; }
-
-        /* 【修正】あなたの手札＆中央のカード：画面幅いっぱいに広げ、重ね合わせを完全撤廃（gapで隙間を確保） */
-        #area-0 .hand {
-            gap: 6px; /* 1枚1枚が独立して並ぶため、押し間違いが完全に無くなります */
-        }
-        #area-0 .card, #center-area .card, #center-area .pile { 
-            width: 58px; /* 縦画面で5枚並んでもはみ出さず、かつタップしやすい絶妙な大きさに調整 */
-            height: 87px; 
-            border-radius: 5px; 
-            border-width: 1px;
-        }
-        /* 自分の手札を重ねるマージンルールをクリア（上書き） */
-        #area-0 .card:not(:first-child) { margin-left: 0 !important; }
-
-        /* 敵（CPU）のカード：枚数が分かればよいため、引き続き超コンパクトに維持 */
-        #area-1 .card, #area-2 .card, #area-3 .card { 
-            width: 32px; height: 48px; border-radius: 3px; border-width: 1px;
-        }
-        #area-2 .card:not(:first-child) { margin-left: -12px; }
-        #area-1 .card { margin: -10px 0; }
-        #area-3 .card { margin: -10px 0; }
-        #area-1 .card:not(:first-child), #area-3 .card:not(:first-child) { margin-top: -30px; }
-
-        /* カード内の文字サイズ微調整 */
-        #area-0 .card-center, #center-area .card-center { font-size: 20px; }
-        #area-0 .card-corner, #center-area .card-corner { font-size: 10px; top: 2px; left: 4px; }
-        #area-1 .card-center, #area-2 .card-center, #area-3 .card-center { font-size: 14px; }
-        #area-1 .card-corner, #area-2 .card-corner, #area-3 .card-corner { font-size: 8px; top: 1px; left: 2px; }
+        #game-table { grid-template-columns: 80px 1fr 80px; grid-template-rows: 75px 1fr 125px; gap: 2px; }
+        #center-area { gap: 10px; padding: 10px; border-width: 2px; border-radius: 30px; }
+        .card { width: 44px; height: 66px; border-radius: 4px; border-width: 1px; }
+        .pile { width: 44px; height: 66px; border-width: 1px; }
+        .card-center { font-size: 16px; }
+        .card-corner { font-size: 9px; top: 1px; left: 3px; }
         .card-corner br { display: none; }
+        
+        #area-0 .hand { gap: 6px; } 
+        #area-0 .card:not(:first-child) { margin-left: 0 !important; }
+        #area-2 .card:not(:first-child) { margin-left: -22px; }
+        #area-1 .card:not(:first-child), #area-3 .card:not(:first-child) { margin-top: -30px; }
+        #area-1 .card { margin: -11px 11px; }
+        #area-3 .card { margin: -11px 11px; }
 
-        .side-area .player-info, #area-2 .player-info { font-size: 10px; }
-        .side-area .icon, #area-2 .icon { width: 16px; height: 16px; font-size: 10px; }
-        .side-area .vp-score, #area-2 .vp-score { font-size: 9px; }
+        .player-info { font-size: 11px; }
+        .icon { width: 18px; height: 18px; font-size: 12px; }
+        .vp-score { font-size: 10px; }
         
-        #area-0 .player-info { font-size: 14px; }
-        #area-0 .icon { width: 22px; height: 22px; font-size: 12px; }
-        
-        .controls-wrapper { min-height: 45px; margin-top: 5px; }
-        button { padding: 10px 5px; font-size: 13px; max-width: 110px; }
+        .controls-wrapper { min-height: 35px; margin-top: 4px; }
+        button { padding: 6px 4px; font-size: 11px; }
     }
 </style>
 </head>
 <body>
+
+<div id="portrait-warning">
+    <div class="rotate-icon">📱</div>
+    <div class="warning-text">スマホを横向きにして<br>プレイしてください</div>
+    <div class="warning-sub">※PCの場合は画面の横幅を広げてください</div>
+</div>
 
 <div id="main-menu" class="menu-screen">
     <h1>YANIV</h1>
@@ -318,6 +197,7 @@
         <div class="setting-item">
             <label for="icon-select">あなたのアイコン</label>
             <select id="icon-select" onchange="updatePlayerIcon(this.value)" style="width:100%; padding:8px; border-radius:5px;">
+                <option value='<img src="icon_default.png">'>📁 オリジナル画像 (icon_default.png)</option>
                 <option value="🧑‍💻">🧑‍💻 プログラマー</option>
                 <option value="🥷">🥷 忍者</option>
                 <option value="🦊">🦊 キツネ</option>
@@ -336,6 +216,7 @@
     </div>
 
     <div id="game-table">
+        <!-- 北 -->
         <div id="area-2" class="player-area">
             <div class="action-badge" id="action-2"></div>
             <div class="area-header">
@@ -346,6 +227,7 @@
             <div id="cpu2-hand" class="hand"></div>
         </div>
 
+        <!-- 西 -->
         <div id="area-1" class="player-area side-area">
             <div class="action-badge" id="action-1"></div>
             <div class="area-header" style="justify-content:center; flex-direction:column;">
@@ -356,6 +238,7 @@
             <div id="cpu1-hand" class="hand"></div>
         </div>
 
+        <!-- 中央 -->
         <div id="center-area">
             <div class="pile-container">
                 <div class="pile-label">山札 (<span id="deck-count">0</span>)</div>
@@ -367,6 +250,7 @@
             </div>
         </div>
         
+        <!-- 東 -->
         <div id="area-3" class="player-area side-area">
             <div class="action-badge" id="action-3"></div>
             <div class="area-header" style="justify-content:center; flex-direction:column;">
@@ -377,19 +261,20 @@
             <div id="cpu3-hand" class="hand"></div>
         </div>
 
+        <!-- 南 (あなた) -->
         <div id="area-0" class="player-area">
             <div class="action-badge" id="action-0"></div>
             <div class="area-header">
-                <div class="player-info"><span class="icon" id="my-icon-display">🧑‍💻</span> あなた</div>
-                <div class="vp-score">👑 勝点: <span id="vp-0">0</span></div>
+                <div class="player-info"><span class="icon" id="my-icon-display"><img src="icon_default.png"></span> あなた</div>
+                <div class="vp-score">🍺 <span id="drink-0">0</span> 杯</div>
             </div>
-            <div style="font-size: 12px; margin-bottom:2px;">手札合計: <span id="sum-0">0</span></div>
+            <div style="font-size: 11px; margin-bottom:2px;">手札合計: <span id="sum-0">0</span></div>
             <div id="player-hand" class="hand"></div>
             
             <div class="controls-wrapper">
                 <div class="controls" id="player-controls">
-                    <button id="draw-deck-btn" class="btn-action" disabled>山から引く</button>
-                    <button id="draw-discard-btn" class="btn-action" disabled>場から拾う</button>
+                    <button id="draw-deck-btn" class="btn-action" disabled>選択</button>
+                    <button id="draw-discard-btn" class="btn-action" disabled>選択</button>
                     <button id="yaniv-btn" class="btn-yaniv">ヤニブ！</button>
                 </div>
             </div>
@@ -397,6 +282,7 @@
     </div>
 </div>
 
+<!-- モーダル -->
 <div id="modal-overlay">
     <div id="result-modal">
         <h2 id="modal-title">結果発表</h2>
@@ -404,7 +290,7 @@
         <table id="result-table">
             <thead>
                 <tr id="table-header-row">
-                    <th>順位</th><th>プレイヤー</th><th>合計</th><th>増減</th><th>勝点</th>
+                    <th>順位</th><th>プレイヤー</th><th>合計</th><th>ペナルティ</th><th>累計杯数</th>
                 </tr>
             </thead>
             <tbody id="result-tbody"></tbody>
@@ -418,10 +304,10 @@
     const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
     
     const players = [
-        { id: 0, name: 'あなた', icon: '🧑‍💻', vp: 0, hand: [] },
-        { id: 1, name: 'CPU 1', icon: '🤖', vp: 0, hand: [] }, 
-        { id: 2, name: 'CPU 2', icon: '👽', vp: 0, hand: [] }, 
-        { id: 3, name: 'CPU 3', icon: '👾', vp: 0, hand: [] }  
+        { id: 0, name: 'あなた', icon: '<img src="icon_default.png">', drinks: 0, hand: [] },
+        { id: 1, name: 'CPU 1', icon: '🤖', drinks: 0, hand: [] }, 
+        { id: 2, name: 'CPU 2', icon: '👽', drinks: 0, hand: [] }, 
+        { id: 3, name: 'CPU 3', icon: '👾', drinks: 0, hand: [] }  
     ];
 
     let deck = []; let discardSets = []; let selectedCards = []; let cardIdCounter = 0;
@@ -441,9 +327,18 @@
 
     function updateVolume(val) { masterVolume = val / 100; document.getElementById('volume-val').textContent = val; }
     function updateCardBack(colorClass) { myCardBackClass = colorClass; }
-    function updatePlayerIcon(iconEmoji) { players[0].icon = iconEmoji; document.getElementById('my-icon-display').textContent = iconEmoji; }
+    
+    function updatePlayerIcon(iconVal) { 
+        players[0].icon = iconVal; 
+        document.getElementById('my-icon-display').innerHTML = iconVal; 
+    }
 
-    function startGame() { players.forEach(p => p.vp = 0); currentRound = 1; switchScreen('game-container'); startRound(); }
+    function startGame() { 
+        players.forEach(p => p.drinks = 0); 
+        currentRound = 1; 
+        switchScreen('game-container'); 
+        startRound(); 
+    }
 
     let audioCtx = null;
     function initAudio() { if (!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } }
@@ -531,7 +426,7 @@
 
     function getCardParams() {
         const isMobile = window.innerWidth <= 768;
-        return { w: isMobile ? 58 : 72, h: isMobile ? 87 : 108, offset: isMobile ? 20 : 30 };
+        return { w: isMobile ? 44 : 60, h: isMobile ? 66 : 90, offset: isMobile ? 12 : 20 };
     }
 
     function updateUI(revealAll = false) {
@@ -563,7 +458,8 @@
 
         document.getElementById('deck-count').textContent = deck.length;
         document.getElementById('sum-0').textContent = getHandScore(players[0].hand);
-        for(let i=0; i<4; i++) document.getElementById(`vp-${i}`).textContent = players[i].vp;
+        
+        for(let i=0; i<4; i++) document.getElementById(`drink-${i}`).textContent = players[i].drinks;
         updateButtonStates();
     }
 
@@ -632,14 +528,17 @@
             const targetTop = discardRect.top + (discardRect.height / 2) - (prm.h / 2);
             animCard.style.top = targetTop + 'px'; animCard.style.left = targetLeft + 'px'; animCard.style.transform = 'rotate(0deg)'; 
         });
+
         setTimeout(() => { animElements.forEach(el => el.remove()); callback(); }, 350);
     }
 
     function performDrawAnimation(drawSource, targetPlayerIndex, callback) {
-        playSound('draw'); const prm = getCardParams(); const animCard = document.createElement('div'); 
+        playSound('draw'); const sourceId = drawSource === 'discard' ? 'discard-pile' : 'deck-pile'; const sourceEl = document.getElementById(sourceId);
+        if (!sourceEl) { callback(); return; }
+
+        const prm = getCardParams(); const animCard = document.createElement('div'); 
         animCard.className = `card back ${(targetPlayerIndex === 0) ? myCardBackClass : 'back-blue'}`;
-        const sourceRect = sourceEl = document.getElementById(drawSource === 'discard' ? 'discard-pile' : 'deck-pile').getBoundingClientRect();
-        const targetRect = (targetPlayerIndex === 0 ? document.getElementById('player-hand') : document.getElementById(`cpu${targetPlayerIndex}-hand`)).getBoundingClientRect();
+        const sourceRect = sourceEl.getBoundingClientRect(); const targetEl = targetPlayerIndex === 0 ? document.getElementById('player-hand') : document.getElementById(`cpu${targetPlayerIndex}-hand`); const targetRect = targetEl.getBoundingClientRect();
 
         animCard.style.position = 'fixed'; animCard.style.top = sourceRect.top + 'px'; animCard.style.left = sourceRect.left + 'px'; animCard.style.margin = '0'; animCard.style.zIndex = '9999'; animCard.style.transform = 'rotate(0deg)'; animCard.style.transition = 'all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1)';
         document.body.appendChild(animCard); animCard.getBoundingClientRect(); 
@@ -657,6 +556,7 @@
         showActionMsg(playerIndex, drawSource === 'discard' ? "拾った！" : "引いた");
 
         cardsToDiscard.forEach(c => { const el = document.getElementById(`card-${c.id}`); if(el) el.style.opacity = '0'; });
+
         let cardToPickUp = null;
         if (drawSource === 'discard') { let topSet = discardSets[discardSets.length - 1]; cardToPickUp = topSet.pop(); if (topSet.length === 0) discardSets.pop(); } 
         else { cardToPickUp = drawFromDeck(); }
@@ -696,38 +596,89 @@
     }
 
     function calculateAndShowResults(declarerIndex) {
-        const scores = players.map(p => getHandScore(p.hand)); const declarerScore = scores[declarerIndex]; const maxScore = Math.max(...scores); 
-        const otherScores = scores.filter((_, i) => i !== declarerIndex); const othersMin = Math.min(...otherScores); const isAsaf = othersMin <= declarerScore; 
+        const scores = players.map(p => getHandScore(p.hand)); 
+        const declarerScore = scores[declarerIndex]; 
+        const maxScore = Math.max(...scores); 
+        
+        const otherScores = scores.filter((_, i) => i !== declarerIndex); 
+        const othersMin = Math.min(...otherScores); 
+        const isAsaf = othersMin <= declarerScore; 
 
-        let vpChanges = [0, 0, 0, 0]; let modalSub = "";
+        let drinkChanges = [0, 0, 0, 0]; 
+        let modalSub = "";
 
         if (isAsaf) {
-            playSound('asaf'); modalSub = "🚨 ヤニブ返し（アサフ）発生！ 🚨"; document.getElementById('modal-title').style.color = "#f44336";
-            vpChanges[declarerIndex] = -2; for(let i=0; i<4; i++) { if (i !== declarerIndex && scores[i] === othersMin) vpChanges[i] = 1; }
+            playSound('asaf'); 
+            modalSub = "🚨 ヤニブ返し（アサフ）発生！ 🚨"; 
+            document.getElementById('modal-title').style.color = "#f44336";
+            
+            drinkChanges[declarerIndex] = 2; 
+            for(let i=0; i<4; i++) { 
+                if (i !== declarerIndex && scores[i] === maxScore) {
+                    drinkChanges[i] += 1; 
+                }
+            }
         } else {
-            playSound('yaniv'); modalSub = "✨ ヤニブ成功！ ✨"; document.getElementById('modal-title').style.color = "#ffeb3b";
-            vpChanges[declarerIndex] = 1; for(let i=0; i<4; i++) { if (scores[i] === maxScore) vpChanges[i] = -1; }
+            playSound('yaniv'); 
+            modalSub = "✨ ヤニブ成功！ ✨"; 
+            document.getElementById('modal-title').style.color = "#ffeb3b";
+            
+            drinkChanges[declarerIndex] = 0; 
+            for(let i=0; i<4; i++) { 
+                if (scores[i] === maxScore) drinkChanges[i] = 1; 
+            }
         }
 
-        for(let i=0; i<4; i++) players[i].vp += vpChanges[i];
-        let losers = []; scores.forEach((s, i) => { if (s === maxScore) losers.push(i); }); firstPlayer = losers[Math.floor(Math.random() * losers.length)];
-
-        let resultsData = players.map((p, i) => { return { id: p.id, name: p.name, icon: p.icon, score: scores[i], change: vpChanges[i], vp: p.vp, isDeclarer: i === declarerIndex }; });
+        let resultsData = players.map((p, i) => { 
+            return { 
+                id: p.id, name: p.name, icon: p.icon, score: scores[i], 
+                change: drinkChanges[i], drinks: p.drinks, 
+                isDeclarer: i === declarerIndex, isMax: scores[i] === maxScore 
+            }; 
+        });
 
         if (isAsaf) {
-            let declarerObj = resultsData.find(r => r.id === declarerIndex); let others = resultsData.filter(r => r.id !== declarerIndex);
-            others.sort((a, b) => a.score - b.score); let asafWinner = others.shift(); resultsData = [asafWinner, ...others, declarerObj];
-        } else { resultsData.sort((a, b) => a.score - b.score); }
+            let others = resultsData.filter(r => !r.isDeclarer);
+            others.sort((a, b) => a.score - b.score);
+            let asafWinner = others.shift(); 
+            asafWinner.isAsafWinner = true;
+            resultsData = [asafWinner, ...others, resultsData.find(r => r.isDeclarer)];
+        } else {
+            let declarerObj = resultsData.find(r => r.isDeclarer);
+            let maxObjs = resultsData.filter(r => r.isMax && !r.isDeclarer);
+            let others = resultsData.filter(r => !r.isDeclarer && !r.isMax);
+            others.sort((a, b) => a.score - b.score);
+            resultsData = [declarerObj, ...others, ...maxObjs];
+        }
 
-        document.getElementById('table-header-row').innerHTML = `<th>順位</th><th>プレイヤー</th><th>合計</th><th>増減</th><th>勝点</th>`;
+        firstPlayer = resultsData[resultsData.length - 1].id;
+
+        resultsData.forEach(r => {
+            players[r.id].drinks += r.change;
+            r.drinks = players[r.id].drinks;
+        });
+
+        document.getElementById('table-header-row').innerHTML = `<th>順位</th><th>プレイヤー</th><th>合計</th><th>ペナルティ</th><th>累計杯数</th>`;
         const tbody = document.getElementById('result-tbody'); tbody.innerHTML = '';
         
         resultsData.forEach((res, index) => {
-            let displayRank = index + 1; if (isAsaf && index === 3) displayRank = 4; 
+            let displayRank = index + 1; 
+            if (isAsaf && res.isDeclarer) displayRank = 4; 
+            
             const tr = document.createElement('tr');
-            if (res.id === 0) tr.className = 'me-row'; else if (res.isDeclarer) tr.style.backgroundColor = "rgba(255,255,255,0.05)";
-            let changeText = res.change > 0 ? `+${res.change}` : res.change; let color = res.change > 0 ? '#4caf50' : (res.change < 0 ? '#f44336' : 'white');
-            tr.innerHTML = `<td>${displayRank}位</td><td>${res.icon} ${res.name} ${res.isDeclarer ? '(宣言)' : ''}</td><td>${res.score}</td><td style="color: ${color}; font-weight: bold;">${changeText}</td><td>${res.vp}</td>`;
+            if (res.id === 0) tr.className = 'me-row'; 
+            else if (res.isDeclarer) tr.style.backgroundColor = "rgba(255,255,255,0.05)";
+            
+            let changeText = res.change > 0 ? `+${res.change}杯` : `±0`; 
+            let color = res.change > 0 ? '#f44336' : 'white'; 
+            
+            tr.innerHTML = `
+                <td>${displayRank}位</td>
+                <td><span class="icon" style="display:inline-flex; width:20px; height:20px; vertical-align:middle; margin-right:4px;">${res.icon}</span> ${res.name} ${res.isDeclarer ? '(宣言)' : ''}</td>
+                <td>${res.score}</td>
+                <td style="color: ${color}; font-weight: bold;">${changeText}</td>
+                <td>${res.drinks}杯</td>
+            `;
             tbody.appendChild(tr);
         });
 
@@ -735,22 +686,29 @@
         
         const nextBtn = document.getElementById('modal-next-btn');
         if (currentRound === MAX_ROUNDS) { modalActionState = 'show_final'; nextBtn.textContent = "最終結果を見る"; } else { modalActionState = 'next_round'; nextBtn.textContent = "次のラウンドへ"; }
-        for(let i=0; i<4; i++) document.getElementById(`vp-${i}`).textContent = players[i].vp;
+        for(let i=0; i<4; i++) document.getElementById(`drink-${i}`).textContent = players[i].drinks;
     }
 
     function showFinalTotalRanking() {
         playSound('yaniv');
         document.getElementById('modal-title').textContent = "🏆 最終総合ランキング 🏆"; document.getElementById('modal-title').style.color = "#ffeb3b"; document.getElementById('modal-subtitle').textContent = "5ラウンドの全試合が終了しました！";
         
-        let finalData = players.map(p => ({ id: p.id, name: p.name, icon: p.icon, vp: p.vp })); finalData.sort((a, b) => b.vp - a.vp); 
-        document.getElementById('table-header-row').innerHTML = `<th>順位</th><th>プレイヤー</th><th colspan="3">総合勝点</th>`;
+        let finalData = players.map(p => ({ id: p.id, name: p.name, icon: p.icon, drinks: p.drinks })); 
+        finalData.sort((a, b) => a.drinks - b.drinks); 
+        
+        document.getElementById('table-header-row').innerHTML = `<th>順位</th><th>プレイヤー</th><th colspan="3">最終累計杯数</th>`;
 
         const tbody = document.getElementById('result-tbody'); tbody.innerHTML = '';
         let rank = 1;
         finalData.forEach((res, index) => {
-            if (index > 0 && res.vp < finalData[index - 1].vp) rank = index + 1;
+            if (index > 0 && res.drinks > finalData[index - 1].drinks) rank = index + 1;
+            
             const tr = document.createElement('tr'); if (res.id === 0) tr.className = 'me-row';
-            tr.innerHTML = `<td>${rank}位</td><td>${res.icon} ${res.name}</td><td colspan="3" style="font-weight: bold; color: #ffeb3b; font-size: 16px;">${res.vp} 点</td>`;
+            tr.innerHTML = `
+                <td>${rank}位</td>
+                <td><span class="icon" style="display:inline-flex; width:20px; height:20px; vertical-align:middle; margin-right:4px;">${res.icon}</span> ${res.name}</td>
+                <td colspan="3" style="font-weight: bold; color: ${rank === 1 ? '#4caf50' : '#ffeb3b'}; font-size: 16px;">${res.drinks} 杯</td>
+            `;
             tbody.appendChild(tr);
         });
 
