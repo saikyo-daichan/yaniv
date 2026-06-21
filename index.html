@@ -3,25 +3,25 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ヤニブ (Yaniv) v7.03 Perfect Edition</title>
+<title>ヤニブ (Yaniv) v8.0 Perfect Revival</title>
 <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 <style>
     * { box-sizing: border-box; }
-    html, body { height: 100dvh; width: 100vw; margin: 0; padding: 0; overflow: hidden; background-color: #1b5e20; color: white; font-family: 'Segoe UI', sans-serif; touch-action: none; }
+    html, body { height: 100dvh; width: 100vw; margin: 0; padding: 0; overflow: hidden; background-color: #1b5e20; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; touch-action: none; }
 
     #portrait-warning { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background-color: #1b5e20; z-index: 9999; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
     .rotate-icon { font-size: 70px; margin-bottom: 20px; animation: rotatePhone 2s infinite ease-in-out; }
     @keyframes rotatePhone { 0% { transform: rotate(0deg); } 50% { transform: rotate(-90deg); } 100% { transform: rotate(-90deg); } }
     .warning-text { font-size: 20px; font-weight: bold; line-height: 1.5; margin-bottom: 10px; }
 
-    /* コインUI (Gシンボル) */
+    /* コインUI */
     .coin-ui { position: absolute; top: 15px; right: 15px; display: flex; align-items: center; background: rgba(0,0,0,0.6); padding: 5px 12px; border-radius: 20px; border: 2px solid #d4af37; font-weight: bold; color: white; font-size: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); z-index: 500; }
     .coin-g { width: 22px; height: 22px; background: radial-gradient(circle, #ffd700, #b8860b); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: #fff; font-weight: bold; font-size: 14px; text-shadow: 1px 1px 1px #000; margin-right: 8px; border: 1px solid #fff; }
     
     #coin-toast { position: fixed; top: 20%; left: 50%; transform: translate(-50%, -50%); background: rgba(255,215,0,0.9); color: #000; font-weight: bold; font-size: 20px; padding: 10px 20px; border-radius: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: none; z-index: 10000; border: 2px solid #fff; animation: floatUp 3s ease-out forwards; }
     @keyframes floatUp { 0% { top: 30%; opacity: 0; } 10% { top: 20%; opacity: 1; } 80% { top: 20%; opacity: 1; } 100% { top: 10%; opacity: 0; } }
 
-    /* メニュー画面 */
+    /* メニュー */
     .menu-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; width: 100%; padding: 20px; position: relative; }
     .menu-screen h1 { font-size: 42px; color: #ffeb3b; text-shadow: 2px 2px 0px #000; margin: 0 0 15px 0; letter-spacing: 2px; }
     .menu-panel { background-color: rgba(0,0,0,0.4); padding: 20px; border-radius: 15px; border: 2px solid #388e3c; width: 100%; max-width: 350px; text-align: left; }
@@ -50,7 +50,7 @@
     .icon-preview-box { width: 42px; height: 42px; background-color: rgba(255,255,255,0.15); border: 2px solid #ffeb3b; border-radius: 50%; display: flex; justify-content: center; align-items: center; overflow: hidden; flex-shrink: 0; }
     .icon-preview-box img { width: 100%; height: 100%; object-fit: cover; }
 
-    /* ゲーム画面 */
+    /* ゲーム盤面 */
     #game-container { display: none; flex-direction: column; height: 100dvh; width: 100vw; padding: 5px; }
     #header-area { display: flex; justify-content: space-between; align-items: center; padding: 5px 15px; height: 35px; }
     #round-counter { font-size: 14px; color: #a5d6a7; font-weight: bold; }
@@ -116,11 +116,11 @@
         #game-table { grid-template-columns: 55px 1fr 55px; grid-template-rows: 85px 1fr 140px; gap: 2px; width: 100%; max-width: 100vw; padding: 0 2px; justify-content: center; }
         #center-area { gap: 10px; padding: 8px; border-width: 2px; border-radius: 20px; width: 100%; max-width: 180px; }
         #area-1, #area-3 { align-items: center; }
-        .h-row { gap: 6px; font-size: 12px; margin-bottom: 6px; justify-content: center; } .h-row .icon { width: 24px; height: 24px; }
-        .v-col { gap: 2px; font-size: 9px; margin-bottom: 4px; line-height: 1.2; } .v-col .icon { width: 20px; height: 20px; }
-        #area-0 .hand { gap: 6px; padding-top: 5px; flex-wrap: nowrap; } #area-0 .card { width: 56px; height: 84px; border-radius: 5px; } #area-0 .card-center { font-size: 22px; } #area-0 .card-corner { font-size: 10px; top: 2px; left: 3px; } #area-0 .card:not(:first-child) { margin-left: 0 !important; }
+        .h-row { gap: 6px; font-size: 11px; margin-bottom: 8px; justify-content: center; } .h-row .icon { width: 20px; height: 20px; }
+        .v-col { gap: 2px; font-size: 9px; margin-bottom: 4px; line-height: 1.2; } .v-col .icon { width: 18px; height: 18px; }
+        #area-0 .hand { gap: 4px; padding-top: 5px; flex-wrap: nowrap; } #area-0 .card { width: 52px; height: 78px; border-radius: 5px; } #area-0 .card-center { font-size: 20px; } #area-0 .card-corner { font-size: 9px; top: 2px; left: 3px; } #area-0 .card:not(:first-child) { margin-left: -2px !important; }
         #area-1 .card, #area-2 .card, #area-3 .card { width: 24px; height: 36px; border-radius: 3px; border-width: 1px; } #area-2 .card:not(:first-child) { margin-left: -12px; } #area-1 .card { margin: -10px 0; } #area-3 .card { margin: -10px 0; } #area-1 .card:not(:first-child), #area-3 .card:not(:first-child) { margin-top: -20px; }
-        #center-area .card, .pile { width: 44px; height: 66px; border-width: 1px; border-radius: 4px; } #center-area .card-center { font-size: 16px; } #center-area .card-corner { font-size: 9px; } .card-corner br { display: none; }
+        #center-area .card, .pile { width: 42px; height: 63px; border-width: 1px; border-radius: 4px; } #center-area .card-center { font-size: 16px; } #center-area .card-corner { font-size: 9px; } .card-corner br { display: none; }
         .player-area { padding: 4px; } .controls-wrapper { min-height: 35px; margin-top: 4px; } button { padding: 8px 4px; font-size: 12px; max-width: 90px; }
     }
 </style>
@@ -134,16 +134,18 @@
 
 <div id="coin-toast">1位獲得！ +50 G</div>
 
+<!-- メインメニュー -->
 <div id="main-menu" class="menu-screen">
     <div class="coin-ui"><div class="coin-g">G</div><span id="menu-coins">0</span></div>
     <h1>YANIV</h1>
     <button class="btn-large" onclick="switchScreen('room-create-screen')">部屋を作る (ホスト)</button>
     <button class="btn-large" style="background-color: #2196f3; color: white; box-shadow: 0 4px 0 #0d47a1;" onclick="switchScreen('room-join-screen')">部屋に参加 (ゲスト)</button>
-    <button class="btn-large" style="background-color: #4caf50; color: white; box-shadow: 0 4px 0 #2e7d32;" onclick="startGameOffline()">ひとりで遊ぶ (CPU戦)</button>
+    <button class="btn-large" style="background-color: #4caf50; color: white; box-shadow: 0 4px 0 #2e7d32;" onclick="setupOfflineLobby()">ひとりで遊ぶ (CPU戦)</button>
     <button class="btn-large" style="background-color: #e0e0e0; color: #333; box-shadow: 0 4px 0 #9e9e9e;" onclick="switchScreen('settings-menu')">設定</button>
-    <div class="version-text">v7.03 Perfect Release</div>
+    <div class="version-text">v8.0 Perfect Revival</div>
 </div>
 
+<!-- 設定画面 -->
 <div id="settings-menu" class="menu-screen" style="display: none;">
     <div class="menu-panel">
         <h3>ゲーム設定</h3>
@@ -178,6 +180,7 @@
     </div>
 </div>
 
+<!-- ルーム作成画面 -->
 <div id="room-create-screen" class="menu-screen" style="display: none;">
     <div class="menu-panel">
         <h3>部屋を作成 (ホスト)</h3>
@@ -197,6 +200,7 @@
     </div>
 </div>
 
+<!-- ゲスト参加画面 -->
 <div id="room-join-screen" class="menu-screen" style="display: none;">
     <div class="menu-panel">
         <h3>部屋に参加 (ゲスト)</h3>
@@ -209,6 +213,7 @@
     </div>
 </div>
 
+<!-- 待機ロビー画面 -->
 <div id="room-waiting-screen" class="menu-screen" style="display: none;">
     <div class="menu-panel">
         <h3 id="lobby-title">待機ロビー</h3>
@@ -228,12 +233,14 @@
     </div>
 </div>
 
+<!-- ゲーム画面 -->
 <div id="game-container">
     <div id="header-area">
         <div id="turn-indicator">準備中...</div>
         <div id="round-counter">第 1 / 5 ラウンド</div>
     </div>
     <div id="game-table">
+        <!-- 北 -->
         <div id="area-2" class="player-area" style="display:none;">
             <div class="action-badge" id="action-2"></div>
             <div class="h-row">
@@ -244,6 +251,7 @@
             </div>
             <div id="cpu2-hand" class="hand"></div>
         </div>
+        <!-- 西 -->
         <div id="area-1" class="player-area side-area" style="display:none;">
             <div class="action-badge" id="action-1"></div>
             <div class="v-col">
@@ -254,10 +262,12 @@
             </div>
             <div id="cpu1-hand" class="hand"></div>
         </div>
+        <!-- 中央 -->
         <div id="center-area">
             <div class="pile-container"><div class="pile-label">山札 (<span id="deck-count">0</span>)</div><div id="deck-pile" class="pile card back back-blue"></div></div>
             <div class="pile-container"><div class="pile-label">捨て札</div><div id="discard-pile" class="pile"></div></div>
         </div>
+        <!-- 東 -->
         <div id="area-3" class="player-area side-area" style="display:none;">
             <div class="action-badge" id="action-3"></div>
             <div class="v-col">
@@ -268,6 +278,7 @@
             </div>
             <div id="cpu3-hand" class="hand"></div>
         </div>
+        <!-- 南 (自分) -->
         <div id="area-0" class="player-area" style="display:none;">
             <div class="action-badge" id="action-0"></div>
             <div class="h-row">
@@ -278,14 +289,15 @@
             </div>
             <div id="player-hand" class="hand"></div>
             <div class="controls-wrapper" id="player-controls">
-                <button id="draw-deck-btn" class="btn-action" onclick="executeTurn('deck')" disabled>山から引く</button>
-                <button id="draw-discard-btn" class="btn-action" onclick="executeTurn('discard')" disabled>場から拾う</button>
-                <button id="yaniv-btn" class="btn-yaniv" onclick="declareYaniv(myNetworkId)">ヤニブ！</button>
+                <button id="draw-deck-btn" class="btn-action" disabled>山から引く</button>
+                <button id="draw-discard-btn" class="btn-action" disabled>場から拾う</button>
+                <button id="yaniv-btn" class="btn-yaniv" style="display:none;">ヤニブ！</button>
             </div>
         </div>
     </div>
 </div>
 
+<!-- モーダル -->
 <div id="modal-overlay">
     <div id="result-modal">
         <h2 id="modal-title">結果発表</h2>
@@ -299,7 +311,7 @@
 </div>
 
 <script>
-    // --- セーブデータ＆基本データ群 ---
+    // --- ローカルストレージ＆基本データ ---
     let userCoins = parseInt(localStorage.getItem('yaniv_coins')) || 0;
     let myName = localStorage.getItem('yaniv_name') || "あなた";
     let myIconStr = localStorage.getItem('yaniv_icon') || '<img src="icon_default.png" alt="icon">';
@@ -319,17 +331,21 @@
     let deck = []; let discardSets = []; let selectedCards = []; let cardIdCounter = 0;
     let currentTurn = 0; let gameEnded = false; let firstPlayer = 0; 
     let currentRound = 1; let MAX_ROUNDS = 5; let modalActionState = 'next_round'; 
-    let ruleType = "KD"; let virtualDeckCount = 0; 
+    let ruleType = "KD"; 
     
-    // --- 通信用変数 ---
     let peer = null; let isHost = true; let hostConnection = null; let guestConnections = []; let myNetworkId = 0; 
 
+    // ★ JS側でボタンイベントを確実に1回だけ登録 (v4.0方式復活)
     window.onload = () => {
         document.getElementById('my-name-input').value = myName;
         document.getElementById('icon-select').value = myIconStr.includes('kaeru') ? 'icon_kaeru.png' : myIconStr.includes('kyuuri') ? 'icon_kyuuri.png' : myIconStr.includes('yuuto') ? 'icon_yuuto.png' : 'icon_default.png';
         document.getElementById('back-color-select').value = myCardBackClass;
         updatePlayerIcon(document.getElementById('icon-select').value);
         document.getElementById('menu-coins').textContent = userCoins;
+
+        document.getElementById('draw-deck-btn').addEventListener('click', () => executeTurn('deck'));
+        document.getElementById('draw-discard-btn').addEventListener('click', () => executeTurn('discard'));
+        document.getElementById('yaniv-btn').addEventListener('click', () => declareYaniv(myNetworkId));
     };
 
     function saveUserData() {
@@ -348,23 +364,18 @@
     }
 
     function updateCardBack(val) { myCardBackClass = val; }
-    function updatePlayerIcon(fileName) { 
-        myIconStr = `<img src="${fileName}" alt="icon">`;
-        document.getElementById('icon-preview').innerHTML = myIconStr; 
-    }
+    function updatePlayerIcon(fileName) { myIconStr = `<img src="${fileName}" alt="icon">`; document.getElementById('icon-preview').innerHTML = myIconStr; }
     function saveSettingsAndReturn() {
         myName = document.getElementById('my-name-input').value.trim() || "ゲスト";
         players[0].name = myName; players[0].icon = myIconStr; players[0].cardBack = myCardBackClass;
         saveUserData(); switchScreen('main-menu');
     }
 
-    // --- 【ホスト】部屋作成 ---
+    // --- ロビー＆通信準備 ---
     function createRoom() {
         isHost = true; myNetworkId = 0;
+        players.forEach(p => { p.isActive = false; p.isReal = false; p.peerId = null; p.hand = []; p.drinks = 0; });
         players[0].name = myName; players[0].icon = myIconStr; players[0].cardBack = myCardBackClass; players[0].isReal = true; players[0].isActive = true;
-        players[1] = { id: 1, name: 'CPU 1', icon: '<img src="icon_default.png">', cardBack: 'back-blue', drinks: 0, hand: [], isReal: false, isActive: true, peerId: null };
-        players[2] = { id: 2, name: 'CPU 2', icon: '<img src="icon_default.png">', cardBack: 'back-blue', drinks: 0, hand: [], isReal: false, isActive: true, peerId: null };
-        players[3] = { id: 3, name: 'CPU 3', icon: '<img src="icon_default.png">', cardBack: 'back-blue', drinks: 0, hand: [], isReal: false, isActive: true, peerId: null };
 
         document.getElementById('host-controls').style.display = 'block'; document.getElementById('guest-controls').style.display = 'none';
         document.getElementById('lobby-title').textContent = "待機ロビー (ホスト)"; switchScreen('room-waiting-screen');
@@ -382,32 +393,27 @@
             guestConnections.push(conn);
             conn.on('data', (data) => {
                 if (data.type === 'JOIN_REQUEST') handleGuestJoin(data.name, data.icon, data.cardBack, conn);
-                else if (data.type === 'REQ_ACTION') processAction(data.playerIndex, data.cardsToDiscard, data.drawSource);
+                else if (data.type === 'REQ_ACTION') executeTurnSequence(data.playerIndex, data.cardsToDiscard, data.drawSource);
                 else if (data.type === 'REQ_YANIV') declareYaniv(data.playerIndex);
             });
-            conn.on('close', () => { 
-                guestConnections = guestConnections.filter(c => c !== conn); 
-                handleDisconnect(conn.peer);
-            });
+            conn.on('close', () => { guestConnections = guestConnections.filter(c => c !== conn); handleDisconnect(conn.peer); });
         });
     }
 
-    // 友達切断の自動CPU引き継ぎ
+    // 友達切断の自動CPU化
     function handleDisconnect(peerId) {
         const p = players.find(x => x.peerId === peerId);
         if(p) {
             p.isReal = false; p.name = p.name + "(CPU)"; p.peerId = null;
             if(document.getElementById('game-container').style.display === 'flex') {
-                const state = buildStateObj();
-                guestConnections.forEach(c => c.send({ type: 'SYNC_STATE', state }));
-                applyState(state); updateUI();
+                updateUI(); broadcastState();
                 if(currentTurn === p.id && !gameEnded) { setTimeout(() => processCPUTurn(p.id), 1000); }
             } else { updateLobbyUI(); broadcastLobbyState(); }
         }
     }
 
     function handleGuestJoin(guestName, guestIcon, guestCardBack, conn) {
-        let slotIndex = players.findIndex(p => p.id !== 0 && !p.isReal);
+        let slotIndex = players.findIndex(p => p.id !== 0 && !p.isActive);
         if (slotIndex !== -1) {
             players[slotIndex] = { id: slotIndex, name: guestName, icon: guestIcon, cardBack: guestCardBack, drinks: 0, hand: [], isReal: true, isActive: true, peerId: conn.peer };
             conn.send({ type: 'JOIN_ACCEPTED', yourId: slotIndex });
@@ -432,7 +438,21 @@
         guestConnections.forEach(conn => conn.send({ type: 'LOBBY_UPDATE', players: cleanPlayers }));
     }
 
-    // --- 【ゲスト】部屋参加 ---
+    // --- オフラインセットアップ ---
+    function setupOfflineLobby() {
+        isHost = true; myNetworkId = 0; ruleType = "KD"; MAX_ROUNDS = 5;
+        players.forEach(p => { p.isActive = false; p.isReal = false; p.peerId = null; p.hand = []; p.drinks = 0; });
+        players[0].name = myName; players[0].icon = myIconStr; players[0].cardBack = myCardBackClass; players[0].isReal = true; players[0].isActive = true;
+        players[1] = { id: 1, name: 'CPU 1', icon: '<img src="icon_default.png">', cardBack: 'back-blue', drinks: 0, hand: [], isReal: false, isActive: true, peerId: null };
+        players[2] = { id: 2, name: 'CPU 2', icon: '<img src="icon_default.png">', cardBack: 'back-blue', drinks: 0, hand: [], isReal: false, isActive: true, peerId: null };
+        players[3] = { id: 3, name: 'CPU 3', icon: '<img src="icon_default.png">', cardBack: 'back-blue', drinks: 0, hand: [], isReal: false, isActive: true, peerId: null };
+
+        document.getElementById('host-controls').style.display = 'block'; document.getElementById('guest-controls').style.display = 'none';
+        document.getElementById('lobby-title').textContent = "オフラインロビー"; document.getElementById('room-id-display').innerHTML = `ひとりで遊ぶモード`;
+        updateLobbyUI(); switchScreen('room-waiting-screen');
+    }
+
+    // --- ゲスト参加 ---
     function joinRoom() {
         isHost = false; const inputId = document.getElementById('join-room-id').value.trim();
         if(!inputId || inputId.length !== 5) { alert("5桁のIDを入力してください"); return; }
@@ -455,7 +475,7 @@
                 else if (data.type === 'LOBBY_UPDATE') { players = data.players; updateLobbyUI(); }
                 else if (data.type === 'GAME_START') { switchScreen('game-container'); }
                 else if (data.type === 'SYNC_STATE') { applyState(data.state); updateUI(); setTurn(currentTurn); }
-                else if (data.type === 'ACTION_EVENT') { playActionSequence(data); }
+                else if (data.type === 'PLAY_ANIM') { playGuestAnimation(data.playerIndex, data.cardsToDiscard, data.drawSource, data.cardToPickUp); }
                 else if (data.type === 'YANIV_EVENT') { playYanivEvent(data); }
                 else if (data.type === 'SHOW_RESULTS') { showResultsModal(data.payload); }
             });
@@ -464,39 +484,92 @@
         peer.on('error', (err) => { alert("エラー: 部屋が見つかりません。"); leaveRoom(); });
     }
 
-    // --- ★ UI相対座標システム (完全同期仕様) ★ ---
+    function updateLobbyUI() {
+        const list = document.getElementById('lobby-players'); list.innerHTML = '';
+        players.forEach(p => {
+            if(p.isActive) {
+                let badge = p.isReal ? `<span style="color:#4caf50;">👤人</span>` : `<span style="color:#9e9e9e;">🤖CPU</span>`;
+                if(p.id === myNetworkId) badge = `<span style="color:#ffeb3b;">⭐あなた</span>`;
+                list.innerHTML += `<div class="player-slot"><div style="display:flex; align-items:center; gap:10px;"><div class="icon-small">${p.icon}</div>${p.name}</div>${badge}</div>`;
+            } else { list.innerHTML += `<div class="player-slot empty">空き枠</div>`; }
+        });
+    }
+
+    function leaveRoom() { if(peer) peer.destroy(); peer = null; hostConnection = null; guestConnections = []; switchScreen('main-menu'); }
+
+    // --- ゲーム開始 ---
+    function startNetworkGame() {
+        let count = players.filter(p => p.isActive).length;
+        if(count < 2) { alert("最低2人は必要です！"); return; }
+        
+        MAX_ROUNDS = parseInt(document.getElementById('room-rounds').value) || 5;
+        ruleType = document.getElementById('rule-template').value || "KD";
+        guestConnections.forEach(conn => conn.send({ type: 'GAME_START' }));
+        switchScreen('game-container');
+        activePlayers = players.filter(p => p.isActive);
+        activePlayers.forEach(p => p.drinks = 0);
+        startRound();
+    }
+
+    function createDeck() {
+        deck = []; cardIdCounter = 0;
+        suits.forEach(suit => { ranks.forEach((rank, index) => { deck.push({ id: cardIdCounter++, suit, rank, value: index + 1, type: 'normal' }); }); });
+        deck.push({ id: cardIdCounter++, suit: 'Joker', rank: '🃏', value: 0, type: 'joker' }, { id: cardIdCounter++, suit: 'Joker', rank: '🃏', value: 0, type: 'joker' });
+        for (let i = deck.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]]; }
+    }
+
+    function startRound() {
+        if(!isHost) return; 
+        gameEnded = false; createDeck();
+        activePlayers = players.filter(p => p.isActive);
+        activePlayers.forEach(p => p.hand = deck.splice(0, 5));
+        
+        let firstCard = deck.pop(); 
+        while (firstCard.type === 'joker') { deck.unshift(firstCard); firstCard = deck.pop(); }
+        discardSets = [ [firstCard] ]; selectedCards = [];
+        
+        let activeIds = activePlayers.map(p => p.id);
+        currentTurn = activeIds[Math.floor(Math.random() * activeIds.length)]; 
+        document.getElementById('round-counter').textContent = `第 ${currentRound} / ${MAX_ROUNDS} ラウンド`;
+        
+        broadcastState(); updateUI(); setTurn(currentTurn);
+        
+        // 最初のターンがCPUなら動かす
+        const firstPObj = players.find(p => p.id === currentTurn);
+        if (firstPObj && !firstPObj.isReal) { setTimeout(() => processCPUTurn(currentTurn), 1000); }
+    }
+
+    function buildStateObj() { return { players, discardSets, deckCount: deck.length, currentTurn, currentRound, MAX_ROUNDS }; }
+    function applyState(state) {
+        // オブジェクトのディープコピーはせず、直接状態を上書き(ゲスト向け)
+        players = state.players; discardSets = state.discardSets; deck.length = state.deckCount;
+        currentTurn = state.currentTurn; currentRound = state.currentRound; MAX_ROUNDS = state.MAX_ROUNDS;
+        activePlayers = players.filter(p => p.isActive);
+        document.getElementById('round-counter').textContent = `第 ${currentRound} / ${MAX_ROUNDS} ラウンド`;
+    }
+
+    // --- UI相対描画システム ---
     function getPlayerAtPos(posIndex) {
-        // 0=南(自分), 1=西, 2=北, 3=東
-        const mappedId = (myNetworkId + posIndex) % 4;
-        return players.find(p => p.id === mappedId);
+        const mappedId = (myNetworkId + posIndex) % 4; return players.find(p => p.id === mappedId);
     }
 
     function updateUI(revealAll = false) {
-        // 全テーブル席数(1~3)の表示切替
-        [1, 2, 3].forEach(posIndex => {
-            const p = getPlayerAtPos(posIndex);
-            document.getElementById(`area-${posIndex}`).style.display = (p && p.isActive) ? 'flex' : 'none';
-        });
-
-        // 全座席ヘッダーと手札のクリーンな紐付けレンダリング
+        // ★ 0(南), 1(西), 2(北), 3(東) 全てを確実にループして「自分の手が消えるバグ」を完全回避！
         [0, 1, 2, 3].forEach(posIndex => {
             const p = getPlayerAtPos(posIndex);
-            if (!p || !p.isActive) return;
+            const areaEl = document.getElementById(`area-${posIndex}`);
+            if (!p || !p.isActive) { areaEl.style.display = 'none'; return; }
+            areaEl.style.display = 'flex'; // ★ これで自分のエリア(0)も確実に表示される！
             
             document.getElementById(`name-${posIndex}`).textContent = p.name;
             document.getElementById(`icon-${posIndex}`).innerHTML = p.icon;
             document.getElementById(`drink-${posIndex}`).textContent = p.drinks;
             
-            const handContainer = posIndex === 0 ? document.getElementById('player-hand') : document.getElementById(`cpu${posIndex}-hand`);
+            const isMe = posIndex === 0;
+            const handContainer = isMe ? document.getElementById('player-hand') : document.getElementById(`cpu${posIndex}-hand`);
             handContainer.innerHTML = '';
             
-            const isMe = p.id === myNetworkId;
-            if (isMe) {
-                p.hand.sort((a, b) => a.value - b.value);
-                document.getElementById('sum-0').textContent = getHandScore(p.hand);
-            } else {
-                document.getElementById(`sum-${posIndex}`).textContent = revealAll ? getHandScore(p.hand) : "?";
-            }
+            if (isMe) p.hand.sort((a, b) => a.value - b.value);
             
             p.hand.forEach(card => {
                 const cardEl = createCardElement(card, revealAll || isMe, p.id);
@@ -509,9 +582,11 @@
                 }
                 handContainer.appendChild(cardEl);
             });
+            
+            if (isMe) document.getElementById(`sum-0`).textContent = getHandScore(p.hand);
+            else document.getElementById(`sum-${posIndex}`).textContent = revealAll ? getHandScore(p.hand) : "?";
         });
 
-        // 捨て札の中央スタック描写
         const discardContainer = document.getElementById('discard-pile'); discardContainer.innerHTML = '';
         if (discardSets.length > 0) {
             const prm = getCardParams(); const topSet = discardSets[discardSets.length - 1];
@@ -522,14 +597,14 @@
                 cardEl.style.boxShadow = "-2px 2px 5px rgba(0,0,0,0.5)"; discardContainer.appendChild(cardEl);
             });
         }
-        document.getElementById('deck-count').textContent = isHost ? deck.length : virtualDeckCount;
+        document.getElementById('deck-count').textContent = isHost ? deck.length : deck.length;
         updateButtonStates();
     }
 
     function createCardElement(card, isFaceUp, ownerIndex = -1) {
         const cardEl = document.createElement('div'); cardEl.id = `card-${card.id}`;
         const owner = players.find(p => p.id === ownerIndex);
-        const backClass = owner ? (owner.cardBack || 'back-blue') : 'back-blue';
+        const backClass = owner ? (owner.cardBack || 'back-blue') : 'back-blue'; 
         if (!isFaceUp) { cardEl.className = `card back ${backClass}`; return cardEl; }
         cardEl.className = `card ${card.type === 'joker' ? 'joker' : (card.suit === '♥' || card.suit === '♦' ? 'red' : 'black')}`;
         const tl = document.createElement('div'); tl.className = 'card-corner'; const center = document.createElement('div'); center.className = 'card-center';
@@ -546,6 +621,7 @@
         [0,1,2,3].forEach(i => document.getElementById(`area-${i}`).classList.remove('active'));
         const uiIndex = (playerIndex - myNetworkId + 4) % 4;
         document.getElementById(`area-${uiIndex}`).classList.add('active');
+        
         const name = players.find(p=>p.id===playerIndex).name;
         document.getElementById('turn-indicator').textContent = playerIndex === myNetworkId ? "あなたのターン" : `${name} のターン...`;
 
@@ -563,11 +639,45 @@
         else { btnDeck.disabled = false; btnDiscard.disabled = discardSets.length === 0; }
     }
 
-    // --- ★ ゲームロジック同期システム (v4.0 順次コールバック型) ★ ---
+    function getHandScore(hand) { return hand.reduce((sum, card) => sum + (card.type === 'joker' ? 0 : card.value), 0); }
+    function toggleCardSelection(card) { const index = selectedCards.findIndex(c => c.id === card.id); if (index > -1) selectedCards.splice(index, 1); else selectedCards.push(card); updateUI(); }
+    
+    function isValidPlay(cards) {
+        if (cards.length === 0) return false; if (cards.length === 1) return true;
+        const jokers = cards.filter(c => c.type === 'joker').length; const normals = cards.filter(c => c.type !== 'joker');
+        if (normals.every(c => c.value === normals[0].value)) return true;
+        if (cards.length >= 3) {
+            if (normals.length <= 1) return true; 
+            const sortedValues = [...new Set(normals.map(c => c.value))].sort((a, b) => a - b);
+            if (sortedValues.length !== normals.length) return false;
+            if ((sortedValues[sortedValues.length - 1] - sortedValues[0] - normals.length + 1) <= jokers) return true; 
+        }
+        return false;
+    }
+
+    function getBestPlayForAI(hand) {
+        const n = hand.length; let bestPlay = []; let maxScoreDrop = -1; 
+        for (let i = 1; i < (1 << n); i++) {
+            let subset = []; for (let j = 0; j < n; j++) if (i & (1 << j)) subset.push(hand[j]);
+            if (isValidPlay(subset)) {
+                let scoreDrop = getHandScore(subset);
+                if (scoreDrop > maxScoreDrop) { maxScoreDrop = scoreDrop; bestPlay = subset; } 
+                else if (scoreDrop === maxScoreDrop) { if (subset.length > bestPlay.length) bestPlay = subset; }
+            }
+        }
+        let finalPlay = bestPlay.length > 0 ? bestPlay : [hand[0]];
+        if (finalPlay.length > 1) {
+            let jokers = finalPlay.filter(c => c.type === 'joker'); let normals = finalPlay.filter(c => c.type !== 'joker');
+            normals.sort((a, b) => a.value - b.value); finalPlay = jokers.concat(normals);
+        }
+        return finalPlay;
+    }
+
+    // --- ★ v4.0 完全復活！最強のコールバック型アニメーション同期 ★ ---
     function executeTurn(drawSource) { 
         if (currentTurn !== myNetworkId) return; 
         const cardsToDiscard = [...selectedCards]; selectedCards = []; 
-        if(isHost) { processAction(myNetworkId, cardsToDiscard, drawSource); }
+        if(isHost) { executeTurnSequence(myNetworkId, cardsToDiscard, drawSource); }
         else { hostConnection.send({ type: 'REQ_ACTION', playerIndex: myNetworkId, cardsToDiscard, drawSource }); }
     }
 
@@ -581,16 +691,27 @@
                 const topSet = discardSets[discardSets.length - 1];
                 if (getHandScore([topSet[topSet.length - 1]]) <= 3 && deck.length > 0) { drawSource = 'discard'; }
             }
-            processAction(cpuId, cardsToDiscard, drawSource);
+            executeTurnSequence(cpuId, cardsToDiscard, drawSource);
         }
     }
 
-    function processAction(playerIndex, cardsToDiscard, drawSource) {
-        if (currentTurn !== playerIndex || gameEnded) return;
-        const p = players.find(x => x.id === playerIndex); if(!p) return;
+    function drawFromDeck() {
+        if (deck.length === 0 && discardSets.length > 1) {
+            const topSet = discardSets.pop(); discardSets.forEach(set => deck.push(...set)); discardSets = [topSet];
+            for (let i = deck.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]]; }
+        }
+        return deck.pop();
+    }
+
+    // ホスト用のメイン処理。アニメーションがすべて終わってからデータを更新し、ターンを回す！
+    function executeTurnSequence(playerIndex, cardsToDiscard, drawSource) {
+        if (playerIndex === myNetworkId) { document.getElementById('player-controls').style.display = 'none'; }
         
-        // ホスト側でデータをあらかじめ裏で計算・更新
-        cardsToDiscard.forEach(c => { const idx = p.hand.findIndex(hc => hc.id === c.id); if(idx > -1) p.hand.splice(idx, 1); });
+        const uiIndex = (playerIndex - myNetworkId + 4) % 4;
+        const badge = document.getElementById(`action-${uiIndex}`); 
+        if(badge) { badge.textContent = drawSource === 'discard' ? "拾った！" : "引いた"; badge.classList.add('show'); setTimeout(() => badge.classList.remove('show'), 2000); }
+
+        cardsToDiscard.forEach(c => { const el = document.getElementById(`card-${c.id}`); if(el) el.style.opacity = '0'; });
         
         let cardToPickUp = null;
         if (drawSource === 'discard') { 
@@ -599,65 +720,53 @@
                 if (topSet.length === 0) discardSets.pop(); 
             } else { cardToPickUp = drawFromDeck(); drawSource = 'deck'; }
         } else { cardToPickUp = drawFromDeck(); }
-        
-        if(cardToPickUp) p.hand.push(cardToPickUp);
-        discardSets.push(cardsToDiscard);
 
-        let activeIds = activePlayers.map(x => x.id); let currentIndex = activeIds.indexOf(currentTurn);
-        currentTurn = activeIds[(currentIndex + 1) % activeIds.length];
-        
-        const newState = buildStateObj();
-        const eventData = { type: 'ACTION_EVENT', playerIndex, cardsToDiscard, drawSource, cardToPickUp, newState };
-        
-        // ゲストへ配信し、自身も再生に回る
-        guestConnections.forEach(conn => conn.send(eventData));
-        playActionSequence(eventData);
+        // ゲストにアニメーションを再生させる
+        guestConnections.forEach(c => c.send({ type: 'PLAY_ANIM', playerIndex, cardsToDiscard, drawSource, cardToPickUp }));
+
+        performDiscardAnimation(cardsToDiscard, uiIndex, () => {
+            const p = players.find(x => x.id === playerIndex);
+            if(p) cardsToDiscard.forEach(c => { const idx = p.hand.findIndex(hc => hc.id === c.id); if (idx > -1) p.hand.splice(idx, 1); });
+            discardSets.push(cardsToDiscard); 
+            updateUI(); 
+
+            if (cardToPickUp) { 
+                performDrawAnimation(drawSource, uiIndex, playerIndex, () => { 
+                    if(p) p.hand.push(cardToPickUp); 
+                    updateUI(); 
+                    passTurn(); 
+                }); 
+            } else { passTurn(); }
+        });
     }
 
-    function playActionSequence(data) {
-        const { playerIndex, cardsToDiscard, drawSource, cardToPickUp, newState } = data;
-        if (playerIndex === myNetworkId) document.getElementById('player-controls').style.display = 'none';
+    // ゲスト用のアニメーション再生処理。ホストと同じ動きをし、終わったらホストからのSYNC_STATEを待つ
+    function playGuestAnimation(playerIndex, cardsToDiscard, drawSource, cardToPickUp) {
+        if (playerIndex === myNetworkId) { document.getElementById('player-controls').style.display = 'none'; }
         
         const uiIndex = (playerIndex - myNetworkId + 4) % 4;
         const badge = document.getElementById(`action-${uiIndex}`); 
         if(badge) { badge.textContent = drawSource === 'discard' ? "拾った！" : "引いた"; badge.classList.add('show'); setTimeout(() => badge.classList.remove('show'), 2000); }
         
-        // 1. 捨てるアニメーション
-        performDiscardAnimation(cardsToDiscard, uiIndex, () => {
-            // アニメーションが終わってから、データを完全にマージ・同期させる
-            applyState(newState);
-            
-            // 描写バグを防ぐため、引いたカードを一時的にUI上隠す
-            const p = players.find(x => x.id === playerIndex);
-            let tempIdx = -1;
-            if (cardToPickUp && p) {
-                tempIdx = p.hand.findIndex(c => c.id === cardToPickUp.id);
-                if(tempIdx > -1) p.hand.splice(tempIdx, 1);
-            }
-            updateUI();
-
-            // 2. 引くアニメーション
-            if (cardToPickUp) {
-                performDrawAnimation(drawSource, uiIndex, playerIndex, () => {
-                    if(tempIdx > -1 && p) p.hand.splice(tempIdx, 0, cardToPickUp);
-                    updateUI(); // 最終反映
-                    passTurnAfterAnim();
-                });
-            } else { updateUI(); passTurnAfterAnim(); }
-        });
-    }
-
-    function passTurnAfterAnim() {
-        setTurn(currentTurn);
-        if (isHost && !gameEnded) {
-            const nextP = players.find(p => p.id === currentTurn);
-            if (nextP && !nextP.isReal) { setTimeout(() => processCPUTurn(currentTurn), 800); }
+        cardsToDiscard.forEach(c => { const el = document.getElementById(`card-${c.id}`); if(el) el.style.opacity = '0'; });
+        
+        // 見た目のためだけに一時的に場を更新
+        if (drawSource === 'discard' && discardSets.length > 0) {
+            let topSet = discardSets[discardSets.length - 1]; if(topSet.length > 0) topSet.pop(); if(topSet.length === 0) discardSets.pop();
         }
+
+        performDiscardAnimation(cardsToDiscard, uiIndex, () => {
+            discardSets.push(cardsToDiscard); updateUI();
+            if(cardToPickUp) {
+                performDrawAnimation(drawSource, uiIndex, playerIndex, () => {});
+            }
+        });
     }
 
     function performDiscardAnimation(cardsToDiscard, uiIndex, callback) {
         playSound('discard'); const prm = getCardParams();
         const discardPile = document.getElementById('discard-pile'); const discardRect = discardPile.getBoundingClientRect(); let animElements = [];
+
         cardsToDiscard.forEach((card, i) => {
             const cardEl = document.getElementById(`card-${card.id}`); 
             let startRect = cardEl ? cardEl.getBoundingClientRect() : document.getElementById(`area-${uiIndex}`).getBoundingClientRect();
@@ -666,15 +775,16 @@
             animCard.style.transform = `rotate(${initialRotate})`; animCard.style.transition = 'all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1)';
             document.body.appendChild(animCard); animElements.push(animCard);
         });
+
+        document.body.getBoundingClientRect(); // 強制リフロー
         const totalWidth = prm.w + (cardsToDiscard.length - 1) * prm.offset; const startX = -(totalWidth / 2) + (prm.w / 2);
-        setTimeout(() => {
-            animElements.forEach((animCard, i) => {
-                animCard.style.top = (discardRect.top + (discardRect.height / 2) - (prm.h / 2)) + 'px';
-                animCard.style.left = (discardRect.left + (discardRect.width / 2) - (prm.w / 2) + startX + (i * prm.offset)) + 'px';
-                animCard.style.transform = 'rotate(0deg)'; 
-            });
-            setTimeout(() => { animElements.forEach(el => el.remove()); callback(); }, 350);
-        }, 10);
+
+        animElements.forEach((animCard, i) => {
+            const targetLeft = discardRect.left + (discardRect.width / 2) - (prm.w / 2) + startX + (i * prm.offset); const targetTop = discardRect.top + (discardRect.height / 2) - (prm.h / 2);
+            animCard.style.top = targetTop + 'px'; animCard.style.left = targetLeft + 'px'; animCard.style.transform = 'rotate(0deg)'; 
+        });
+
+        setTimeout(() => { animElements.forEach(el => el.remove()); callback(); }, 350);
     }
 
     function performDrawAnimation(drawSource, uiIndex, playerIndex, callback) {
@@ -682,27 +792,40 @@
         const sourceEl = document.getElementById(drawSource === 'discard' ? 'discard-pile' : 'deck-pile');
         const targetContainer = document.getElementById(uiIndex === 0 ? 'player-hand' : `cpu${uiIndex}-hand`);
         if (!sourceEl || !targetContainer) { callback(); return; }
-        const pObj = players.find(p => p.id === playerIndex);
-        const animCard = document.createElement('div'); animCard.className = `card back ${pObj ? (pObj.cardBack || 'back-blue') : 'back-blue'}`;
+
+        const playerObj = players.find(p => p.id === playerIndex);
+        const backC = playerObj ? (playerObj.cardBack || 'back-blue') : 'back-blue';
+        const animCard = document.createElement('div'); animCard.className = `card back ${backC}`;
+        
         const sRect = sourceEl.getBoundingClientRect(); const tRect = targetContainer.getBoundingClientRect();
-        animCard.style.position = 'fixed'; animCard.style.top = sRect.top + 'px'; animCard.style.left = sRect.left + 'px'; animCard.style.margin = '0'; animCard.style.zIndex = '9999'; animCard.style.transition = 'all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1)';
-        document.body.appendChild(animCard);
-        setTimeout(() => {
-            let finalRotate = '0deg'; if (uiIndex === 1) finalRotate = '90deg'; if (uiIndex === 2) finalRotate = '180deg'; if (uiIndex === 3) finalRotate = '-90deg';
-            animCard.style.top = (tRect.top + (tRect.height / 2) - (prm.h / 2)) + 'px';
-            animCard.style.left = (tRect.left + (tRect.width / 2) - (prm.w / 2)) + 'px';
-            animCard.style.transform = `rotate(${finalRotate})`; animCard.style.opacity = '0.3';
-            setTimeout(() => { animCard.remove(); callback(); }, 350);
-        }, 10);
+        animCard.style.position = 'fixed'; animCard.style.top = sRect.top + 'px'; animCard.style.left = sRect.left + 'px'; animCard.style.margin = '0'; animCard.style.zIndex = '9999'; animCard.style.transform = 'rotate(0deg)'; animCard.style.transition = 'all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1)';
+        document.body.appendChild(animCard); animCard.getBoundingClientRect(); 
+        
+        let finalRotate = '0deg'; if (uiIndex === 1) finalRotate = '90deg'; if (uiIndex === 2) finalRotate = '180deg'; if (uiIndex === 3) finalRotate = '-90deg';
+        animCard.style.top = tRect.top + (tRect.height/2) - (prm.h / 2) + 'px'; animCard.style.left = tRect.left + (tRect.width/2) - (prm.w / 2) + 'px'; animCard.style.transform = `rotate(${finalRotate})`; animCard.style.opacity = '0.3';
+        
+        setTimeout(() => { animCard.remove(); callback(); }, 350);
     }
 
-    // --- 決着・ヤニブ宣言ロジック ---
+    function passTurn() {
+        let activeIds = activePlayers.map(x => x.id); let currentIndex = activeIds.indexOf(currentTurn);
+        currentTurn = activeIds[(currentIndex + 1) % activeIds.length];
+        
+        setTurn(currentTurn); updateUI();
+        broadcastState(); // ゲストの画面を最終更新
+        
+        if (!gameEnded) {
+            const nextP = players.find(p => p.id === currentTurn);
+            if (nextP && !nextP.isReal) { setTimeout(() => processCPUTurn(currentTurn), 800); }
+        }
+    }
+
+    // --- 決着同期とコイン計算 ---
     function declareYaniv(declarerIndex) {
         if(isHost) {
             gameEnded = true;
-            const eventData = { type: 'YANIV_EVENT', declarerIndex };
-            guestConnections.forEach(c => c.send(eventData));
-            playYanivEvent(eventData);
+            guestConnections.forEach(c => c.send({ type: 'YANIV_EVENT', declarerIndex }));
+            playYanivEvent({ declarerIndex });
         } else { hostConnection.send({ type: 'REQ_YANIV', playerIndex: myNetworkId }); }
     }
 
@@ -742,8 +865,7 @@
 
         const isPvP = activePlayers.some(p => p.isReal && p.id !== 0); const coinReward = isPvP ? 50 : 5;
         const payload = { resultsData, modalSub, isAsaf, coinReward, currentRound, MAX_ROUNDS };
-        guestConnections.forEach(c => c.send({ type: 'SHOW_RESULTS', payload }));
-        showResultsModal(payload);
+        guestConnections.forEach(c => c.send({ type: 'SHOW_RESULTS', payload })); showResultsModal(payload);
     }
 
     function showResultsModal(payload) {
@@ -787,10 +909,22 @@
         modalActionState = 'new_game'; document.getElementById('modal-next-btn').textContent = "メインメニューへ戻る"; document.getElementById('modal-overlay').style.display = 'flex';
     }
 
-    // --- 便利サブユーティリティ群 ---
-    function handleModalNext() { document.getElementById('modal-overlay').style.display = 'none'; if (modalActionState === 'next_round') { currentRound++; startRound(); } else if (modalActionState === 'show_final') { setTimeout(showFinalTotalRanking, 150); } else if (modalActionState === 'new_game') { switchScreen('main-menu'); } }
-    function toggleCardSelection(card) { const index = selectedCards.findIndex(c => c.id === card.id); if (index > -1) selectedCards.splice(index, 1); else selectedCards.push(card); updateUI(); }
-    function isValidPlay(cards) { if (cards.length === 0) return false; if (cards.length === 1) return true; const jokers = cards.filter(c => c.type === 'joker').length; const normals = cards.filter(c => c.type !== 'joker'); if (normals.every(c => c.value === normals[0].value)) return true; if (cards.length >= 3) { if (normals.length <= 1) return true; const sortedValues = [...new Set(normals.map(c => c.value))].sort((a, b) => a - b); if (sortedValues.length !== normals.length) return false; if ((sortedValues[sortedValues.length - 1] - sortedValues[0] - normals.length + 1) <= jokers) return true; } return false; }
+    function handleModalNext() { document.getElementById('modal-overlay').style.display = 'none'; if (modalActionState === 'next_round') { startRound(); } else if (modalActionState === 'show_final') { setTimeout(showFinalTotalRanking, 150); } else if (modalActionState === 'new_game') { switchScreen('main-menu'); } }
+    
+    // --- Web Audio ---
+    let audioCtx = null;
+    function initAudio() { if (!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } }
+    function playSound(type) {
+        if (masterVolume === 0) return;
+        try { initAudio(); if (!audioCtx) return;
+            const osc = audioCtx.createOscillator(); const gainNode = audioCtx.createGain(); osc.connect(gainNode); gainNode.connect(audioCtx.destination); const now = audioCtx.currentTime;
+            if (type === 'click') { osc.type = 'sine'; osc.frequency.setValueAtTime(600, now); gainNode.gain.setValueAtTime(0.05 * masterVolume, now); gainNode.gain.linearRampToValueAtTime(0, now + 0.05); osc.start(now); osc.stop(now + 0.05); } 
+            else if (type === 'discard') { osc.type = 'triangle'; osc.frequency.setValueAtTime(350, now); osc.frequency.exponentialRampToValueAtTime(150, now + 0.15); gainNode.gain.setValueAtTime(0.15 * masterVolume, now); gainNode.gain.linearRampToValueAtTime(0, now + 0.15); osc.start(now); osc.stop(now + 0.15); } 
+            else if (type === 'draw') { osc.type = 'sine'; osc.frequency.setValueAtTime(400, now); osc.frequency.exponentialRampToValueAtTime(700, now + 0.2); gainNode.gain.setValueAtTime(0.1 * masterVolume, now); gainNode.gain.linearRampToValueAtTime(0, now + 0.2); osc.start(now); osc.stop(now + 0.2); } 
+            else if (type === 'yaniv') { osc.type = 'square'; osc.frequency.setValueAtTime(523.25, now); osc.frequency.setValueAtTime(659.25, now + 0.08); osc.frequency.setValueAtTime(783.99, now + 0.16); osc.frequency.setValueAtTime(1046.50, now + 0.24); gainNode.gain.setValueAtTime(0.1 * masterVolume, now); gainNode.gain.linearRampToValueAtTime(0, now + 0.5); osc.start(now); osc.stop(now + 0.5); } 
+            else if (type === 'asaf') { osc.type = 'sawtooth'; osc.frequency.setValueAtTime(130, now); osc.frequency.linearRampToValueAtTime(100, now + 0.3); gainNode.gain.setValueAtTime(0.2 * masterVolume, now); gainNode.gain.linearRampToValueAtTime(0, now + 0.3); osc.start(now); osc.stop(now + 0.3); }
+        } catch (e) {}
+    }
 </script>
 </body>
 </html>
