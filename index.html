@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ヤニブ (Yaniv) v16.7 Ultimate</title>
+<title>ヤニブ (Yaniv) v17.0 Ultimate</title>
 <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 <style>
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -27,12 +27,11 @@
     #toast-notification { position: fixed; top: 20%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.85); color: #fff; font-weight: bold; font-size: 18px; padding: 15px 30px; border-radius: 30px; box-shadow: 0 5px 20px rgba(0,0,0,0.6); display: none; z-index: 10000; border: 2px solid #ffeb3b; text-align: center; line-height: 1.4; white-space: nowrap; }
     @keyframes floatUp { 0% { top: 30%; opacity: 0; transform: translate(-50%, -50%) scale(0.8); } 10% { top: 20%; opacity: 1; transform: translate(-50%, -50%) scale(1.1); } 15% { transform: translate(-50%, -50%) scale(1); } 80% { top: 20%; opacity: 1; } 100% { top: 10%; opacity: 0; } }
 
-    /* メニュー */
+    /* メニュー関連 */
     .menu-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; width: 100%; padding: 20px; position: relative; }
     .menu-screen h1 { font-size: 42px; color: #ffeb3b; text-shadow: 2px 2px 0px #000; margin: 0 0 5px 0; letter-spacing: 2px; }
     .menu-subtitle { font-size: 14px; color: #a5d6a7; margin-bottom: 15px; font-weight: bold; width: 100%; max-width: 250px; text-align: center; }
     
-    /* XPバー */
     .xp-bar-container { width: 100%; height: 8px; background: rgba(0,0,0,0.5); border-radius: 4px; margin-top: 5px; overflow: hidden; border: 1px solid #388e3c; }
     .xp-bar-fill { height: 100%; background: #4caf50; width: 0%; transition: width 0.1s linear; }
     .level-up-pop { animation: lvPop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; color: #ffeb3b !important; }
@@ -87,6 +86,10 @@
     
     #in-game-exit-btn { position: absolute; top: 10px; left: 15px; font-size: 20px; cursor: pointer; z-index: 500; background: rgba(0,0,0,0.5); width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; border: 2px solid #f44336; transition: transform 0.2s; }
     #in-game-exit-btn:active { transform: scale(0.9); }
+
+    /* 退出確認カスタムダイアログ */
+    #custom-confirm-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:20000; justify-content:center; align-items:center; }
+    .confirm-box { background:#37474f; padding:20px; border-radius:12px; text-align:center; width:80%; max-width:300px; border:2px solid #546e7a; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
 
     /* H&L ミニゲーム画面 */
     #hl-screen { text-align: center; }
@@ -157,7 +160,6 @@
 
     .card.red { color: #d32f2f; } .card.black { color: #212121; } .card.joker { color: #7b1fa2; }
     
-    /* カード裏面 */
     .card.back { color: transparent !important; border: 2px solid white; cursor: default; }
     .back-red { background-color: #b71c1c; background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.1) 10px, rgba(255,255,255,0.1) 20px); }
     .back-blue { background-color: #0d47a1; background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.1) 10px, rgba(255,255,255,0.1) 20px); }
@@ -211,6 +213,17 @@
 
 <div id="toast-notification"></div>
 
+<!-- 退出確認カスタムダイアログ -->
+<div id="custom-confirm-overlay">
+    <div class="confirm-box">
+        <h3 style="color:#ffeb3b; margin-top:0; margin-bottom:15px; font-size:16px; line-height:1.4;" id="custom-confirm-msg"></h3>
+        <div style="display:flex; gap:10px;">
+            <button class="btn-secondary" style="flex:1; font-size:14px; padding:10px;" onclick="closeCustomConfirm()">いいえ</button>
+            <button class="btn-success" style="flex:1; background:#f44336; font-size:14px; padding:10px;" onclick="executeCustomConfirm()">はい</button>
+        </div>
+    </div>
+</div>
+
 <!-- チャットUI -->
 <div id="chat-display-container"></div>
 <div id="chat-toggle-btn" style="display:none;" onclick="toggleChatInput()">💬</div>
@@ -258,7 +271,7 @@
     </div>
     
     <div class="uid-text">UID: <span id="uid-display"></span></div>
-    <div class="version-text">v16.7 Ultimate Fix</div>
+    <div class="version-text">v17.0 Ultimate Fix</div>
 </div>
 
 <!-- 2. H&L ミニゲーム画面 -->
@@ -541,7 +554,7 @@
         </div>
         <div id="modal-btn-double" style="display:none; gap:10px; margin-top:15px;">
             <button class="btn-success" style="width:50%; font-size:14px; padding:10px;" onclick="returnToLobby()">ロビーへ戻る</button>
-            <button class="btn-secondary" style="width:50%; background:#f44336; color:white; font-size:14px; padding:10px;" onclick="leaveRoom()">解散/退出</button>
+            <button class="btn-secondary" style="width:50%; background:#f44336; color:white; font-size:14px; padding:10px;" onclick="confirmLeaveRoom()">解散/退出</button>
         </div>
         <div id="modal-btn-oni-gacha" style="display:none; margin-top:15px;">
             <button class="btn-success" style="width:100%; font-size:16px; padding:12px; background:#ffeb3b; color:black; border:2px solid #fbc02d; font-weight:bold; box-shadow:0 4px 0 #fbc02d;" onclick="openOniGacha()">ガチャを獲得！</button>
@@ -550,6 +563,25 @@
 </div>
 
 <script>
+    // --- 0. カスタムダイアログ処理 ---
+    let confirmAction = null;
+    function showCustomConfirm(msg, action) {
+        document.getElementById('custom-confirm-msg').innerHTML = msg;
+        confirmAction = action;
+        document.getElementById('custom-confirm-overlay').style.display = 'flex';
+    }
+    function closeCustomConfirm() {
+        document.getElementById('custom-confirm-overlay').style.display = 'none';
+        confirmAction = null;
+    }
+    function executeCustomConfirm() {
+        if(confirmAction) confirmAction();
+        closeCustomConfirm();
+    }
+    function confirmLeaveRoom() { showCustomConfirm("本当に退出して戻りますか？", leaveRoom); }
+    function confirmLeaveGame() { showCustomConfirm("本当にゲームを終了して戻りますか？<br><span style='font-size:12px;color:#f44336;'>(進行状況は破棄されます)</span>", leaveRoom); }
+
+    // --- 1. 画面遷移 ---
     function switchScreen(screenId) {
         try {
             document.querySelectorAll('.menu-screen').forEach(el => el.style.display = 'none');
@@ -578,9 +610,14 @@
         } catch(e) { console.error("switchScreen error:", e); }
     }
 
+    // --- 2. データパース保護＆定数定義 ---
     let userStats = { pvp: { matches: 0, wins: 0, totalRank: 0, rankCounts: [0,0,0,0] }, cpu: { matches: 0, wins: 0, totalRank: 0, rankCounts: [0,0,0,0] } };
-    try { let parsed = JSON.parse(localStorage.getItem('yaniv_stats')); if(parsed && parsed.pvp) userStats = parsed; } catch(e) {}
-    if(!userStats.pvp.rankCounts) userStats.pvp.rankCounts = [0,0,0,0]; if(!userStats.cpu.rankCounts) userStats.cpu.rankCounts = [0,0,0,0];
+    try { 
+        let parsed = JSON.parse(localStorage.getItem('yaniv_stats')); 
+        if(parsed && parsed.pvp) { userStats.pvp = { ...userStats.pvp, ...parsed.pvp }; userStats.cpu = { ...userStats.cpu, ...parsed.cpu }; }
+    } catch(e) {}
+    if(!Array.isArray(userStats.pvp.rankCounts) || userStats.pvp.rankCounts.length !== 4) userStats.pvp.rankCounts = [0,0,0,0]; 
+    if(!Array.isArray(userStats.cpu.rankCounts) || userStats.cpu.rankCounts.length !== 4) userStats.cpu.rankCounts = [0,0,0,0];
     
     let unlockedIcons = ['icon_default.png'];
     try { let parsed = JSON.parse(localStorage.getItem('yaniv_unlocked_icons')); if(Array.isArray(parsed)) unlockedIcons = parsed.filter(i => i && !i.startsWith('emoji_')); } catch(e) {}
@@ -603,9 +640,14 @@
         'card_ringo.png': 'リンゴ', 'card_kaeruman.png': 'マッチョ', 'card_star.png': '星', 'card_miko.png': '巫女', 'card_hatena.png': '？？？'
     };
 
-    let userCoins = parseInt(localStorage.getItem('yaniv_coins')) || 0;
-    let userDiamonds = parseInt(localStorage.getItem('yaniv_diamonds')) || 0;
-    let userXp = parseInt(localStorage.getItem('yaniv_xp')) || 0;
+    const suits = ['♠', '♥', '♦', '♣'];
+    const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+
+    // --- 3. 変数・セーブデータ読み込み ---
+    let userCoins = parseInt(localStorage.getItem('yaniv_coins')); if(isNaN(userCoins)) userCoins = 0;
+    let userDiamonds = parseInt(localStorage.getItem('yaniv_diamonds')); if(isNaN(userDiamonds)) userDiamonds = 0;
+    let userXp = parseInt(localStorage.getItem('yaniv_xp')); if(isNaN(userXp)) userXp = 0;
+    
     let myName = localStorage.getItem('yaniv_name') || "あなた";
     let myIconStr = localStorage.getItem('yaniv_icon') || 'icon_default.png'; 
     let myCardBack = localStorage.getItem('yaniv_card_back') || 'back-red';
@@ -618,19 +660,17 @@
         myUid = `${rnd()}-${rnd()}-${rnd()}-${rnd()}-${letters[Math.floor(Math.random()*26)]}`;
         localStorage.setItem('yaniv_uid', myUid);
     }
-    
     if(!iconData[myIconStr]) myIconStr = 'icon_default.png';
 
-    const suits = ['♠', '♥', '♦', '♣'];
-    const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
-    
     function calcLevel(xp) {
+        if (isNaN(xp) || xp < 0) xp = 0;
         let lv = 1; let base = 0;
-        while(true) {
+        while(lv < 1000) {
             let req = (lv === 1) ? 18 : (lv === 2 ? 34 : Math.floor(34 + 18 * Math.pow(lv - 2, 1.5)));
             if (xp < req) return { level: lv, next: req, current: xp, base: base };
             base = req; lv++;
         }
+        return { level: 1000, next: 9999999, current: xp, base: base };
     }
     let myLevelObj = calcLevel(userXp);
 
@@ -649,7 +689,9 @@
     let peer = null; let isHost = true; let hostConnection = null; let guestConnections = []; let myNetworkId = 0; 
     
     let treasureTimerInter = null;
+    let xpAnimInterval = null;
 
+    // --- 4. 初期起動処理 ---
     window.onload = () => {
         try {
             document.getElementById('my-name-input').value = myName;
@@ -667,6 +709,7 @@
         } catch(e) { console.error("onload error:", e); }
     };
 
+    // --- 5. 汎用UI更新 ---
     function showToast(msg, color="#fff") {
         const toast = document.getElementById('toast-notification');
         if(!toast) return;
@@ -679,17 +722,19 @@
     }
 
     function updateLevelUI() {
-        myLevelObj = calcLevel(userXp);
-        document.getElementById('menu-level-display').textContent = myLevelObj.level;
-        document.getElementById('menu-next-xp').textContent = myLevelObj.next - userXp;
-        let progress = ((myLevelObj.current - myLevelObj.base) / (myLevelObj.next - myLevelObj.base)) * 100;
-        document.getElementById('menu-xp-bar').style.width = progress + '%';
-        if(document.getElementById('stats-lv')) {
-            document.getElementById('stats-lv').textContent = myLevelObj.level;
-            document.getElementById('stats-next-xp').textContent = myLevelObj.next - userXp;
-            document.getElementById('stats-xp-bar').style.width = progress + '%';
-        }
-        players[0].level = myLevelObj.level;
+        try {
+            myLevelObj = calcLevel(userXp);
+            document.getElementById('menu-level-display').textContent = myLevelObj.level;
+            document.getElementById('menu-next-xp').textContent = myLevelObj.next - userXp;
+            let progress = ((userXp - myLevelObj.base) / (myLevelObj.next - myLevelObj.base)) * 100;
+            document.getElementById('menu-xp-bar').style.width = progress + '%';
+            if(document.getElementById('stats-lv')) {
+                document.getElementById('stats-lv').textContent = myLevelObj.level;
+                document.getElementById('stats-next-xp').textContent = myLevelObj.next - userXp;
+                document.getElementById('stats-xp-bar').style.width = progress + '%';
+            }
+            if(players && players[0]) players[0].level = myLevelObj.level;
+        } catch(e) { console.error("updateLevelUI err", e); }
     }
 
     function updateCurrencyUI() {
@@ -710,6 +755,7 @@
         updateCurrencyUI(); updateLevelUI();
     }
 
+    // --- 6. 宝箱機能 ---
     function updateTreasureTimer() {
         let lastTime = parseInt(localStorage.getItem('yaniv_treasure_time')) || 0;
         let now = Date.now(); let diff = now - lastTime; let waitTime = 3 * 60 * 60 * 1000;
@@ -741,6 +787,7 @@
         showToast(`🎁 宝箱ボーナス！<br><span style="font-size:24px;">+${cAdd}G / +${xAdd}xp</span>`, "#ffeb3b");
     }
 
+    // --- 7. H&L ミニゲーム ---
     let hlBet = 0; let hlSuccess = 0; let hlCurrentCard = 0;
     function openHLScreen() {
         switchScreen('hl-screen');
@@ -823,6 +870,7 @@
         openHLScreen();
     }
 
+    // --- 8. 設定・ショップ・ガチャ ---
     function refreshIconSelect() {
         const sel = document.getElementById('icon-select'); sel.innerHTML = '';
         unlockedIcons.forEach(icon => {
@@ -860,6 +908,60 @@
         saveUserData(); switchScreen('main-menu');
     }
 
+    const gachaIcons = ['icon_pien.png', 'icon_zombie.png', 'icon_happy.png', 'icon_piero.png', 'icon_ringo.png', 'icon_gun.png', 'icon_kaeruman.png', 'icon_miko.png', 'icon_birthday.png', 'icon_hugu.png', 'icon_tekira.png', 'icon_tekira2.png', 'icon_sanchan.png', 'icon_dice.png'];
+    const gachaBacks = ['card_kaeru.png', 'card_pien.png', 'card_zombie.png', 'card_piero.png', 'card_ringo.png', 'card_kaeruman.png', 'card_star.png', 'card_miko.png', 'card_hatena.png'];
+    
+    function openGacha(type) {
+        if (userCoins < 100) { showToast("コインが足りません！ (100G必要)", "#f44336"); return; }
+        
+        let lockedList = [];
+        if (type === 'icon') lockedList = gachaIcons.filter(k => !unlockedIcons.includes(k));
+        else if (type === 'back') lockedList = gachaBacks.filter(k => !unlockedBacks.includes(k));
+
+        if (lockedList.length === 0) { showToast("すべてのアイテムを解放済みです！", "#ffeb3b"); return; }
+        
+        userCoins -= 100; saveUserData();
+        
+        document.getElementById('gacha-overlay').style.display = 'flex';
+        document.getElementById('gacha-box-anim').style.display = 'block';
+        
+        const box = document.getElementById('gacha-box-anim');
+        box.style.animation = 'none'; box.offsetHeight; box.style.animation = null;
+        
+        document.getElementById('gacha-result-icon').style.display = 'none';
+        document.getElementById('gacha-result-text').style.display = 'none';
+        document.getElementById('gacha-close-btn').style.display = 'none';
+        document.getElementById('gacha-close-btn').setAttribute('onclick', 'closeGacha()');
+        
+        playSound('draw');
+        
+        setTimeout(() => {
+            playSound('yaniv');
+            document.getElementById('gacha-box-anim').style.display = 'none';
+            document.getElementById('gacha-result-icon').style.display = 'block';
+            document.getElementById('gacha-result-text').style.display = 'block';
+            document.getElementById('gacha-close-btn').style.display = 'block';
+            
+            let newItem = lockedList[Math.floor(Math.random() * lockedList.length)];
+            
+            if (type === 'icon') {
+                unlockedIcons.push(newItem);
+                localStorage.setItem('yaniv_unlocked_icons', JSON.stringify(unlockedIcons));
+                refreshIconSelect();
+                document.getElementById('gacha-result-icon').innerHTML = `<img src="${newItem}">`;
+                document.getElementById('gacha-result-text').textContent = `${iconData[newItem]} をゲット！`;
+            } else {
+                unlockedBacks.push(newItem);
+                localStorage.setItem('yaniv_unlocked_backs', JSON.stringify(unlockedBacks));
+                refreshBackSelect();
+                document.getElementById('gacha-result-icon').innerHTML = `<img src="${newItem}" style="border-radius:10px;">`;
+                document.getElementById('gacha-result-text').textContent = `${cardBackData[newItem]} をゲット！`;
+            }
+        }, 1500);
+    }
+    function closeGacha() { document.getElementById('gacha-overlay').style.display = 'none'; }
+
+    // --- 9. チャット ---
     function toggleChatInput() {
         const container = document.getElementById('chat-input-container');
         container.style.display = container.style.display === 'none' ? 'flex' : 'none';
@@ -882,10 +984,61 @@
         container.appendChild(msgEl); playSound('chat'); setTimeout(() => { if(msgEl.parentNode) msgEl.remove(); }, 5000);
     }
 
+    // --- 10. 戦績 ---
+    function showStatsScreen() {
+        switchScreen('stats-screen'); updateLevelUI(); showStatsTab('pvp');
+    }
+
+    function showStatsTab(type) {
+        document.getElementById('tab-pvp').style.opacity = type === 'pvp' ? '1' : '0.5';
+        document.getElementById('tab-cpu').style.opacity = type === 'cpu' ? '1' : '0.5';
+        document.getElementById('tab-history').style.opacity = type === 'history' ? '1' : '0.5';
+        
+        const content = document.getElementById('stats-content');
+        content.innerHTML = '';
+
+        if (type === 'history') {
+            let history = JSON.parse(localStorage.getItem('yaniv_history')) || [];
+            if (history.length === 0) { content.innerHTML = '<div style="text-align:center; color:#999; margin-top:20px;">履歴がありません</div>'; return; }
+            history.forEach((match, idx) => {
+                const el = document.createElement('div'); el.className = 'history-item';
+                let tableRows = ''; const unit = match.isOffline ? "点" : "杯";
+                match.players.forEach((p, rank) => {
+                    let s = match.isOffline ? -p.drinks : p.drinks;
+                    let iconHtml = p.icon || '<img src="icon_default.png">';
+                    tableRows += `<tr><td style="width:30px;">${rank+1}位</td><td><span class="icon-small" style="width:16px;height:16px;">${iconHtml}</span> ${p.name}</td><td style="text-align:right; font-weight:bold;">${s}${unit}</td></tr>`;
+                });
+                let noteStr = match.note ? `<span class="history-note">${match.note}</span>` : "";
+                el.innerHTML = `<button class="history-delete" onclick="deleteHistory(${idx})">×</button><div><span class="history-date">${idx+1}回前 - ${match.date}</span> ${noteStr}</div><table class="history-table">${tableRows}</table>`;
+                content.appendChild(el);
+            });
+        } else {
+            const data = userStats[type];
+            const winRate = data.matches > 0 ? ((data.wins / data.matches) * 100).toFixed(1) : "0.0";
+            const avgRank = data.matches > 0 ? (data.totalRank / data.matches).toFixed(1) : "0.0";
+            let html = `<div style="margin-bottom:8px;"><strong>試合数:</strong> ${data.matches} 試合</div><div style="margin-bottom:8px;"><strong>勝利数 (1位):</strong> ${data.wins} 回</div><div style="margin-bottom:8px;"><strong>勝率:</strong> ${winRate} %</div><div style="margin-bottom:15px;"><strong>平均順位:</strong> ${avgRank} 位</div><div style="border-top:1px solid #546e7a; padding-top:10px;"><div style="margin-bottom:4px;">1位: ${data.rankCounts[0]} 回</div><div style="margin-bottom:4px;">2位: ${data.rankCounts[1]} 回</div><div style="margin-bottom:4px;">3位: ${data.rankCounts[2]} 回</div><div style="margin-bottom:4px;">4位: ${data.rankCounts[3]} 回</div></div>`;
+            content.innerHTML = html;
+        }
+    }
+
+    function saveHistory(finalData, note="") {
+        let history = JSON.parse(localStorage.getItem('yaniv_history')) || [];
+        const dateStr = new Date().toLocaleString();
+        history.unshift({ date: dateStr, players: finalData, isOffline: isOfflineMode, note: note });
+        if(history.length > 20) history = history.slice(0, 20);
+        localStorage.setItem('yaniv_history', JSON.stringify(history));
+    }
+    
+    function deleteHistory(idx) {
+        let history = JSON.parse(localStorage.getItem('yaniv_history')) || [];
+        history.splice(idx, 1); localStorage.setItem('yaniv_history', JSON.stringify(history)); showStatsTab('history');
+    }
+
+    // --- 11. 通信・ロビー ---
     function updateLobbyRuleDisplay() {
         const el = document.getElementById('lobby-rule-display'); if(!el) return;
         let rType = document.getElementById('rule-template').value; let unit = isOfflineMode ? "点" : "杯"; let rds = document.getElementById('room-rounds').value;
-        if(isOfflineMode) { el.textContent = isOniMode ? `鬼モード: 負け-1点 / ヤニブ返し-2点 | ${rds}試合 (全1位で制覇)` : `通常モード: 負け-1点 / ヤニブ返し-2点 | ${rds}試合`; } 
+        if(isOfflineMode) { el.textContent = isOniMode ? `鬼モード: 負けは1位との差分 / ヤニブ返し-25点 | ${rds}試合 (全1位で制覇)` : `通常モード: 負け-1点 / ヤニブ返し-2点 | ${rds}試合`; } 
         else {
             if (rType === "KD") el.textContent = `KDルール (負け1${unit} / ヤニブ返し2${unit}) | ${rds}試合`;
             else if (rType === "BENI") el.textContent = `BENIルール (2回負けで1${unit}) | ${rds}試合`;
@@ -914,15 +1067,12 @@
             conn.on('data', (data) => {
                 if (data.type === 'JOIN_REQUEST') handleGuestJoin(data.name, data.icon, data.cardBack, data.level, conn);
                 else if (data.type === 'REQ_ACTION') processActionSync(data.playerIndex, data.cardsToDiscard, data.drawSource);
-                else if (data.type === 'REQ_YANIV') declareYaniv(data.playerIndex);
+                else if (data.type === 'REQ_YANIV') { if(!gameEnded) declareYaniv(data.playerIndex); }
                 else if (data.type === 'CHAT') { displayChatMessage(data.senderId, data.text); guestConnections.forEach(c => { if(c !== conn) c.send(data); }); }
             });
             conn.on('close', () => { guestConnections = guestConnections.filter(c => c !== conn); handleDisconnect(conn.peer); });
         });
     }
-
-    function confirmLeaveRoom() { if (confirm("本当に退出して戻りますか？")) leaveRoom(); }
-    function confirmLeaveGame() { if (confirm("本当にゲームを終了して戻りますか？ (現在の進行状況は破棄されます)")) leaveRoom(); }
 
     function leaveRoom() { 
         if (!gameEnded && currentRound >= 1 && activePlayers.length > 0 && document.getElementById('game-container').style.display !== 'none') {
@@ -1027,7 +1177,7 @@
                 else if (data.type === 'GAME_START') { switchScreen('game-container'); }
                 else if (data.type === 'SYNC_STATE') { applyState(data.state); updateUI(); setTurn(currentTurn); }
                 else if (data.type === 'ACTION_EVENT') { applyActionLocally(data); }
-                else if (data.type === 'YANIV_EVENT') { playYanivEvent(data); }
+                else if (data.type === 'YANIV_EVENT') { if(!gameEnded) playYanivEvent(data); }
                 else if (data.type === 'SHOW_RESULTS') { showResultsModal(data.payload); }
                 else if (data.type === 'CHAT') { displayChatMessage(data.senderId, data.text); }
                 else if (data.type === 'RETURN_LOBBY') { gameEnded = true; switchScreen('room-waiting-screen'); }
@@ -1280,7 +1430,7 @@
     }
 
     function executeTurn(drawSource) { 
-        if (currentTurn !== myNetworkId) return; 
+        if (currentTurn !== myNetworkId || gameEnded) return; 
         const cardsToDiscard = [...selectedCards]; selectedCards = []; 
         if(isHost) processActionSync(myNetworkId, cardsToDiscard, drawSource); else hostConnection.send({ type: 'REQ_ACTION', playerIndex: myNetworkId, cardsToDiscard, drawSource });
     }
@@ -1335,7 +1485,12 @@
     }
 
     function declareYaniv(declarerIndex) {
-        if(isHost) { gameEnded = true; guestConnections.forEach(c => c.send({ type: 'YANIV_EVENT', declarerIndex })); playYanivEvent({ declarerIndex }); } 
+        if(gameEnded) return; // 二重決着ブロック
+        if(isHost) { 
+            gameEnded = true; 
+            guestConnections.forEach(c => c.send({ type: 'YANIV_EVENT', declarerIndex })); 
+            playYanivEvent({ declarerIndex }); 
+        } 
         else { hostConnection.send({ type: 'REQ_YANIV', playerIndex: myNetworkId }); }
     }
 
@@ -1344,6 +1499,11 @@
         const declarerIndex = data.declarerIndex; const scores = activePlayers.map(p => ({ id: p.id, score: getHandScore(p.hand) })); 
         const declarerScore = scores.find(s => s.id === declarerIndex).score; const otherScores = scores.filter(s => s.id !== declarerIndex).map(s=>s.score); 
         const othersMin = Math.min(...otherScores); const isAsaf = othersMin <= declarerScore; 
+
+        if (isOniMode) {
+            let myRankIndex = scores.sort((a,b)=>a.score-b.score).findIndex(s => s.id === myNetworkId);
+            if(isAsaf && declarerIndex === myNetworkId) oniModeFailed = true; else if(!isAsaf && myRankIndex !== 0) oniModeFailed = true;
+        }
 
         const eventOverlay = document.getElementById('event-overlay'); const eventText = document.getElementById('event-text'); eventOverlay.style.display = 'flex';
         
@@ -1362,14 +1522,22 @@
 
         if (isAsaf) { 
             modalSub = "🚨 ヤニブ返し発生！ 🚨"; 
-            if (isOfflineMode) { drinkChanges[declarerIndex] = 2; }
+            if (isOniMode) {
+                scores.forEach(s => {
+                    if (s.id === declarerIndex) { drinkChanges[s.id] = 25; } else { drinkChanges[s.id] = 0; }
+                });
+            } else if (isOfflineMode) { drinkChanges[declarerIndex] = 2; }
             else if (ruleType === "KD") { drinkChanges[declarerIndex] = 2; } 
             else if (ruleType === "BENI") {
                 lossChanges[declarerIndex] = 2; let p = players.find(x => x.id === declarerIndex); drinkChanges[declarerIndex] = Math.floor(((p.loseCount || 0) + 2) / 2) - Math.floor((p.loseCount || 0) / 2);
             } else if (ruleType === "CUSTOM") { drinkChanges[declarerIndex] = customAsaf; }
         } else { 
             modalSub = "✨ ヤニブ成功！ ✨"; let minScore = Math.min(...scores.map(s => s.score)); 
-            if (isOfflineMode) { scores.forEach(s => { if(s.score === maxScore) drinkChanges[s.id] = 1; }); }
+            
+            if (isOniMode) {
+                let topScore = minScore;
+                scores.forEach(s => { drinkChanges[s.id] = s.score - topScore; });
+            } else if (isOfflineMode) { scores.forEach(s => { if(s.score === maxScore) drinkChanges[s.id] = 1; }); }
             else if (ruleType === "KD") { scores.forEach(s => { if(s.score === maxScore) drinkChanges[s.id] = 1; }); } 
             else if (ruleType === "BENI") {
                 scores.forEach(s => { 
@@ -1392,8 +1560,6 @@
             others.sort((a, b) => a.score - b.score); resultsData = [declarerObj, ...others, ...maxObjs];
         }
 
-        if (isOniMode && resultsData[0].id !== myNetworkId) { oniModeFailed = true; }
-
         firstPlayer = resultsData[resultsData.length - 1].id;
         
         resultsData.forEach(r => { 
@@ -1406,106 +1572,122 @@
     }
 
     function showResultsModal(payload) {
-        const { resultsData, modalSub, isAsaf } = payload;
-        const tbody = document.getElementById('result-tbody'); tbody.innerHTML = ''; const unit = isOfflineMode ? "点" : "杯";
+        try {
+            const { resultsData, modalSub, isAsaf } = payload;
+            const tbody = document.getElementById('result-tbody'); tbody.innerHTML = ''; const unit = isOfflineMode ? "点" : "杯";
 
-        resultsData.forEach((res, index) => {
-            let displayRank = index + 1; if (isAsaf && res.isDeclarer) displayRank = activePlayers.length; 
-            const tr = document.createElement('tr');
-            if (res.id === myNetworkId) tr.className = 'me-row'; else if (res.isDeclarer) tr.style.backgroundColor = "rgba(255,255,255,0.05)";
+            resultsData.forEach((res, index) => {
+                let displayRank = index + 1; if (isAsaf && res.isDeclarer) displayRank = activePlayers.length; 
+                const tr = document.createElement('tr');
+                if (res.id === myNetworkId) tr.className = 'me-row'; else if (res.isDeclarer) tr.style.backgroundColor = "rgba(255,255,255,0.05)";
+                
+                let changeText = ""; let color = 'white';
+                if (isOfflineMode) { changeText = res.change > 0 ? `-${res.change}${unit}` : `±0`; color = res.change > 0 ? '#f44336' : 'white'; } 
+                else if (ruleType === "BENI") { changeText = res.lossChange > 0 ? `+${res.lossChange}負(計${res.loseCount})` : `±0`; color = res.lossChange > 0 ? '#f44336' : 'white'; } 
+                else { changeText = res.change > 0 ? `+${res.change}${unit}` : `±0`; color = res.change > 0 ? '#f44336' : 'white'; }
+                let totalDrinksText = isOfflineMode ? `${-res.drinks}${unit}` : `${res.drinks}${unit}`;
+
+                tr.innerHTML = `<td>${displayRank}位</td><td><span class="icon" style="display:inline-flex; width:20px; height:20px; vertical-align:middle; margin-right:4px;">${res.icon}</span> ${res.name} ${res.isDeclarer ? '(宣言)' : ''}</td><td>${res.score}</td><td style="color: ${color}; font-weight: bold;">${changeText}</td><td>${totalDrinksText}</td>`;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('modal-title').textContent = `第 ${payload.currentRound} 試合 結果`; document.getElementById('modal-subtitle').textContent = modalSub; 
             
-            let changeText = ""; let color = 'white';
-            if (isOfflineMode) { changeText = res.change > 0 ? `-${res.change}${unit}` : `±0`; color = res.change > 0 ? '#f44336' : 'white'; } 
-            else if (ruleType === "BENI") { changeText = res.lossChange > 0 ? `+${res.lossChange}負(計${res.loseCount})` : `±0`; color = res.lossChange > 0 ? '#f44336' : 'white'; } 
-            else { changeText = res.change > 0 ? `+${res.change}${unit}` : `±0`; color = res.change > 0 ? '#f44336' : 'white'; }
-            let totalDrinksText = isOfflineMode ? `${-res.drinks}${unit}` : `${res.drinks}${unit}`;
+            document.getElementById('modal-btn-single').style.display = 'block';
+            document.getElementById('modal-btn-double').style.display = 'none';
+            document.getElementById('modal-btn-oni-gacha').style.display = 'none';
+            document.getElementById('modal-xp-area').style.display = 'none';
 
-            tr.innerHTML = `<td>${displayRank}位</td><td><span class="icon" style="display:inline-flex; width:20px; height:20px; vertical-align:middle; margin-right:4px;">${res.icon}</span> ${res.name} ${res.isDeclarer ? '(宣言)' : ''}</td><td>${res.score}</td><td style="color: ${color}; font-weight: bold;">${changeText}</td><td>${totalDrinksText}</td>`;
-            tbody.appendChild(tr);
-        });
-
-        document.getElementById('modal-title').textContent = `第 ${payload.currentRound} 試合 結果`; document.getElementById('modal-subtitle').textContent = modalSub; 
-        document.getElementById('modal-btn-single').style.display = 'block'; document.getElementById('modal-btn-double').style.display = 'none';
-        document.getElementById('modal-btn-oni-gacha').style.display = 'none'; document.getElementById('modal-xp-area').style.display = 'none';
-        document.getElementById('modal-overlay').style.display = 'flex';
-        
-        const nextBtn = document.getElementById('modal-next-btn');
-        if (payload.currentRound === payload.MAX_ROUNDS) { modalActionState = 'show_final'; nextBtn.textContent = "最終結果を見る"; } 
-        else { modalActionState = 'next_round'; nextBtn.textContent = "次のラウンドへ"; }
+            document.getElementById('modal-overlay').style.display = 'flex';
+            
+            const nextBtn = document.getElementById('modal-next-btn');
+            if (Number(payload.currentRound) >= Number(payload.MAX_ROUNDS)) { modalActionState = 'show_final'; nextBtn.textContent = "最終結果を見る"; } 
+            else { modalActionState = 'next_round'; nextBtn.textContent = "次のラウンドへ"; }
+        } catch(e) { console.error("Result Modal Error:", e); alert("結果の表示中にエラーが発生しました。"); leaveRoom(); }
     }
 
     function showFinalTotalRanking() {
-        document.getElementById('modal-title').textContent = "🏆 最終総合ランキング 🏆"; document.getElementById('modal-title').style.color = "#ffeb3b"; document.getElementById('modal-subtitle').textContent = `${MAX_ROUNDS}ラウンドの全試合が終了しました！`;
-        let finalData = activePlayers.map(p => ({ id: p.id, name: p.name, icon: p.icon, drinks: p.drinks, level: p.level })); finalData.sort((a, b) => a.drinks - b.drinks); 
-        
-        let myRankIndex = finalData.findIndex(r => r.id === myNetworkId); let myRank = myRankIndex + 1;
-        let isPvP = activePlayers.some(p => p.isReal && p.id !== 0); let earnCoin = 0; let earnXp = 0;
+        try {
+            document.getElementById('modal-title').textContent = "🏆 最終総合ランキング 🏆"; document.getElementById('modal-title').style.color = "#ffeb3b"; document.getElementById('modal-subtitle').textContent = `${MAX_ROUNDS}ラウンドの全試合が終了しました！`;
+            let finalData = activePlayers.map(p => ({ id: p.id, name: p.name, icon: p.icon, drinks: p.drinks, level: p.level })); finalData.sort((a, b) => a.drinks - b.drinks); 
+            
+            let myRankIndex = finalData.findIndex(r => r.id === myNetworkId); 
+            let myRank = myRankIndex !== -1 ? myRankIndex + 1 : 4; 
+            
+            let isPvP = activePlayers.some(p => p.isReal && p.id !== 0); let earnCoin = 0; let earnXp = 0;
 
-        if (isPvP) {
-            if (myRank === 1) { earnCoin = 30 * MAX_ROUNDS; earnXp = 10 * MAX_ROUNDS; } else { earnCoin = 10 * MAX_ROUNDS; earnXp = 5 * MAX_ROUNDS; }
-        } else {
-            if (isOniMode) {
-                let oniCoins = [0, 50, 30, 10][myRankIndex] || 0; earnCoin = oniCoins; earnXp = (myRank === 1) ? 3 * MAX_ROUNDS : 1 * MAX_ROUNDS;
+            if (isPvP) {
+                if (myName === "さにるせぬ") { earnCoin = 500; earnXp = 50; } 
+                else if (myRank === 1) { earnCoin = 30 * MAX_ROUNDS; earnXp = 10 * MAX_ROUNDS; } 
+                else { earnCoin = 10 * MAX_ROUNDS; earnXp = 5 * MAX_ROUNDS; }
             } else {
-                if (myName === "さにるせぬ") {
-                    earnCoin = 500; earnXp = 50;
+                if (isOniMode) {
+                    let oniCoins = [0, 50, 30, 10][myRankIndex] || 0; earnCoin = oniCoins; earnXp = (myRank === 1) ? 3 * MAX_ROUNDS : 1 * MAX_ROUNDS;
                 } else {
-                    if (myRank === 1) { earnCoin = 5 * MAX_ROUNDS; earnXp = 3 * MAX_ROUNDS; } else { earnCoin = 2 * MAX_ROUNDS; earnXp = 1 * MAX_ROUNDS; }
+                    if (myName === "さにるせぬ") { earnCoin = 500; earnXp = 50; } 
+                    else if (myRank === 1) { earnCoin = 5 * MAX_ROUNDS; earnXp = 3 * MAX_ROUNDS; } 
+                    else { earnCoin = 2 * MAX_ROUNDS; earnXp = 1 * MAX_ROUNDS; }
                 }
             }
-        }
 
-        let oldXp = userXp; userCoins += earnCoin; userXp += earnXp; saveUserData();
+            let oldXp = userXp; userCoins += earnCoin; userXp += earnXp; saveUserData();
 
-        const statType = isPvP ? 'pvp' : 'cpu';
-        userStats[statType].matches++; userStats[statType].totalRank += myRank;
-        if(myRank >= 1 && myRank <= 4) userStats[statType].rankCounts[myRank - 1]++;
-        if (myRank === 1) userStats[statType].wins++; localStorage.setItem('yaniv_stats', JSON.stringify(userStats));
-        if(isHost) saveHistory(finalData, "完結");
+            const statType = isPvP ? 'pvp' : 'cpu';
+            userStats[statType].matches++; userStats[statType].totalRank += myRank;
+            if(myRank >= 1 && myRank <= 4) userStats[statType].rankCounts[myRank - 1]++;
+            if (myRank === 1) userStats[statType].wins++; localStorage.setItem('yaniv_stats', JSON.stringify(userStats));
+            if(isHost) saveHistory(finalData, "完結");
 
-        const unit = isOfflineMode ? "点" : "杯";
-        document.getElementById('table-header-row').innerHTML = `<th>順位</th><th>プレイヤー</th><th colspan="3">最終累計</th>`;
-        const tbody = document.getElementById('result-tbody'); tbody.innerHTML = ''; let rank = 1;
-        
-        finalData.forEach((res, index) => {
-            if (index > 0 && res.drinks > finalData[index - 1].drinks) rank = index + 1;
-            const tr = document.createElement('tr'); if (res.id === myNetworkId) tr.className = 'me-row';
-            let totalText = isOfflineMode ? `${-res.drinks}${unit}` : `${res.drinks}${unit}`;
-            tr.innerHTML = `<td>${rank}位</td><td><span class="icon" style="display:inline-flex; width:20px; height:20px; vertical-align:middle; margin-right:4px;">${res.icon}</span> ${res.name}</td><td colspan="3" style="font-weight: bold; color: ${rank === 1 ? '#4caf50' : '#ffeb3b'}; font-size: 16px;">${totalText}</td>`;
-            tbody.appendChild(tr);
-        });
-        
-        document.getElementById('modal-btn-single').style.display = 'none'; document.getElementById('modal-btn-double').style.display = 'none'; document.getElementById('modal-btn-oni-gacha').style.display = 'none';
-        
-        if (isOniMode) {
-            if (myRank === 1 && !oniModeFailed) {
-                document.getElementById('modal-btn-oni-gacha').style.display = 'block';
+            const unit = isOfflineMode ? "点" : "杯";
+            document.getElementById('table-header-row').innerHTML = `<th>順位</th><th>プレイヤー</th><th colspan="3">最終累計</th>`;
+            const tbody = document.getElementById('result-tbody'); tbody.innerHTML = ''; let rank = 1;
+            
+            finalData.forEach((res, index) => {
+                if (index > 0 && res.drinks > finalData[index - 1].drinks) rank = index + 1;
+                const tr = document.createElement('tr'); if (res.id === myNetworkId) tr.className = 'me-row';
+                let totalText = isOfflineMode ? `${-res.drinks}${unit}` : `${res.drinks}${unit}`;
+                tr.innerHTML = `<td>${rank}位</td><td><span class="icon" style="display:inline-flex; width:20px; height:20px; vertical-align:middle; margin-right:4px;">${res.icon}</span> ${res.name}</td><td colspan="3" style="font-weight: bold; color: ${rank === 1 ? '#4caf50' : '#ffeb3b'}; font-size: 16px;">${totalText}</td>`;
+                tbody.appendChild(tr);
+            });
+            
+            document.getElementById('modal-btn-single').style.display = 'none'; document.getElementById('modal-btn-double').style.display = 'none'; document.getElementById('modal-btn-oni-gacha').style.display = 'none';
+            
+            if (isOniMode) {
+                if (myRank === 1 && !oniModeFailed) {
+                    document.getElementById('modal-btn-oni-gacha').style.display = 'block';
+                } else {
+                    document.getElementById('modal-btn-single').style.display = 'block';
+                    document.getElementById('modal-next-btn').textContent = "メインメニューへ戻る";
+                    modalActionState = 'new_game';
+                }
             } else {
-                document.getElementById('modal-btn-single').style.display = 'block';
-                document.getElementById('modal-next-btn').textContent = "メインメニューへ戻る";
-                modalActionState = 'new_game';
+                document.getElementById('modal-btn-double').style.display = 'flex';
             }
-        } else {
-            document.getElementById('modal-btn-double').style.display = 'flex';
-        }
-        
-        document.getElementById('modal-overlay').style.display = 'flex'; document.getElementById('modal-xp-area').style.display = 'block';
-        
-        let currentAnimXp = oldXp; let lvFlag = calcLevel(oldXp).level; document.getElementById('modal-lv').className = ""; 
-        if (xpAnimInterval) clearInterval(xpAnimInterval);
-        
-        xpAnimInterval = setInterval(() => {
-            currentAnimXp += (earnXp / 30) || 1; 
-            if(currentAnimXp >= userXp) {
-                currentAnimXp = userXp; clearInterval(xpAnimInterval);
-                if (earnCoin > 0) { showToast(`🎉 最終結果 ${myRank}位！<br><span style="font-size:24px;">+${earnCoin} G / +${earnXp} xp</span>`, "#ffeb3b"); }
+            
+            document.getElementById('modal-overlay').style.display = 'flex'; document.getElementById('modal-xp-area').style.display = 'block';
+            
+            if(earnXp === 0) {
+                let info = calcLevel(Math.floor(userXp)); document.getElementById('modal-lv').textContent = info.level; document.getElementById('modal-next-xp').textContent = info.next - Math.floor(userXp);
+                let prog = ((userXp - info.base) / (info.next - info.base)) * 100; document.getElementById('modal-xp-bar').style.width = prog + '%';
+                if (earnCoin > 0) { showToast(`🎉 最終結果 ${myRank}位！<br><span style="font-size:20px;">+${earnCoin} G</span>`, "#ffeb3b"); }
+            } else {
+                let currentAnimXp = oldXp; let lvFlag = calcLevel(oldXp).level; document.getElementById('modal-lv').className = ""; 
+                if (xpAnimInterval) clearInterval(xpAnimInterval);
+                
+                xpAnimInterval = setInterval(() => {
+                    currentAnimXp += (earnXp / 30) || 1; 
+                    if(currentAnimXp >= userXp) {
+                        currentAnimXp = userXp; clearInterval(xpAnimInterval);
+                        if (earnCoin > 0) { showToast(`🎉 最終結果 ${myRank}位！<br><span style="font-size:20px;">+${earnCoin} G / +${earnXp} xp</span>`, "#ffeb3b"); }
+                    }
+                    let info = calcLevel(Math.floor(currentAnimXp)); document.getElementById('modal-lv').textContent = info.level; document.getElementById('modal-next-xp').textContent = info.next - Math.floor(currentAnimXp);
+                    let prog = ((currentAnimXp - info.base) / (info.next - info.base)) * 100; document.getElementById('modal-xp-bar').style.width = prog + '%';
+                    if(info.level > lvFlag) {
+                        lvFlag = info.level; playSound('yaniv'); let el = document.getElementById('modal-lv'); el.classList.remove('level-up-pop'); void el.offsetWidth; el.classList.add('level-up-pop');
+                    }
+                }, 30);
             }
-            let info = calcLevel(Math.floor(currentAnimXp)); document.getElementById('modal-lv').textContent = info.level; document.getElementById('modal-next-xp').textContent = info.next - Math.floor(currentAnimXp);
-            let prog = ((currentAnimXp - info.base) / (info.next - info.base)) * 100; document.getElementById('modal-xp-bar').style.width = prog + '%';
-            if(info.level > lvFlag) {
-                lvFlag = info.level; playSound('yaniv'); let el = document.getElementById('modal-lv'); el.classList.remove('level-up-pop'); void el.offsetWidth; el.classList.add('level-up-pop');
-            }
-        }, 30);
+        } catch(e) { console.error("showFinalTotalRanking error:", e); alert("最終結果の表示中にエラーが発生しました。"); leaveRoom(); }
     }
 
     function returnToLobby() {
@@ -1533,101 +1715,31 @@
         document.getElementById('gacha-overlay').style.display = 'flex';
         document.getElementById('gacha-box-anim').style.display = 'block';
         
-        const box = document.getElementById('gacha-box-anim');
-        box.style.animation = 'none'; box.offsetHeight; box.style.animation = null;
+        const box = document.getElementById('gacha-box-anim'); box.style.animation = 'none'; box.offsetHeight; box.style.animation = null;
         
-        document.getElementById('gacha-result-icon').style.display = 'none';
-        document.getElementById('gacha-result-text').style.display = 'none';
-        document.getElementById('gacha-close-btn').style.display = 'none';
+        document.getElementById('gacha-result-icon').style.display = 'none'; document.getElementById('gacha-result-text').style.display = 'none'; document.getElementById('gacha-close-btn').style.display = 'none';
         
         playSound('draw');
         setTimeout(() => {
             playSound('yaniv');
-            document.getElementById('gacha-box-anim').style.display = 'none';
-            document.getElementById('gacha-result-icon').style.display = 'block';
-            document.getElementById('gacha-result-text').style.display = 'block';
-            document.getElementById('gacha-close-btn').style.display = 'block';
+            document.getElementById('gacha-box-anim').style.display = 'none'; document.getElementById('gacha-result-icon').style.display = 'block';
+            document.getElementById('gacha-result-text').style.display = 'block'; document.getElementById('gacha-close-btn').style.display = 'block';
             document.getElementById('gacha-close-btn').setAttribute('onclick', 'closeOniGacha()');
             
-            let r = Math.random() * 100;
-            let resultType = ""; let addCoin = 0;
-            
-            if (r < 5) resultType = "icon";
-            else if (r < 10) { resultType = "coin"; addCoin = 300; }
-            else if (r < 20) { resultType = "coin"; addCoin = 100; }
-            else if (r < 50) { resultType = "coin"; addCoin = 70; }
-            else { resultType = "coin"; addCoin = 50; }
+            let r = Math.random() * 100; let resultType = ""; let addCoin = 0;
+            if (r < 5) resultType = "icon"; else if (r < 10) { resultType = "coin"; addCoin = 300; } else if (r < 20) { resultType = "coin"; addCoin = 100; } else if (r < 50) { resultType = "coin"; addCoin = 70; } else { resultType = "coin"; addCoin = 50; }
             
             if (resultType === "icon") {
-                if(!unlockedIcons.includes('icon_oni.png')) {
-                    unlockedIcons.push('icon_oni.png');
-                    localStorage.setItem('yaniv_unlocked_icons', JSON.stringify(unlockedIcons));
-                    refreshIconSelect();
-                }
-                document.getElementById('gacha-result-icon').innerHTML = `<img src="icon_oni.png">`;
-                document.getElementById('gacha-result-text').textContent = `限定アイコン「鬼」をゲット！`;
+                if(!unlockedIcons.includes('icon_oni.png')) { unlockedIcons.push('icon_oni.png'); localStorage.setItem('yaniv_unlocked_icons', JSON.stringify(unlockedIcons)); refreshIconSelect(); }
+                document.getElementById('gacha-result-icon').innerHTML = `<img src="icon_oni.png">`; document.getElementById('gacha-result-text').textContent = `限定アイコン「鬼」をゲット！`;
             } else {
                 userCoins += addCoin; saveUserData();
-                document.getElementById('gacha-result-icon').innerHTML = `<div style="font-size:80px; text-shadow:0 0 20px #ffeb3b;">${addCoin}G</div>`;
-                document.getElementById('gacha-result-text').textContent = `コイン大量ゲット！`;
+                document.getElementById('gacha-result-icon').innerHTML = `<div style="font-size:80px; text-shadow:0 0 20px #ffeb3b;">${addCoin}G</div>`; document.getElementById('gacha-result-text').textContent = `コイン大量ゲット！`;
             }
         }, 1500);
     }
-    function closeOniGacha() { document.getElementById('gacha-overlay').style.display = 'none'; returnToLobby(); }
+    function closeOniGacha() { document.getElementById('gacha-overlay').style.display = 'none'; leaveRoom(); }
 
-    const gachaIcons = ['icon_pien.png', 'icon_zombie.png', 'icon_happy.png', 'icon_piero.png', 'icon_ringo.png', 'icon_gun.png', 'icon_kaeruman.png', 'icon_miko.png', 'icon_birthday.png', 'icon_hugu.png', 'icon_tekira.png', 'icon_tekira2.png', 'icon_sanchan.png', 'icon_dice.png'];
-    const gachaBacks = ['card_kaeru.png', 'card_pien.png', 'card_zombie.png', 'card_piero.png', 'card_ringo.png', 'card_kaeruman.png', 'card_star.png', 'card_miko.png', 'card_hatena.png'];
-    
-    function openGacha(type) {
-        if (userCoins < 100) { showToast("コインが足りません！ (100G必要)", "#f44336"); return; }
-        
-        let lockedList = [];
-        if (type === 'icon') lockedList = gachaIcons.filter(k => !unlockedIcons.includes(k));
-        else if (type === 'back') lockedList = gachaBacks.filter(k => !unlockedBacks.includes(k));
-
-        if (lockedList.length === 0) { showToast("すべてのアイテムを解放済みです！", "#ffeb3b"); return; }
-        
-        userCoins -= 100; saveUserData();
-        
-        document.getElementById('gacha-overlay').style.display = 'flex';
-        document.getElementById('gacha-box-anim').style.display = 'block';
-        
-        const box = document.getElementById('gacha-box-anim');
-        box.style.animation = 'none'; box.offsetHeight; box.style.animation = null;
-        
-        document.getElementById('gacha-result-icon').style.display = 'none';
-        document.getElementById('gacha-result-text').style.display = 'none';
-        document.getElementById('gacha-close-btn').style.display = 'none';
-        document.getElementById('gacha-close-btn').setAttribute('onclick', 'closeGacha()');
-        
-        playSound('draw');
-        
-        setTimeout(() => {
-            playSound('yaniv');
-            document.getElementById('gacha-box-anim').style.display = 'none';
-            document.getElementById('gacha-result-icon').style.display = 'block';
-            document.getElementById('gacha-result-text').style.display = 'block';
-            document.getElementById('gacha-close-btn').style.display = 'block';
-            
-            let newItem = lockedList[Math.floor(Math.random() * lockedList.length)];
-            
-            if (type === 'icon') {
-                unlockedIcons.push(newItem);
-                localStorage.setItem('yaniv_unlocked_icons', JSON.stringify(unlockedIcons));
-                refreshIconSelect();
-                document.getElementById('gacha-result-icon').innerHTML = `<img src="${newItem}">`;
-                document.getElementById('gacha-result-text').textContent = `${iconData[newItem]} をゲット！`;
-            } else {
-                unlockedBacks.push(newItem);
-                localStorage.setItem('yaniv_unlocked_backs', JSON.stringify(unlockedBacks));
-                refreshBackSelect();
-                document.getElementById('gacha-result-icon').innerHTML = `<img src="${newItem}" style="border-radius:10px;">`;
-                document.getElementById('gacha-result-text').textContent = `${cardBackData[newItem]} をゲット！`;
-            }
-        }, 1500);
-    }
-    function closeGacha() { document.getElementById('gacha-overlay').style.display = 'none'; }
-    
     let audioCtx = null;
     function initAudio() { if (!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } }
     function playSound(type) {
@@ -1640,7 +1752,7 @@
             else if (type === 'yaniv') { osc.type = 'square'; osc.frequency.setValueAtTime(523.25, now); osc.frequency.setValueAtTime(659.25, now + 0.08); osc.frequency.setValueAtTime(783.99, now + 0.16); osc.frequency.setValueAtTime(1046.50, now + 0.24); gainNode.gain.setValueAtTime(0.1 * masterVolume, now); gainNode.gain.linearRampToValueAtTime(0, now + 0.5); osc.start(now); osc.stop(now + 0.5); } 
             else if (type === 'asaf') { osc.type = 'sawtooth'; osc.frequency.setValueAtTime(130, now); osc.frequency.linearRampToValueAtTime(100, now + 0.3); gainNode.gain.setValueAtTime(0.2 * masterVolume, now); gainNode.gain.linearRampToValueAtTime(0, now + 0.3); osc.start(now); osc.stop(now + 0.3); }
             else if (type === 'chat') { osc.type = 'sine'; osc.frequency.setValueAtTime(800, now); osc.frequency.exponentialRampToValueAtTime(1200, now + 0.1); gainNode.gain.setValueAtTime(0.05 * masterVolume, now); gainNode.gain.linearRampToValueAtTime(0, now + 0.1); osc.start(now); osc.stop(now + 0.1); }
-        } catch (e) { console.warn("Audio Context Error (Ignored):", e); }
+        } catch (e) { console.warn("Audio Context Error:", e); }
     }
 </script>
 </body>
