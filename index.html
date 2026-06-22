@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ヤニブ (Yaniv) v16.4 Ultimate UI</title>
+<title>ヤニブ (Yaniv) v16.5 Ultimate Fix</title>
 <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 <style>
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -23,8 +23,6 @@
     .coin-ui { position: absolute; top: 15px; right: 15px; display: flex; align-items: center; background: rgba(0,0,0,0.6); padding: 5px 12px; border-radius: 20px; border: 2px solid #d4af37; font-weight: bold; color: white; font-size: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); z-index: 500; }
     .coin-g { width: 22px; height: 22px; background: radial-gradient(circle, #ffd700, #b8860b); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: #fff; font-weight: bold; font-size: 14px; text-shadow: 1px 1px 1px #000; margin-right: 8px; border: 1px solid #fff; }
     .diamond-icon { margin-left: 10px; margin-right: 5px; font-size: 18px; line-height: 1; }
-    
-    #coin-toast { position: fixed; top: 20%; left: 50%; transform: translate(-50%, -50%); background: rgba(255,215,0,0.9); color: #000; font-weight: bold; font-size: 20px; padding: 10px 20px; border-radius: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: none; z-index: 10000; border: 2px solid #fff; animation: floatUp 4s ease-out forwards; text-align: center; }
     
     #toast-notification { position: fixed; top: 20%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.85); color: #fff; font-weight: bold; font-size: 18px; padding: 15px 30px; border-radius: 30px; box-shadow: 0 5px 20px rgba(0,0,0,0.6); display: none; z-index: 10000; border: 2px solid #ffeb3b; text-align: center; line-height: 1.4; animation: floatUp 3.5s ease-out forwards; white-space: nowrap; }
     @keyframes floatUp { 0% { top: 30%; opacity: 0; transform: translate(-50%, -50%) scale(0.8); } 10% { top: 20%; opacity: 1; transform: translate(-50%, -50%) scale(1.1); } 15% { transform: translate(-50%, -50%) scale(1); } 80% { top: 20%; opacity: 1; } 100% { top: 10%; opacity: 0; } }
@@ -62,7 +60,6 @@
     .player-slot { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.1); padding: 8px 12px; border-radius: 8px; font-size: 14px; font-weight: bold; }
     .player-slot.empty { opacity: 0.5; border: 1px dashed #ccc; background: transparent; justify-content: center; }
     
-    /* アイコン拡大調整 */
     .icon { background-color: rgba(255,255,255,0.2); border-radius: 50%; width: 44px; height: 44px; display: flex; justify-content: center; align-items: center; overflow: hidden; flex-shrink: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.4); }
     .icon img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
     .icon-small { width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; overflow: hidden; background: rgba(255,255,255,0.2); }
@@ -214,6 +211,7 @@
 
 <div id="toast-notification"></div>
 
+<!-- チャットUI -->
 <div id="chat-display-container"></div>
 <div id="chat-toggle-btn" style="display:none;" onclick="toggleChatInput()">💬</div>
 <div id="chat-input-container" style="display:none;">
@@ -221,10 +219,12 @@
     <button id="chat-send-btn" onclick="submitChatMessage()">送信</button>
 </div>
 
+<!-- ゲーム中退出ボタン -->
 <div id="in-game-exit-btn" style="display:none;" onclick="confirmLeaveGame()">🚪</div>
 
 <div id="event-overlay"><div id="event-text"></div></div>
 
+<!-- 1. メインメニュー -->
 <div id="main-menu" class="menu-screen">
     <div class="coin-ui">
         <div class="coin-g">G</div><span id="menu-coins" style="margin-right:10px;">0</span>
@@ -245,6 +245,7 @@
         <button class="btn-large" style="width:100%; margin:0; font-size:15px; background-color:#ff9800; box-shadow:0 4px 0 #e65100; color:white;" onclick="showStatsScreen()">戦績</button>
     </div>
 
+    <!-- おまけ機能エリア (宝箱 ＆ H&L) -->
     <div style="display:flex; justify-content:center; gap:30px; margin-bottom:10px;">
         <div id="treasure-chest" onclick="openTreasure()" style="text-align:center; cursor:pointer; background:rgba(0,0,0,0.3); padding:10px; border-radius:10px; border:2px solid #388e3c;">
             <div style="font-size:30px;">🎁</div>
@@ -257,9 +258,10 @@
     </div>
     
     <div class="uid-text">UID: <span id="uid-display"></span></div>
-    <div class="version-text">v16.4 Ultimate UI</div>
+    <div class="version-text">v16.5 Ultimate Fix</div>
 </div>
 
+<!-- 2. H&L ミニゲーム画面 -->
 <div id="hl-screen" class="menu-screen" style="display: none;">
     <div class="coin-ui"><div class="coin-g">G</div><span id="hl-coins" style="margin-right:10px;">0</span></div>
     <div class="menu-panel" style="max-width: 350px; text-align:center; padding:20px;">
@@ -289,6 +291,7 @@
     </div>
 </div>
 
+<!-- 3. オフライン選択 -->
 <div id="offline-select-screen" class="menu-screen" style="display: none;">
     <div class="menu-panel" style="max-width: 350px;">
         <h3>ひとりで遊ぶ</h3>
@@ -296,12 +299,13 @@
             通常モード<br><span style="font-size:11px; font-weight:normal;">無料 / 報酬少なめ</span>
         </button>
         <button class="btn-large" style="width:100%; font-size:16px; margin-bottom:15px; background-color:#f44336; color:white;" onclick="setupOfflineLobby(true)">
-            鬼モード (100 G)<br><span style="font-size:11px; font-weight:normal;">総合1位を取れば限定アイコン獲得のチャンス！(6/30まで)</span>
+            鬼モード (100 G)<br><span style="font-size:11px; font-weight:normal;">総合1位を取れば限定アイコン獲得のチャンス！</span>
         </button>
         <button class="btn-secondary" onclick="switchScreen('main-menu')">戻る</button>
     </div>
 </div>
 
+<!-- 4. ショップ -->
 <div id="shop-screen" class="menu-screen" style="display: none;">
     <div class="coin-ui">
         <div class="coin-g">G</div><span id="shop-coins" style="margin-right:10px;">0</span>
@@ -327,6 +331,7 @@
     </div>
 </div>
 
+<!-- ガチャ演出 -->
 <div id="gacha-overlay">
     <div class="gacha-box" id="gacha-box-anim">📦</div>
     <div class="gacha-result" id="gacha-result-icon"></div>
@@ -334,6 +339,7 @@
     <button class="btn-secondary" style="width:120px; padding:8px; margin-top:20px; font-size:14px; display:none;" id="gacha-close-btn" onclick="closeGacha()">戻る</button>
 </div>
 
+<!-- 5. 戦績 -->
 <div id="stats-screen" class="menu-screen" style="display: none;">
     <div class="menu-panel" style="max-width: 400px; width:90%; padding:15px; text-align:center;">
         <h3 style="margin-bottom:5px;">戦績プロフィール</h3>
@@ -354,6 +360,7 @@
     </div>
 </div>
 
+<!-- 6. 設定 -->
 <div id="settings-menu" class="menu-screen" style="display: none;">
     <div class="menu-panel">
         <h3>ゲーム設定</h3>
@@ -379,6 +386,7 @@
     </div>
 </div>
 
+<!-- 7. ルーム作成 -->
 <div id="room-create-screen" class="menu-screen" style="display: none;">
     <div class="menu-panel">
         <h3>部屋を作成 (ホスト)</h3>
@@ -415,6 +423,7 @@
     </div>
 </div>
 
+<!-- 8. ゲスト参加 -->
 <div id="room-join-screen" class="menu-screen" style="display: none;">
     <div class="menu-panel">
         <h3>部屋に参加 (ゲスト)</h3>
@@ -427,14 +436,11 @@
     </div>
 </div>
 
+<!-- 9. 待機ロビー -->
 <div id="room-waiting-screen" class="menu-screen" style="display: none;">
     <div class="menu-panel">
         <h3 id="lobby-title">待機ロビー</h3>
-        
-        <div id="lobby-rule-display" style="background: rgba(0,0,0,0.5); padding: 8px; margin-bottom: 10px; border-radius: 8px; font-size: 12px; color: #ffeb3b; text-align:center; border:1px solid #ffeb3b;">
-            ルール読込中...
-        </div>
-
+        <div id="lobby-rule-display" style="background: rgba(0,0,0,0.5); padding: 8px; margin-bottom: 10px; border-radius: 8px; font-size: 12px; color: #ffeb3b; text-align:center; border:1px solid #ffeb3b;">ルール読込中...</div>
         <div class="room-id-box" id="room-id-display">接続準備中...</div>
         <div class="player-list" id="lobby-players"></div>
         <div id="host-controls" style="display: none;">
@@ -444,13 +450,12 @@
             </div>
             <button class="btn-success" onclick="startNetworkGame()" style="font-size: 18px;">ゲーム開始！</button>
         </div>
-        <div id="guest-controls" style="display: none; text-align: center; color: #ffeb3b; font-weight: bold; margin-bottom: 10px;">
-            ホストがゲームを開始するのを待っています...
-        </div>
+        <div id="guest-controls" style="display: none; text-align: center; color: #ffeb3b; font-weight: bold; margin-bottom: 10px;">ホストがゲームを開始するのを待っています...</div>
         <button class="btn-secondary" onclick="confirmLeaveRoom()" style="margin-top: 10px;">退出して戻る</button>
     </div>
 </div>
 
+<!-- 10. ゲーム画面 -->
 <div id="game-container">
     <div id="header-area">
         <div id="turn-indicator">準備中...</div>
@@ -509,6 +514,7 @@
     </div>
 </div>
 
+<!-- 11. リザルトモーダル -->
 <div id="modal-overlay">
     <div id="result-modal">
         <h2 id="modal-title">結果発表</h2>
@@ -538,6 +544,7 @@
 </div>
 
 <script>
+    // --- JS Core ロジック ---
     function switchScreen(screenId) {
         try {
             document.querySelectorAll('.menu-screen').forEach(el => el.style.display = 'none');
@@ -556,8 +563,7 @@
                 if ((screenId === 'room-waiting-screen' || screenId === 'game-container') && !isOfflineMode) {
                     chatBtn.style.display = 'flex';
                 } else {
-                    chatBtn.style.display = 'none';
-                    chatInput.style.display = 'none';
+                    chatBtn.style.display = 'none'; chatInput.style.display = 'none';
                 }
             }
             if (screenId === 'room-join-screen') {
@@ -567,7 +573,7 @@
         } catch(e) { console.error("switchScreen error:", e); }
     }
 
-    // --- データパース保護 ---
+    // --- データ読み込み（エラー回避付き） ---
     let userStats = { pvp: { matches: 0, wins: 0, totalRank: 0, rankCounts: [0,0,0,0] }, cpu: { matches: 0, wins: 0, totalRank: 0, rankCounts: [0,0,0,0] } };
     try { let parsed = JSON.parse(localStorage.getItem('yaniv_stats')); if(parsed && parsed.pvp) userStats = parsed; } catch(e) {}
     if(!userStats.pvp.rankCounts) userStats.pvp.rankCounts = [0,0,0,0]; if(!userStats.cpu.rankCounts) userStats.cpu.rankCounts = [0,0,0,0];
@@ -640,21 +646,27 @@
     
     let treasureTimerInter = null;
 
+    // ★ 初期ロードの確実な実行
     window.onload = () => {
-        document.getElementById('my-name-input').value = myName;
-        document.getElementById('uid-display').textContent = myUid;
-        refreshBackSelect(); document.getElementById('back-color-select').value = myCardBack; updateCardBack(myCardBack);
-        refreshIconSelect(); document.getElementById('icon-select').value = myIconStr; updatePlayerIcon(myIconStr);
-        updateCurrencyUI(); updateLevelUI();
-        
-        document.getElementById('chat-input-text').addEventListener('keypress', function(e) { if (e.key === 'Enter') submitChatMessage(); });
-        
-        treasureTimerInter = setInterval(updateTreasureTimer, 1000);
-        updateTreasureTimer();
+        try {
+            document.getElementById('my-name-input').value = myName;
+            document.getElementById('uid-display').textContent = myUid;
+            
+            refreshBackSelect(); document.getElementById('back-color-select').value = myCardBack; updateCardBack(myCardBack);
+            refreshIconSelect(); document.getElementById('icon-select').value = myIconStr; updatePlayerIcon(myIconStr);
+            
+            updateCurrencyUI(); updateLevelUI();
+            
+            document.getElementById('chat-input-text').addEventListener('keypress', function(e) { if (e.key === 'Enter') submitChatMessage(); });
+            
+            treasureTimerInter = setInterval(updateTreasureTimer, 1000);
+            updateTreasureTimer();
+        } catch(e) { console.error("onload error:", e); }
     };
 
     function showToast(msg, color="#fff") {
         const toast = document.getElementById('toast-notification');
+        if(!toast) return;
         toast.innerHTML = `<span style="color:${color};">${msg}</span>`;
         toast.style.display = 'block';
         toast.style.animation = 'none';
@@ -663,22 +675,18 @@
         setTimeout(() => { toast.style.display = 'none'; }, 3500);
     }
 
-    // --- 宝箱 (ログインボーナス) ---
+    // --- 宝箱 ---
     function updateTreasureTimer() {
         let lastTime = parseInt(localStorage.getItem('yaniv_treasure_time')) || 0;
-        let now = Date.now();
-        let diff = now - lastTime;
-        let waitTime = 3 * 60 * 60 * 1000;
+        let now = Date.now(); let diff = now - lastTime; let waitTime = 3 * 60 * 60 * 1000;
         let textEl = document.getElementById('treasure-text');
+        if(!textEl) return;
         
         if (diff >= waitTime) {
-            textEl.textContent = "タッチ！";
-            textEl.style.color = "#ffeb3b";
+            textEl.textContent = "タッチ！"; textEl.style.color = "#ffeb3b";
         } else {
             let rem = waitTime - diff;
-            let h = Math.floor(rem / 3600000);
-            let m = Math.floor((rem % 3600000) / 60000);
-            let s = Math.floor((rem % 60000) / 1000);
+            let h = Math.floor(rem / 3600000); let m = Math.floor((rem % 3600000) / 60000); let s = Math.floor((rem % 60000) / 1000);
             textEl.textContent = `残り ${h}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
             textEl.style.color = "#a5d6a7";
         }
@@ -690,16 +698,12 @@
         if (now - lastTime < 3 * 60 * 60 * 1000) { playSound('asaf'); return; }
         
         playSound('draw');
-        let r = Math.random() * 100;
-        let cAdd = 0; let xAdd = 0;
-        if (r < 25) { cAdd = 100; xAdd = 10; }
-        else if (r < 75) { cAdd = 50; xAdd = 5; }
-        else { cAdd = 30; xAdd = 3; }
+        let r = Math.random() * 100; let cAdd = 0; let xAdd = 0;
+        if (r < 25) { cAdd = 100; xAdd = 10; } else if (r < 75) { cAdd = 50; xAdd = 5; } else { cAdd = 30; xAdd = 3; }
         
         userCoins += cAdd; userXp += xAdd;
         localStorage.setItem('yaniv_treasure_time', now);
         saveUserData(); updateTreasureTimer();
-        
         showToast(`🎁 宝箱ボーナス！<br><span style="font-size:24px;">+${cAdd}G / +${xAdd}xp</span>`, "#ffeb3b");
     }
 
@@ -754,18 +758,15 @@
         let nextCard = Math.floor(Math.random()*13) + 1;
         
         if(nextCard === hlCurrentCard) {
-            hlCurrentCard = nextCard;
-            updateHLUI();
-            showToast("DRAW! 同じ数字なのでもう一度！", "#2196f3");
-            return;
+            hlCurrentCard = nextCard; updateHLUI();
+            showToast("DRAW! 同じ数字なのでもう一度！", "#2196f3"); return;
         }
 
         let isWin = false;
         if(choice === 'high' && nextCard > hlCurrentCard) isWin = true;
         if(choice === 'low' && nextCard < hlCurrentCard) isWin = true;
         
-        hlCurrentCard = nextCard;
-        updateHLUI();
+        hlCurrentCard = nextCard; updateHLUI();
 
         if(isWin) {
             hlSuccess++; playSound('click'); updateHLUI();
@@ -808,6 +809,20 @@
         document.getElementById('shop-coins').textContent = userCoins;
         document.getElementById('menu-diamonds').textContent = userDiamonds;
         document.getElementById('shop-diamonds').textContent = userDiamonds;
+    }
+
+    function refreshIconSelect() {
+        const sel = document.getElementById('icon-select'); sel.innerHTML = '';
+        unlockedIcons.forEach(icon => {
+            const opt = document.createElement('option'); opt.value = icon; opt.textContent = iconData[icon] || icon; sel.appendChild(opt);
+        });
+    }
+
+    function refreshBackSelect() {
+        const backSel = document.getElementById('back-color-select'); backSel.innerHTML = '';
+        unlockedBacks.forEach(key => {
+            const opt = document.createElement('option'); opt.value = key; opt.textContent = cardBackData[key] || key; backSel.appendChild(opt);
+        });
     }
 
     function toggleCustomRule(val) { document.getElementById('custom-rule-area').style.display = val === 'CUSTOM' ? 'block' : 'none'; updateLobbyRuleDisplay(); }
@@ -856,7 +871,7 @@
     }
 
     function updateLobbyRuleDisplay() {
-        const el = document.getElementById('lobby-rule-display');
+        const el = document.getElementById('lobby-rule-display'); if(!el) return;
         let rType = document.getElementById('rule-template').value; let unit = isOfflineMode ? "点" : "杯"; let rds = document.getElementById('room-rounds').value;
         if(isOfflineMode) { el.textContent = isOniMode ? `鬼モード: 負け-1点 / ヤニブ返し-2点 | ${rds}試合 (全1位で制覇)` : `通常モード: 負け-1点 / ヤニブ返し-2点 | ${rds}試合`; } 
         else {
@@ -1722,7 +1737,6 @@
         } else if (modalActionState === 'show_final') { setTimeout(showFinalTotalRanking, 150); } 
     }
 
-    // --- 鬼ガチャ専用 ---
     function openOniGacha() {
         document.getElementById('modal-overlay').style.display = 'none';
         document.getElementById('gacha-overlay').style.display = 'flex';
@@ -1768,12 +1782,8 @@
             }
         }, 1500);
     }
-    function closeOniGacha() {
-        document.getElementById('gacha-overlay').style.display = 'none';
-        returnToLobby(); 
-    }
+    function closeOniGacha() { document.getElementById('gacha-overlay').style.display = 'none'; returnToLobby(); }
 
-    // --- 通常ショップガチャ ---
     const gachaIcons = ['icon_pien.png', 'icon_zombie.png', 'icon_happy.png', 'icon_piero.png', 'icon_ringo.png', 'icon_gun.png', 'icon_kaeruman.png', 'icon_miko.png', 'icon_birthday.png', 'icon_hugu.png', 'icon_tekira.png', 'icon_tekira2.png', 'icon_sanchan.png', 'icon_dice.png'];
     const gachaBacks = ['card_kaeru.png', 'card_pien.png', 'card_zombie.png', 'card_piero.png', 'card_ringo.png', 'card_kaeruman.png', 'card_star.png', 'card_miko.png', 'card_hatena.png'];
     
