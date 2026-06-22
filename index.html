@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ヤニブ (Yaniv) v8.0 Perfect Revival</title>
+<title>ヤニブ (Yaniv) v10.0 Complete Edition</title>
 <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 <style>
     * { box-sizing: border-box; }
@@ -63,7 +63,7 @@
     #area-3 { grid-column: 3; grid-row: 2; width: 100%; height: 100%; justify-content: center; } 
     #area-0 { grid-column: 2; grid-row: 3; width: 100%; max-width: 500px; height: 100%; justify-content: flex-end; } 
 
-    .player-area { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; background-color: rgba(0,0,0,0.25); padding: 8px; border-radius: 10px; border: 2px solid transparent; transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s; }
+    .player-area { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; background-color: rgba(0,0,0,0.25); padding: 8px; border-radius: 10px; border: 2px solid transparent; transition: box-shadow 0.2s, background-color 0.2s; }
     .player-area.active { box-shadow: 0 0 15px 3px rgba(255, 235, 59, 0.5); border: 2px solid #ffeb3b; background-color: rgba(0,0,0,0.35); }
 
     .h-row { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 14px; font-weight: bold; width: 100%; margin-bottom: 12px; flex-wrap: wrap; }
@@ -142,7 +142,7 @@
     <button class="btn-large" style="background-color: #2196f3; color: white; box-shadow: 0 4px 0 #0d47a1;" onclick="switchScreen('room-join-screen')">部屋に参加 (ゲスト)</button>
     <button class="btn-large" style="background-color: #4caf50; color: white; box-shadow: 0 4px 0 #2e7d32;" onclick="setupOfflineLobby()">ひとりで遊ぶ (CPU戦)</button>
     <button class="btn-large" style="background-color: #e0e0e0; color: #333; box-shadow: 0 4px 0 #9e9e9e;" onclick="switchScreen('settings-menu')">設定</button>
-    <div class="version-text">v8.0 Perfect Revival</div>
+    <div class="version-text">v10.0 Complete Edition</div>
 </div>
 
 <!-- 設定画面 -->
@@ -289,9 +289,9 @@
             </div>
             <div id="player-hand" class="hand"></div>
             <div class="controls-wrapper" id="player-controls">
-                <button id="draw-deck-btn" class="btn-action" disabled>山から引く</button>
-                <button id="draw-discard-btn" class="btn-action" disabled>場から拾う</button>
-                <button id="yaniv-btn" class="btn-yaniv" style="display:none;">ヤニブ！</button>
+                <button id="draw-deck-btn" class="btn-action" onclick="executeTurn('deck')" disabled>山から引く</button>
+                <button id="draw-discard-btn" class="btn-action" onclick="executeTurn('discard')" disabled>場から拾う</button>
+                <button id="yaniv-btn" class="btn-yaniv" onclick="declareYaniv(myNetworkId)" style="display:none;">ヤニブ！</button>
             </div>
         </div>
     </div>
@@ -311,11 +311,11 @@
 </div>
 
 <script>
-    // --- ローカルストレージ＆基本データ ---
     let userCoins = parseInt(localStorage.getItem('yaniv_coins')) || 0;
     let myName = localStorage.getItem('yaniv_name') || "あなた";
     let myIconStr = localStorage.getItem('yaniv_icon') || '<img src="icon_default.png" alt="icon">';
     let myCardBackClass = localStorage.getItem('yaniv_card_back') || 'back-blue';
+    let masterVolume = 0.8; 
     
     const suits = ['♠', '♥', '♦', '♣'];
     const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
@@ -335,17 +335,12 @@
     
     let peer = null; let isHost = true; let hostConnection = null; let guestConnections = []; let myNetworkId = 0; 
 
-    // ★ JS側でボタンイベントを確実に1回だけ登録 (v4.0方式復活)
     window.onload = () => {
         document.getElementById('my-name-input').value = myName;
         document.getElementById('icon-select').value = myIconStr.includes('kaeru') ? 'icon_kaeru.png' : myIconStr.includes('kyuuri') ? 'icon_kyuuri.png' : myIconStr.includes('yuuto') ? 'icon_yuuto.png' : 'icon_default.png';
         document.getElementById('back-color-select').value = myCardBackClass;
         updatePlayerIcon(document.getElementById('icon-select').value);
         document.getElementById('menu-coins').textContent = userCoins;
-
-        document.getElementById('draw-deck-btn').addEventListener('click', () => executeTurn('deck'));
-        document.getElementById('draw-discard-btn').addEventListener('click', () => executeTurn('discard'));
-        document.getElementById('yaniv-btn').addEventListener('click', () => declareYaniv(myNetworkId));
     };
 
     function saveUserData() {
@@ -371,7 +366,6 @@
         saveUserData(); switchScreen('main-menu');
     }
 
-    // --- ロビー＆通信準備 ---
     function createRoom() {
         isHost = true; myNetworkId = 0;
         players.forEach(p => { p.isActive = false; p.isReal = false; p.peerId = null; p.hand = []; p.drinks = 0; });
@@ -382,25 +376,21 @@
         
         const displayId = String(Math.floor(10000 + Math.random() * 90000));
         const internalId = 'ynv-room-' + displayId;
-        document.getElementById('room-id-display').innerHTML = `部屋を生成中...`;
+        document.getElementById('room-id-display').innerHTML = `部屋ID: <span style="font-size:28px; color:#e91e63; letter-spacing:4px;">${displayId}</span><br><span style="font-size:10px; color:#555;">友達にこの数字を教えてください</span>`;
         
         peer = new Peer(internalId);
-        peer.on('open', (id) => {
-            document.getElementById('room-id-display').innerHTML = `部屋ID: <span style="font-size:28px; color:#e91e63; letter-spacing:4px;">${displayId}</span><br><span style="font-size:10px; color:#555;">友達にこの数字を教えてください</span>`;
-            updateLobbyUI();
-        });
+        peer.on('open', (id) => { updateLobbyUI(); });
         peer.on('connection', (conn) => {
             guestConnections.push(conn);
             conn.on('data', (data) => {
                 if (data.type === 'JOIN_REQUEST') handleGuestJoin(data.name, data.icon, data.cardBack, conn);
-                else if (data.type === 'REQ_ACTION') executeTurnSequence(data.playerIndex, data.cardsToDiscard, data.drawSource);
+                else if (data.type === 'REQ_ACTION') processActionSync(data.playerIndex, data.cardsToDiscard, data.drawSource);
                 else if (data.type === 'REQ_YANIV') declareYaniv(data.playerIndex);
             });
             conn.on('close', () => { guestConnections = guestConnections.filter(c => c !== conn); handleDisconnect(conn.peer); });
         });
     }
 
-    // 友達切断の自動CPU化
     function handleDisconnect(peerId) {
         const p = players.find(x => x.peerId === peerId);
         if(p) {
@@ -415,7 +405,8 @@
     function handleGuestJoin(guestName, guestIcon, guestCardBack, conn) {
         let slotIndex = players.findIndex(p => p.id !== 0 && !p.isActive);
         if (slotIndex !== -1) {
-            players[slotIndex] = { id: slotIndex, name: guestName, icon: guestIcon, cardBack: guestCardBack, drinks: 0, hand: [], isReal: true, isActive: true, peerId: conn.peer };
+            players[slotIndex].name = guestName; players[slotIndex].icon = guestIcon; players[slotIndex].cardBack = guestCardBack;
+            players[slotIndex].isReal = true; players[slotIndex].isActive = true; players[slotIndex].peerId = conn.peer;
             conn.send({ type: 'JOIN_ACCEPTED', yourId: slotIndex });
             updateLobbyUI(); broadcastLobbyState(); 
         } else { conn.send({ type: 'JOIN_REJECTED', reason: '満員です' }); }
@@ -423,7 +414,7 @@
 
     function addCPU() {
         let added = false;
-        for(let i=1; i<=3; i++){ if(!players[i].isActive) { players[i] = { id: i, name: `CPU ${i}`, icon: '<img src="icon_default.png">', cardBack:'back-blue', drinks:0, hand:[], isReal: false, isActive: true, peerId: null }; added = true; break; } }
+        for(let i=1; i<=3; i++){ if(!players[i].isActive) { players[i].name = `CPU ${i}`; players[i].icon = '<img src="icon_default.png">'; players[i].isReal = false; players[i].isActive = true; added = true; break; } }
         if(!added) alert("最大4人です"); updateLobbyUI(); broadcastLobbyState();
     }
     function removeCPU() {
@@ -438,21 +429,20 @@
         guestConnections.forEach(conn => conn.send({ type: 'LOBBY_UPDATE', players: cleanPlayers }));
     }
 
-    // --- オフラインセットアップ ---
     function setupOfflineLobby() {
         isHost = true; myNetworkId = 0; ruleType = "KD"; MAX_ROUNDS = 5;
         players.forEach(p => { p.isActive = false; p.isReal = false; p.peerId = null; p.hand = []; p.drinks = 0; });
         players[0].name = myName; players[0].icon = myIconStr; players[0].cardBack = myCardBackClass; players[0].isReal = true; players[0].isActive = true;
-        players[1] = { id: 1, name: 'CPU 1', icon: '<img src="icon_default.png">', cardBack: 'back-blue', drinks: 0, hand: [], isReal: false, isActive: true, peerId: null };
-        players[2] = { id: 2, name: 'CPU 2', icon: '<img src="icon_default.png">', cardBack: 'back-blue', drinks: 0, hand: [], isReal: false, isActive: true, peerId: null };
-        players[3] = { id: 3, name: 'CPU 3', icon: '<img src="icon_default.png">', cardBack: 'back-blue', drinks: 0, hand: [], isReal: false, isActive: true, peerId: null };
+        
+        players[1].name = 'CPU 1'; players[1].icon = '<img src="icon_default.png">'; players[1].isReal = false; players[1].isActive = true;
+        players[2].name = 'CPU 2'; players[2].icon = '<img src="icon_default.png">'; players[2].isReal = false; players[2].isActive = true;
+        players[3].name = 'CPU 3'; players[3].icon = '<img src="icon_default.png">'; players[3].isReal = false; players[3].isActive = true;
 
         document.getElementById('host-controls').style.display = 'block'; document.getElementById('guest-controls').style.display = 'none';
         document.getElementById('lobby-title').textContent = "オフラインロビー"; document.getElementById('room-id-display').innerHTML = `ひとりで遊ぶモード`;
         updateLobbyUI(); switchScreen('room-waiting-screen');
     }
 
-    // --- ゲスト参加 ---
     function joinRoom() {
         isHost = false; const inputId = document.getElementById('join-room-id').value.trim();
         if(!inputId || inputId.length !== 5) { alert("5桁のIDを入力してください"); return; }
@@ -472,10 +462,13 @@
             hostConnection.on('data', (data) => {
                 if (data.type === 'JOIN_ACCEPTED') { myNetworkId = data.yourId; } 
                 else if (data.type === 'JOIN_REJECTED') { alert("入室失敗: " + data.reason); leaveRoom(); }
-                else if (data.type === 'LOBBY_UPDATE') { players = data.players; updateLobbyUI(); }
+                else if (data.type === 'LOBBY_UPDATE') { 
+                    data.players.forEach((dp, i) => { players[i].name = dp.name; players[i].icon = dp.icon; players[i].isReal = dp.isReal; players[i].isActive = dp.isActive; });
+                    updateLobbyUI(); 
+                }
                 else if (data.type === 'GAME_START') { switchScreen('game-container'); }
                 else if (data.type === 'SYNC_STATE') { applyState(data.state); updateUI(); setTurn(currentTurn); }
-                else if (data.type === 'PLAY_ANIM') { playGuestAnimation(data.playerIndex, data.cardsToDiscard, data.drawSource, data.cardToPickUp); }
+                else if (data.type === 'ACTION_EVENT') { applyActionLocally(data); }
                 else if (data.type === 'YANIV_EVENT') { playYanivEvent(data); }
                 else if (data.type === 'SHOW_RESULTS') { showResultsModal(data.payload); }
             });
@@ -497,7 +490,6 @@
 
     function leaveRoom() { if(peer) peer.destroy(); peer = null; hostConnection = null; guestConnections = []; switchScreen('main-menu'); }
 
-    // --- ゲーム開始 ---
     function startNetworkGame() {
         let count = players.filter(p => p.isActive).length;
         if(count < 2) { alert("最低2人は必要です！"); return; }
@@ -506,8 +498,7 @@
         ruleType = document.getElementById('rule-template').value || "KD";
         guestConnections.forEach(conn => conn.send({ type: 'GAME_START' }));
         switchScreen('game-container');
-        activePlayers = players.filter(p => p.isActive);
-        activePlayers.forEach(p => p.drinks = 0);
+        
         startRound();
     }
 
@@ -518,87 +509,98 @@
         for (let i = deck.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]]; }
     }
 
+    function broadcastState() {
+        if(!isHost) return;
+        const state = buildStateObj();
+        guestConnections.forEach(c => c.send({ type: 'SYNC_STATE', state }));
+    }
+
     function startRound() {
         if(!isHost) return; 
-        gameEnded = false; createDeck();
-        activePlayers = players.filter(p => p.isActive);
-        activePlayers.forEach(p => p.hand = deck.splice(0, 5));
-        
-        let firstCard = deck.pop(); 
-        while (firstCard.type === 'joker') { deck.unshift(firstCard); firstCard = deck.pop(); }
-        discardSets = [ [firstCard] ]; selectedCards = [];
-        
-        let activeIds = activePlayers.map(p => p.id);
-        currentTurn = activeIds[Math.floor(Math.random() * activeIds.length)]; 
-        document.getElementById('round-counter').textContent = `第 ${currentRound} / ${MAX_ROUNDS} ラウンド`;
-        
-        broadcastState(); updateUI(); setTurn(currentTurn);
-        
-        // 最初のターンがCPUなら動かす
-        const firstPObj = players.find(p => p.id === currentTurn);
-        if (firstPObj && !firstPObj.isReal) { setTimeout(() => processCPUTurn(currentTurn), 1000); }
+        try {
+            gameEnded = false; createDeck();
+            
+            activePlayers = players.filter(p => p.isActive === true);
+            activePlayers.forEach(p => p.hand = deck.splice(0, 5));
+            
+            let firstCard = deck.pop(); 
+            while (firstCard && firstCard.type === 'joker') { deck.unshift(firstCard); firstCard = deck.pop(); }
+            discardSets = [ [firstCard] ]; selectedCards = [];
+            
+            let activeIds = activePlayers.map(p => p.id);
+            currentTurn = activeIds[Math.floor(Math.random() * activeIds.length)]; 
+            document.getElementById('round-counter').textContent = `第 ${currentRound} / ${MAX_ROUNDS} ラウンド`;
+            
+            broadcastState(); 
+            updateUI(); 
+            setTurn(currentTurn);
+            
+            const firstPObj = players.find(p => p.id === currentTurn);
+            if (firstPObj && !firstPObj.isReal) { setTimeout(() => processCPUTurn(currentTurn), 1200); }
+        } catch (e) {
+            console.error("Round Start Error: ", e);
+        }
     }
 
     function buildStateObj() { return { players, discardSets, deckCount: deck.length, currentTurn, currentRound, MAX_ROUNDS }; }
     function applyState(state) {
-        // オブジェクトのディープコピーはせず、直接状態を上書き(ゲスト向け)
         players = state.players; discardSets = state.discardSets; deck.length = state.deckCount;
         currentTurn = state.currentTurn; currentRound = state.currentRound; MAX_ROUNDS = state.MAX_ROUNDS;
-        activePlayers = players.filter(p => p.isActive);
+        activePlayers = players.filter(p => p.isActive === true);
         document.getElementById('round-counter').textContent = `第 ${currentRound} / ${MAX_ROUNDS} ラウンド`;
     }
 
-    // --- UI相対描画システム ---
     function getPlayerAtPos(posIndex) {
         const mappedId = (myNetworkId + posIndex) % 4; return players.find(p => p.id === mappedId);
     }
 
     function updateUI(revealAll = false) {
-        // ★ 0(南), 1(西), 2(北), 3(東) 全てを確実にループして「自分の手が消えるバグ」を完全回避！
-        [0, 1, 2, 3].forEach(posIndex => {
-            const p = getPlayerAtPos(posIndex);
-            const areaEl = document.getElementById(`area-${posIndex}`);
-            if (!p || !p.isActive) { areaEl.style.display = 'none'; return; }
-            areaEl.style.display = 'flex'; // ★ これで自分のエリア(0)も確実に表示される！
-            
-            document.getElementById(`name-${posIndex}`).textContent = p.name;
-            document.getElementById(`icon-${posIndex}`).innerHTML = p.icon;
-            document.getElementById(`drink-${posIndex}`).textContent = p.drinks;
-            
-            const isMe = posIndex === 0;
-            const handContainer = isMe ? document.getElementById('player-hand') : document.getElementById(`cpu${posIndex}-hand`);
-            handContainer.innerHTML = '';
-            
-            if (isMe) p.hand.sort((a, b) => a.value - b.value);
-            
-            p.hand.forEach(card => {
-                const cardEl = createCardElement(card, revealAll || isMe, p.id);
-                if (isMe) {
-                    const selIndex = selectedCards.findIndex(c => c.id === card.id);
-                    if (selIndex > -1) { cardEl.classList.add('selected'); cardEl.setAttribute('data-order', selIndex + 1); }
-                    if (currentTurn === myNetworkId && !gameEnded) {
-                        cardEl.onclick = () => { toggleCardSelection(card); playSound('click'); }
+        try {
+            [0, 1, 2, 3].forEach(posIndex => {
+                const p = getPlayerAtPos(posIndex);
+                const areaEl = document.getElementById(`area-${posIndex}`);
+                if (!p || !p.isActive) { areaEl.style.display = 'none'; return; }
+                areaEl.style.display = 'flex'; 
+                
+                document.getElementById(`name-${posIndex}`).textContent = p.name;
+                document.getElementById(`icon-${posIndex}`).innerHTML = p.icon;
+                document.getElementById(`drink-${posIndex}`).textContent = p.drinks;
+                
+                const isMe = posIndex === 0;
+                const handContainer = isMe ? document.getElementById('player-hand') : document.getElementById(`cpu${posIndex}-hand`);
+                handContainer.innerHTML = '';
+                
+                if (isMe) p.hand.sort((a, b) => a.value - b.value);
+                
+                p.hand.forEach(card => {
+                    const cardEl = createCardElement(card, revealAll || isMe, p.id);
+                    if (isMe) {
+                        const selIndex = selectedCards.findIndex(c => c.id === card.id);
+                        if (selIndex > -1) { cardEl.classList.add('selected'); cardEl.setAttribute('data-order', selIndex + 1); }
+                        if (currentTurn === myNetworkId && !gameEnded) {
+                            cardEl.onclick = () => { toggleCardSelection(card); playSound('click'); }
+                        }
                     }
-                }
-                handContainer.appendChild(cardEl);
+                    handContainer.appendChild(cardEl);
+                });
+                
+                if (isMe) document.getElementById(`sum-0`).textContent = getHandScore(p.hand);
+                else document.getElementById(`sum-${posIndex}`).textContent = revealAll ? getHandScore(p.hand) : "?";
             });
-            
-            if (isMe) document.getElementById(`sum-0`).textContent = getHandScore(p.hand);
-            else document.getElementById(`sum-${posIndex}`).textContent = revealAll ? getHandScore(p.hand) : "?";
-        });
 
-        const discardContainer = document.getElementById('discard-pile'); discardContainer.innerHTML = '';
-        if (discardSets.length > 0) {
-            const prm = getCardParams(); const topSet = discardSets[discardSets.length - 1];
-            const totalWidth = prm.w + (topSet.length - 1) * prm.offset; const startX = -(totalWidth / 2) + (prm.w / 2);
-            topSet.forEach((card, i) => {
-                const cardEl = createCardElement(card, true); cardEl.style.position = 'absolute';
-                cardEl.style.transform = `translateX(${startX + i * prm.offset}px)`; cardEl.style.zIndex = i;
-                cardEl.style.boxShadow = "-2px 2px 5px rgba(0,0,0,0.5)"; discardContainer.appendChild(cardEl);
-            });
-        }
-        document.getElementById('deck-count').textContent = isHost ? deck.length : deck.length;
-        updateButtonStates();
+            const discardContainer = document.getElementById('discard-pile'); discardContainer.innerHTML = '';
+            if (discardSets.length > 0) {
+                const prm = getCardParams(); const topSet = discardSets[discardSets.length - 1];
+                const totalWidth = prm.w + (topSet.length - 1) * prm.offset; const startX = -(totalWidth / 2) + (prm.w / 2);
+                topSet.forEach((card, i) => {
+                    const cardEl = createCardElement(card, true); cardEl.style.position = 'absolute';
+                    cardEl.style.transform = `translateX(${startX + i * prm.offset}px)`; cardEl.style.zIndex = i;
+                    cardEl.style.boxShadow = "-2px 2px 5px rgba(0,0,0,0.5)"; discardContainer.appendChild(cardEl);
+                });
+            }
+            document.getElementById('deck-count').textContent = deck.length;
+            updateButtonStates();
+        } catch (e) { console.error("UI Update Error: ", e); }
     }
 
     function createCardElement(card, isFaceUp, ownerIndex = -1) {
@@ -673,15 +675,88 @@
         return finalPlay;
     }
 
-    // --- ★ v4.0 完全復活！最強のコールバック型アニメーション同期 ★ ---
+    // --- ★ 追加: 進行を一切止めない Fire-and-Forget (撃ち放し) アニメーション ★ ---
+    function performCosmeticAnimations(playerIndex, cardsToDiscard, drawSource) {
+        try {
+            const uiIndex = (playerIndex - myNetworkId + 4) % 4;
+            const prm = getCardParams();
+            
+            // 1. 捨てるアニメーション
+            if (cardsToDiscard && cardsToDiscard.length > 0) {
+                const discardPile = document.getElementById('discard-pile');
+                const startArea = document.getElementById(`area-${uiIndex}`);
+                if (discardPile && startArea) {
+                    const sRect = startArea.getBoundingClientRect();
+                    const dRect = discardPile.getBoundingClientRect();
+                    
+                    cardsToDiscard.forEach((c, i) => {
+                        const animCard = createCardElement(c, true);
+                        animCard.style.position = 'fixed';
+                        animCard.style.zIndex = 9999 + i;
+                        // 初期位置：プレイヤーエリアの中央
+                        animCard.style.top = (sRect.top + sRect.height/2 - prm.h/2) + 'px';
+                        animCard.style.left = (sRect.left + sRect.width/2 - prm.w/2) + 'px';
+                        animCard.style.transition = 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)';
+                        document.body.appendChild(animCard);
+                        
+                        // 描画を待ってから飛ばす
+                        setTimeout(() => {
+                            animCard.style.top = (dRect.top + dRect.height/2 - prm.h/2) + 'px';
+                            animCard.style.left = (dRect.left + dRect.width/2 - prm.w/2) + 'px';
+                            animCard.style.transform = 'scale(0.8)';
+                            animCard.style.opacity = '0';
+                        }, 20);
+                        setTimeout(() => animCard.remove(), 350);
+                    });
+                }
+            }
+
+            // 2. 引くアニメーション (捨てるカードが飛び始めてから開始)
+            setTimeout(() => {
+                const sourceId = drawSource === 'discard' ? 'discard-pile' : 'deck-pile';
+                const sourceEl = document.getElementById(sourceId);
+                const targetArea = document.getElementById(`area-${uiIndex}`);
+                
+                if (sourceEl && targetArea) {
+                    const sRect = sourceEl.getBoundingClientRect();
+                    const tRect = targetArea.getBoundingClientRect();
+                    
+                    const owner = players.find(p => p.id === playerIndex);
+                    const backC = owner ? (owner.cardBack || 'back-blue') : 'back-blue';
+                    const animCard = document.createElement('div');
+                    animCard.className = `card back ${backC}`;
+                    animCard.style.position = 'fixed';
+                    animCard.style.zIndex = 9999;
+                    // 初期位置：山札/捨て札の中央
+                    animCard.style.top = (sRect.top + sRect.height/2 - prm.h/2) + 'px';
+                    animCard.style.left = (sRect.left + sRect.width/2 - prm.w/2) + 'px';
+                    animCard.style.transition = 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)';
+                    document.body.appendChild(animCard);
+                    
+                    setTimeout(() => {
+                        animCard.style.top = (tRect.top + tRect.height/2 - prm.h/2) + 'px';
+                        animCard.style.left = (tRect.left + tRect.width/2 - prm.w/2) + 'px';
+                        animCard.style.transform = 'scale(0.8)';
+                        animCard.style.opacity = '0';
+                    }, 20);
+                    setTimeout(() => animCard.remove(), 350);
+                }
+            }, 150); 
+        } catch (e) {
+            console.warn("Animation Error (Ignored):", e);
+        }
+    }
+
+    // --- ゲームロジック ---
     function executeTurn(drawSource) { 
         if (currentTurn !== myNetworkId) return; 
         const cardsToDiscard = [...selectedCards]; selectedCards = []; 
-        if(isHost) { executeTurnSequence(myNetworkId, cardsToDiscard, drawSource); }
+        if(isHost) { processActionSync(myNetworkId, cardsToDiscard, drawSource); }
         else { hostConnection.send({ type: 'REQ_ACTION', playerIndex: myNetworkId, cardsToDiscard, drawSource }); }
     }
 
     function processCPUTurn(cpuId) {
+        if(gameEnded) return;
         const cpuObj = players.find(p => p.id === cpuId); if (!cpuObj || cpuObj.isReal) return;
         const hand = cpuObj.hand;
         if (getHandScore(hand) <= 5) { declareYaniv(cpuId); return; }
@@ -691,7 +766,7 @@
                 const topSet = discardSets[discardSets.length - 1];
                 if (getHandScore([topSet[topSet.length - 1]]) <= 3 && deck.length > 0) { drawSource = 'discard'; }
             }
-            executeTurnSequence(cpuId, cardsToDiscard, drawSource);
+            processActionSync(cpuId, cardsToDiscard, drawSource);
         }
     }
 
@@ -703,15 +778,11 @@
         return deck.pop();
     }
 
-    // ホスト用のメイン処理。アニメーションがすべて終わってからデータを更新し、ターンを回す！
-    function executeTurnSequence(playerIndex, cardsToDiscard, drawSource) {
-        if (playerIndex === myNetworkId) { document.getElementById('player-controls').style.display = 'none'; }
-        
-        const uiIndex = (playerIndex - myNetworkId + 4) % 4;
-        const badge = document.getElementById(`action-${uiIndex}`); 
-        if(badge) { badge.textContent = drawSource === 'discard' ? "拾った！" : "引いた"; badge.classList.add('show'); setTimeout(() => badge.classList.remove('show'), 2000); }
+    function processActionSync(playerIndex, cardsToDiscard, drawSource) {
+        if (currentTurn !== playerIndex || gameEnded) return;
+        const p = players.find(x => x.id === playerIndex); if(!p) return;
 
-        cardsToDiscard.forEach(c => { const el = document.getElementById(`card-${c.id}`); if(el) el.style.opacity = '0'; });
+        cardsToDiscard.forEach(c => { const idx = p.hand.findIndex(hc => hc.id === c.id); if(idx > -1) p.hand.splice(idx, 1); });
         
         let cardToPickUp = null;
         if (drawSource === 'discard') { 
@@ -720,107 +791,48 @@
                 if (topSet.length === 0) discardSets.pop(); 
             } else { cardToPickUp = drawFromDeck(); drawSource = 'deck'; }
         } else { cardToPickUp = drawFromDeck(); }
-
-        // ゲストにアニメーションを再生させる
-        guestConnections.forEach(c => c.send({ type: 'PLAY_ANIM', playerIndex, cardsToDiscard, drawSource, cardToPickUp }));
-
-        performDiscardAnimation(cardsToDiscard, uiIndex, () => {
-            const p = players.find(x => x.id === playerIndex);
-            if(p) cardsToDiscard.forEach(c => { const idx = p.hand.findIndex(hc => hc.id === c.id); if (idx > -1) p.hand.splice(idx, 1); });
-            discardSets.push(cardsToDiscard); 
-            updateUI(); 
-
-            if (cardToPickUp) { 
-                performDrawAnimation(drawSource, uiIndex, playerIndex, () => { 
-                    if(p) p.hand.push(cardToPickUp); 
-                    updateUI(); 
-                    passTurn(); 
-                }); 
-            } else { passTurn(); }
-        });
-    }
-
-    // ゲスト用のアニメーション再生処理。ホストと同じ動きをし、終わったらホストからのSYNC_STATEを待つ
-    function playGuestAnimation(playerIndex, cardsToDiscard, drawSource, cardToPickUp) {
-        if (playerIndex === myNetworkId) { document.getElementById('player-controls').style.display = 'none'; }
         
-        const uiIndex = (playerIndex - myNetworkId + 4) % 4;
-        const badge = document.getElementById(`action-${uiIndex}`); 
-        if(badge) { badge.textContent = drawSource === 'discard' ? "拾った！" : "引いた"; badge.classList.add('show'); setTimeout(() => badge.classList.remove('show'), 2000); }
-        
-        cardsToDiscard.forEach(c => { const el = document.getElementById(`card-${c.id}`); if(el) el.style.opacity = '0'; });
-        
-        // 見た目のためだけに一時的に場を更新
-        if (drawSource === 'discard' && discardSets.length > 0) {
-            let topSet = discardSets[discardSets.length - 1]; if(topSet.length > 0) topSet.pop(); if(topSet.length === 0) discardSets.pop();
-        }
+        if(cardToPickUp) p.hand.push(cardToPickUp);
+        discardSets.push(cardsToDiscard);
 
-        performDiscardAnimation(cardsToDiscard, uiIndex, () => {
-            discardSets.push(cardsToDiscard); updateUI();
-            if(cardToPickUp) {
-                performDrawAnimation(drawSource, uiIndex, playerIndex, () => {});
-            }
-        });
-    }
-
-    function performDiscardAnimation(cardsToDiscard, uiIndex, callback) {
-        playSound('discard'); const prm = getCardParams();
-        const discardPile = document.getElementById('discard-pile'); const discardRect = discardPile.getBoundingClientRect(); let animElements = [];
-
-        cardsToDiscard.forEach((card, i) => {
-            const cardEl = document.getElementById(`card-${card.id}`); 
-            let startRect = cardEl ? cardEl.getBoundingClientRect() : document.getElementById(`area-${uiIndex}`).getBoundingClientRect();
-            const animCard = createCardElement(card, true); animCard.style.position = 'fixed'; animCard.style.top = startRect.top + 'px'; animCard.style.left = startRect.left + 'px'; animCard.style.margin = '0'; animCard.style.zIndex = 1000 + i;
-            let initialRotate = '0deg'; if (uiIndex === 1) initialRotate = '90deg'; if (uiIndex === 2) initialRotate = '180deg'; if (uiIndex === 3) initialRotate = '-90deg';
-            animCard.style.transform = `rotate(${initialRotate})`; animCard.style.transition = 'all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1)';
-            document.body.appendChild(animCard); animElements.push(animCard);
-        });
-
-        document.body.getBoundingClientRect(); // 強制リフロー
-        const totalWidth = prm.w + (cardsToDiscard.length - 1) * prm.offset; const startX = -(totalWidth / 2) + (prm.w / 2);
-
-        animElements.forEach((animCard, i) => {
-            const targetLeft = discardRect.left + (discardRect.width / 2) - (prm.w / 2) + startX + (i * prm.offset); const targetTop = discardRect.top + (discardRect.height / 2) - (prm.h / 2);
-            animCard.style.top = targetTop + 'px'; animCard.style.left = targetLeft + 'px'; animCard.style.transform = 'rotate(0deg)'; 
-        });
-
-        setTimeout(() => { animElements.forEach(el => el.remove()); callback(); }, 350);
-    }
-
-    function performDrawAnimation(drawSource, uiIndex, playerIndex, callback) {
-        playSound('draw'); const prm = getCardParams();
-        const sourceEl = document.getElementById(drawSource === 'discard' ? 'discard-pile' : 'deck-pile');
-        const targetContainer = document.getElementById(uiIndex === 0 ? 'player-hand' : `cpu${uiIndex}-hand`);
-        if (!sourceEl || !targetContainer) { callback(); return; }
-
-        const playerObj = players.find(p => p.id === playerIndex);
-        const backC = playerObj ? (playerObj.cardBack || 'back-blue') : 'back-blue';
-        const animCard = document.createElement('div'); animCard.className = `card back ${backC}`;
-        
-        const sRect = sourceEl.getBoundingClientRect(); const tRect = targetContainer.getBoundingClientRect();
-        animCard.style.position = 'fixed'; animCard.style.top = sRect.top + 'px'; animCard.style.left = sRect.left + 'px'; animCard.style.margin = '0'; animCard.style.zIndex = '9999'; animCard.style.transform = 'rotate(0deg)'; animCard.style.transition = 'all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1)';
-        document.body.appendChild(animCard); animCard.getBoundingClientRect(); 
-        
-        let finalRotate = '0deg'; if (uiIndex === 1) finalRotate = '90deg'; if (uiIndex === 2) finalRotate = '180deg'; if (uiIndex === 3) finalRotate = '-90deg';
-        animCard.style.top = tRect.top + (tRect.height/2) - (prm.h / 2) + 'px'; animCard.style.left = tRect.left + (tRect.width/2) - (prm.w / 2) + 'px'; animCard.style.transform = `rotate(${finalRotate})`; animCard.style.opacity = '0.3';
-        
-        setTimeout(() => { animCard.remove(); callback(); }, 350);
-    }
-
-    function passTurn() {
         let activeIds = activePlayers.map(x => x.id); let currentIndex = activeIds.indexOf(currentTurn);
         currentTurn = activeIds[(currentIndex + 1) % activeIds.length];
         
-        setTurn(currentTurn); updateUI();
-        broadcastState(); // ゲストの画面を最終更新
+        const newState = buildStateObj();
+        // ★ eventDataに cardsToDiscard を追加してアニメーションに引き継ぐ
+        const eventData = { playerIndex, cardsToDiscard, drawSource, newState };
         
-        if (!gameEnded) {
-            const nextP = players.find(p => p.id === currentTurn);
-            if (nextP && !nextP.isReal) { setTimeout(() => processCPUTurn(currentTurn), 800); }
+        guestConnections.forEach(conn => conn.send({ type: 'ACTION_EVENT', ...eventData }));
+        applyActionLocally(eventData);
+
+        if (isHost && !gameEnded) {
+            const nextP = players.find(x => x.id === currentTurn);
+            if (nextP && !nextP.isReal) { setTimeout(() => processCPUTurn(currentTurn), 1200); }
         }
     }
 
-    // --- 決着同期とコイン計算 ---
+    function applyActionLocally(data) {
+        const { playerIndex, cardsToDiscard, drawSource, newState } = data;
+        if (playerIndex === myNetworkId) document.getElementById('player-controls').style.display = 'none';
+        
+        playSound(drawSource === 'discard' ? 'discard' : 'draw');
+        
+        const uiIndex = (playerIndex - myNetworkId + 4) % 4;
+        const badge = document.getElementById(`action-${uiIndex}`); 
+        if(badge) { 
+            badge.textContent = drawSource === 'discard' ? "拾った！" : "引いた"; 
+            badge.classList.add('show'); 
+            setTimeout(() => badge.classList.remove('show'), 1500); 
+        }
+
+        // ★ 非同期のアニメーションを発射
+        performCosmeticAnimations(playerIndex, cardsToDiscard, drawSource);
+
+        if(newState) { applyState(newState); }
+        updateUI(); 
+        setTurn(currentTurn);
+    }
+
     function declareYaniv(declarerIndex) {
         if(isHost) {
             gameEnded = true;
@@ -915,7 +927,7 @@
     let audioCtx = null;
     function initAudio() { if (!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } }
     function playSound(type) {
-        if (masterVolume === 0) return;
+        if (typeof masterVolume === 'undefined' || masterVolume === 0) return;
         try { initAudio(); if (!audioCtx) return;
             const osc = audioCtx.createOscillator(); const gainNode = audioCtx.createGain(); osc.connect(gainNode); gainNode.connect(audioCtx.destination); const now = audioCtx.currentTime;
             if (type === 'click') { osc.type = 'sine'; osc.frequency.setValueAtTime(600, now); gainNode.gain.setValueAtTime(0.05 * masterVolume, now); gainNode.gain.linearRampToValueAtTime(0, now + 0.05); osc.start(now); osc.stop(now + 0.05); } 
@@ -923,7 +935,7 @@
             else if (type === 'draw') { osc.type = 'sine'; osc.frequency.setValueAtTime(400, now); osc.frequency.exponentialRampToValueAtTime(700, now + 0.2); gainNode.gain.setValueAtTime(0.1 * masterVolume, now); gainNode.gain.linearRampToValueAtTime(0, now + 0.2); osc.start(now); osc.stop(now + 0.2); } 
             else if (type === 'yaniv') { osc.type = 'square'; osc.frequency.setValueAtTime(523.25, now); osc.frequency.setValueAtTime(659.25, now + 0.08); osc.frequency.setValueAtTime(783.99, now + 0.16); osc.frequency.setValueAtTime(1046.50, now + 0.24); gainNode.gain.setValueAtTime(0.1 * masterVolume, now); gainNode.gain.linearRampToValueAtTime(0, now + 0.5); osc.start(now); osc.stop(now + 0.5); } 
             else if (type === 'asaf') { osc.type = 'sawtooth'; osc.frequency.setValueAtTime(130, now); osc.frequency.linearRampToValueAtTime(100, now + 0.3); gainNode.gain.setValueAtTime(0.2 * masterVolume, now); gainNode.gain.linearRampToValueAtTime(0, now + 0.3); osc.start(now); osc.stop(now + 0.3); }
-        } catch (e) {}
+        } catch (e) { console.warn("Audio Context Error (Ignored):", e); }
     }
 </script>
 </body>
