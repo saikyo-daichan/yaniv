@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ヤニブ (Yaniv) v16.1</title>
+<title>ヤニブ (Yaniv) v16.3</title>
 <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 <style>
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -24,12 +24,18 @@
     .coin-g { width: 22px; height: 22px; background: radial-gradient(circle, #ffd700, #b8860b); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: #fff; font-weight: bold; font-size: 14px; text-shadow: 1px 1px 1px #000; margin-right: 8px; border: 1px solid #fff; }
     .diamond-icon { margin-left: 10px; margin-right: 5px; font-size: 18px; line-height: 1; }
     
-    #coin-toast { position: fixed; top: 20%; left: 50%; transform: translate(-50%, -50%); background: rgba(255,215,0,0.9); color: #000; font-weight: bold; font-size: 20px; padding: 10px 20px; border-radius: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: none; z-index: 10000; border: 2px solid #fff; animation: floatUp 3s ease-out forwards; }
+    #coin-toast { position: fixed; top: 20%; left: 50%; transform: translate(-50%, -50%); background: rgba(255,215,0,0.9); color: #000; font-weight: bold; font-size: 20px; padding: 10px 20px; border-radius: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: none; z-index: 10000; border: 2px solid #fff; animation: floatUp 4s ease-out forwards; text-align: center; }
     @keyframes floatUp { 0% { top: 30%; opacity: 0; } 10% { top: 20%; opacity: 1; } 80% { top: 20%; opacity: 1; } 100% { top: 10%; opacity: 0; } }
 
     /* メニュー */
     .menu-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; width: 100%; padding: 20px; position: relative; }
-    .menu-screen h1 { font-size: 42px; color: #ffeb3b; text-shadow: 2px 2px 0px #000; margin: 0 0 10px 0; letter-spacing: 2px; }
+    .menu-screen h1 { font-size: 42px; color: #ffeb3b; text-shadow: 2px 2px 0px #000; margin: 0 0 5px 0; letter-spacing: 2px; }
+    .menu-subtitle { font-size: 14px; color: #a5d6a7; margin-bottom: 15px; font-weight: bold; width: 100%; max-width: 250px; text-align: center; }
+    
+    /* XPバー */
+    .xp-bar-container { width: 100%; height: 8px; background: rgba(0,0,0,0.5); border-radius: 4px; margin-top: 5px; overflow: hidden; border: 1px solid #388e3c; }
+    .xp-bar-fill { height: 100%; background: #4caf50; width: 0%; transition: width 0.5s ease-out; }
+
     .menu-panel { background-color: rgba(0,0,0,0.4); padding: 20px; border-radius: 15px; border: 2px solid #388e3c; width: 100%; max-width: 350px; text-align: left; overflow-y: auto; max-height: 80vh; }
     .menu-panel h3 { margin-top: 0; color: #ffeb3b; text-align: center; margin-bottom: 15px; }
     .setting-item { display: flex; flex-direction: column; gap: 6px; margin-bottom: 15px; }
@@ -50,7 +56,6 @@
     .player-slot { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.1); padding: 8px 12px; border-radius: 8px; font-size: 14px; font-weight: bold; }
     .player-slot.empty { opacity: 0.5; border: 1px dashed #ccc; background: transparent; justify-content: center; }
     
-    /* アイコン拡大調整 */
     .icon { background-color: rgba(255,255,255,0.2); border-radius: 50%; width: 44px; height: 44px; display: flex; justify-content: center; align-items: center; overflow: hidden; flex-shrink: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.4); }
     .icon img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
     .icon-small { width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; overflow: hidden; background: rgba(255,255,255,0.2); }
@@ -80,22 +85,22 @@
     #in-game-exit-btn:active { transform: scale(0.9); }
 
     /* ショップUI */
-    .shop-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 15px; }
-    .shop-item { background: rgba(255,255,255,0.1); border: 2px solid #ffeb3b; border-radius: 10px; padding: 15px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: space-between; }
-    .shop-btn { background: #4caf50; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; width: 100%; cursor: pointer; font-size: 16px; margin-top: 10px; }
+    .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+    .shop-item { background: rgba(255,255,255,0.1); border: 2px solid #ffeb3b; border-radius: 10px; padding: 15px 5px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: space-between; }
+    .shop-btn { background: #4caf50; color: white; border: none; padding: 8px; border-radius: 6px; font-weight: bold; width: 90%; cursor: pointer; font-size: 14px; margin-top: 10px; }
     
     #gacha-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; justify-content:center; align-items:center; flex-direction:column; }
     .gacha-box { font-size: 80px; animation: shake 0.5s infinite; transform-origin: center bottom; margin-bottom: 20px; }
     @keyframes shake { 0% { transform: rotate(0deg); } 25% { transform: rotate(15deg); } 50% { transform: rotate(0deg); } 75% { transform: rotate(-15deg); } 100% { transform: rotate(0deg); } }
     .gacha-result { display: none; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-    .gacha-result img { width: 120px; height: 120px; object-fit: cover; border-radius: 50%; border: 4px solid #ffeb3b; box-shadow: 0 0 20px rgba(255,235,59,0.8); }
+    .gacha-result img { width: 120px; height: 120px; object-fit: cover; border-radius: 10px; border: 4px solid #ffeb3b; box-shadow: 0 0 20px rgba(255,235,59,0.8); }
     @keyframes popIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
     /* 履歴UI */
     .history-item { background: rgba(0,0,0,0.3); border-left: 4px solid #ffeb3b; padding: 10px; border-radius: 4px; margin-bottom: 10px; font-size: 12px; position: relative; }
     .history-date { color: #a5d6a7; font-size: 10px; margin-bottom: 5px; font-weight: bold; }
-    .history-note { color: #f44336; font-size: 10px; margin-left: 10px; }
-    .history-delete { position: absolute; top: 5px; right: 5px; color: #f44336; background: none; border: none; font-size: 18px; font-weight: bold; cursor: pointer; }
+    .history-note { color: #f44336; font-size: 10px; margin-left: 10px; font-weight: bold; }
+    .history-delete { position: absolute; top: 5px; right: 5px; color: #f44336; background: none; border: none; font-size: 18px; font-weight: bold; cursor: pointer; padding: 0; line-height: 1; }
     .history-table { width: 100%; border-collapse: collapse; }
     .history-table td { padding: 4px 2px; border-bottom: 1px solid rgba(255,255,255,0.1); }
 
@@ -121,7 +126,7 @@
     .player-area.active { box-shadow: 0 0 15px 3px rgba(255, 235, 59, 0.5); border: 2px solid #ffeb3b; background-color: rgba(0,0,0,0.35); }
 
     .h-row { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 14px; font-weight: bold; width: 100%; margin-bottom: 12px; flex-wrap: wrap; }
-    .v-col { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 12px; font-weight: bold; margin-bottom: 5px; }
+    .v-col { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 12px; font-weight: bold; margin-bottom: 5px; text-align: center; }
 
     #center-area { display: flex; gap: 20px; justify-content: center; align-items: center; background-color: rgba(0,0,0,0.4); padding: 15px; border-radius: 40px; border: 3px solid #388e3c; box-shadow: inset 0 0 15px rgba(0,0,0,0.8); width: 100%; max-width: 300px; }
 
@@ -141,7 +146,7 @@
 
     .card.red { color: #d32f2f; } .card.black { color: #212121; } .card.joker { color: #7b1fa2; }
     
-    /* カード裏面の動的デザイン */
+    /* カード裏面 */
     .card.back { color: transparent !important; border: 2px solid white; cursor: default; }
     .back-red { background-color: #b71c1c; background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.1) 10px, rgba(255,255,255,0.1) 20px); }
     .back-blue { background-color: #0d47a1; background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.1) 10px, rgba(255,255,255,0.1) 20px); }
@@ -218,18 +223,36 @@
         <div class="diamond-icon">💎</div><span id="menu-diamonds">0</span>
     </div>
     <h1>YANIV</h1>
+    <div class="menu-subtitle">
+        Lv.<span id="menu-level-display">1</span> <span style="font-size:10px; font-weight:normal;">(次まで <span id="menu-next-xp">0</span>xp)</span>
+        <div class="xp-bar-container"><div class="xp-bar-fill" id="menu-xp-bar"></div></div>
+    </div>
     
     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; width:100%; max-width:320px; margin-bottom:10px;">
         <button class="btn-large" style="width:100%; margin:0; font-size:15px;" onclick="switchScreen('room-create-screen')">部屋を作る</button>
         <button class="btn-large" style="width:100%; margin:0; font-size:15px; background-color:#2196f3; box-shadow:0 4px 0 #0d47a1; color:white;" onclick="switchScreen('room-join-screen')">部屋に参加</button>
-        <button class="btn-large" style="width:100%; margin:0; font-size:15px; background-color:#4caf50; box-shadow:0 4px 0 #2e7d32; color:white;" onclick="setupOfflineLobby()">ひとりで遊ぶ</button>
+        <button class="btn-large" style="width:100%; margin:0; font-size:15px; background-color:#4caf50; box-shadow:0 4px 0 #2e7d32; color:white;" onclick="switchScreen('offline-select-screen')">ひとりで遊ぶ</button>
         <button class="btn-large" style="width:100%; margin:0; font-size:15px; background-color:#e0e0e0; box-shadow:0 4px 0 #9e9e9e; color:#333;" onclick="switchScreen('settings-menu')">設定</button>
         <button class="btn-large" style="width:100%; margin:0; font-size:15px; background-color:#9c27b0; box-shadow:0 4px 0 #6a1b9a; color:white;" onclick="switchScreen('shop-screen')">ショップ</button>
-        <button class="btn-large" style="width:100%; margin:0; font-size:15px; background-color:#ff9800; box-shadow:0 4px 0 #e65100; color:white;" onclick="showHistoryScreen()">試合履歴</button>
+        <button class="btn-large" style="width:100%; margin:0; font-size:15px; background-color:#ff9800; box-shadow:0 4px 0 #e65100; color:white;" onclick="showStatsScreen()">戦績</button>
     </div>
     
     <div class="uid-text">UID: <span id="uid-display"></span></div>
-    <div class="version-text">v16.1</div>
+    <div class="version-text">v16.3</div>
+</div>
+
+<!-- オフラインモード選択画面 -->
+<div id="offline-select-screen" class="menu-screen" style="display: none;">
+    <div class="menu-panel" style="max-width: 350px;">
+        <h3>ひとりで遊ぶ</h3>
+        <button class="btn-large" style="width:100%; font-size:16px; margin-bottom:15px; background-color:#4caf50; color:white;" onclick="setupOfflineLobby(false)">
+            通常モード<br><span style="font-size:11px; font-weight:normal;">無料 / 報酬少なめ</span>
+        </button>
+        <button class="btn-large" style="width:100%; font-size:16px; margin-bottom:15px; background-color:#f44336; color:white;" onclick="setupOfflineLobby(true)">
+            鬼モード (100 G)<br><span style="font-size:11px; font-weight:normal;">全5試合を1位で完走し、限定アイコンを解放せよ！</span>
+        </button>
+        <button class="btn-secondary" onclick="switchScreen('main-menu')">戻る</button>
+    </div>
 </div>
 
 <!-- ショップ画面 -->
@@ -245,26 +268,44 @@
                 <div style="font-size:40px; margin-bottom:10px;">📦</div>
                 <div style="font-size:14px; font-weight:bold; margin-bottom:5px;">アイコンガチャ</div>
                 <div style="font-size:11px; color:#a5d6a7; margin-bottom:10px;">未所持アイコン解放</div>
-                <button class="shop-btn" onclick="openGacha()">100 G</button>
+                <button class="shop-btn" onclick="openGacha('icon')">100 G</button>
+            </div>
+            <div class="shop-item">
+                <div style="font-size:40px; margin-bottom:10px;">🎴</div>
+                <div style="font-size:14px; font-weight:bold; margin-bottom:5px;">裏面ガチャ</div>
+                <div style="font-size:11px; color:#a5d6a7; margin-bottom:10px;">未所持カード裏面解放</div>
+                <button class="shop-btn" onclick="openGacha('back')">100 G</button>
             </div>
         </div>
-        <button class="btn-secondary" onclick="switchScreen('main-menu')" style="margin-top:20px;">戻る</button>
+        <button class="btn-secondary" onclick="switchScreen('main-menu')" style="margin-top:10px;">戻る</button>
     </div>
 </div>
 
 <!-- ガチャ演出モーダル -->
 <div id="gacha-overlay">
-    <div class="gacha-box" id="gacha-box-anim">📦</div>
+    <div class="gacha-box" id="gacha-box-anim"></div>
     <div class="gacha-result" id="gacha-result-icon"></div>
     <div style="color:white; font-weight:bold; margin-top:20px; font-size:20px; display:none;" id="gacha-result-text">ゲット！</div>
-    <button class="btn-success" style="width:auto; padding:10px 30px; margin-top:30px; display:none;" id="gacha-close-btn" onclick="closeGacha()">戻る</button>
+    <button class="btn-secondary" style="width:120px; padding:8px; margin-top:20px; font-size:14px; display:none;" id="gacha-close-btn" onclick="closeGacha()">戻る</button>
 </div>
 
-<!-- 履歴画面 -->
-<div id="history-screen" class="menu-screen" style="display: none;">
-    <div class="menu-panel" style="max-width: 400px; width:90%; padding:15px;">
-        <h3>試合履歴</h3>
-        <div id="history-list-container" style="max-height: 60vh; overflow-y: auto;">
+<!-- 戦績画面 -->
+<div id="stats-screen" class="menu-screen" style="display: none;">
+    <div class="menu-panel" style="max-width: 400px; width:90%; padding:15px; text-align:center;">
+        <h3 style="margin-bottom:5px;">戦績プロフィール</h3>
+        <div style="font-size:12px; color:#a5d6a7; margin-bottom:10px; font-weight:bold;">
+            Lv.<span id="stats-lv"></span> (次まで <span id="stats-next-xp"></span>xp)
+            <div class="xp-bar-container" style="max-width:200px;"><div class="xp-bar-fill" id="stats-xp-bar"></div></div>
+        </div>
+        
+        <div style="display:flex; justify-content:space-around; margin-bottom:15px; font-size:14px;">
+            <button class="btn-secondary" id="tab-pvp" style="width:32%; background:#2196f3; color:white; padding:8px;" onclick="showStatsTab('pvp')">対人戦</button>
+            <button class="btn-secondary" id="tab-cpu" style="width:32%; background:#4caf50; color:white; padding:8px;" onclick="showStatsTab('cpu')">CPU戦</button>
+            <button class="btn-secondary" id="tab-history" style="width:32%; background:#ff9800; color:white; padding:8px;" onclick="showStatsTab('history')">履歴</button>
+        </div>
+        
+        <div id="stats-content" style="background:rgba(0,0,0,0.3); padding:15px; border-radius:8px; text-align:left; font-size:14px; border:1px solid #546e7a; max-height:40vh; overflow-y:auto;">
+            <!-- JSで動的に書き換え -->
         </div>
         <button class="btn-secondary" onclick="switchScreen('main-menu')" style="margin-top: 15px;">戻る</button>
     </div>
@@ -470,7 +511,13 @@
         'icon_gun.png': 'ガンナー',
         'icon_kaeruman.png': 'マッチョ',
         'icon_miko.png': '巫女',
-        'icon_birthday.png': 'ケーキ'
+        'icon_birthday.png': 'ケーキ',
+        'icon_hugu.png': 'ふぐ',
+        'icon_tekira.png': 'テキーラ',
+        'icon_tekira2.png': 'テキーラ2',
+        'icon_sanchan.png': '冷やし中華',
+        'icon_dice.png': 'サイコロ',
+        'icon_oni.png': '鬼 (限定)' 
     };
 
     const cardBackData = {
@@ -491,10 +538,17 @@
     // --- 変数群 ---
     let userCoins = parseInt(localStorage.getItem('yaniv_coins')) || 0;
     let userDiamonds = parseInt(localStorage.getItem('yaniv_diamonds')) || 0;
+    let userXp = parseInt(localStorage.getItem('yaniv_xp')) || 0;
     let myName = localStorage.getItem('yaniv_name') || "あなた";
     let myIconStr = localStorage.getItem('yaniv_icon') || 'icon_default.png'; 
     let myCardBack = localStorage.getItem('yaniv_card_back') || 'back-red';
     let masterVolume = 0.8; 
+    
+    // 戦績データ
+    let userStats = JSON.parse(localStorage.getItem('yaniv_stats')) || {
+        pvp: { matches: 0, wins: 0, totalRank: 0, rankCounts: [0,0,0,0] },
+        cpu: { matches: 0, wins: 0, totalRank: 0, rankCounts: [0,0,0,0] }
+    };
     
     // UID
     let myUid = localStorage.getItem('yaniv_uid');
@@ -509,16 +563,33 @@
     let unlockedIcons = JSON.parse(localStorage.getItem('yaniv_unlocked_icons')) || [];
     unlockedIcons = unlockedIcons.filter(i => !i.startsWith('emoji_'));
     if(unlockedIcons.length === 0) unlockedIcons = ['icon_default.png'];
-    if(!iconData[myIconStr]) myIconStr = 'icon_default.png';
+    if(myIconStr.startsWith('emoji_') || !iconData[myIconStr]) myIconStr = 'icon_default.png';
+
+    let unlockedBacks = JSON.parse(localStorage.getItem('yaniv_unlocked_backs')) || ['back-red', 'back-blue', 'back-black'];
 
     const suits = ['♠', '♥', '♦', '♣'];
     const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
     
+    // レベル計算
+    function calcLevel(xp) {
+        let lv = 1; let base = 0;
+        while(true) {
+            let req = 0;
+            if (lv === 1) req = 18;
+            else if (lv === 2) req = 34;
+            else req = Math.floor(34 + 18 * Math.pow(lv - 2, 1.5));
+            if (xp < req) return { level: lv, next: req, current: xp, base: base };
+            base = req;
+            lv++;
+        }
+    }
+    let myLevelObj = calcLevel(userXp);
+
     let players = [
-        { id: 0, name: myName, icon: `<img src="${myIconStr}">`, cardBack: myCardBack, drinks: 0, loseCount: 0, hand: [], isReal: true, isActive: true, peerId: null },
-        { id: 1, name: 'CPU 1', icon: '<img src="icon_default.png">', cardBack: 'back-red', drinks: 0, loseCount: 0, hand: [], isReal: false, isActive: false, peerId: null }, 
-        { id: 2, name: 'CPU 2', icon: '<img src="icon_default.png">', cardBack: 'back-red', drinks: 0, loseCount: 0, hand: [], isReal: false, isActive: false, peerId: null }, 
-        { id: 3, name: 'CPU 3', icon: '<img src="icon_default.png">', cardBack: 'back-red', drinks: 0, loseCount: 0, hand: [], isReal: false, isActive: false, peerId: null }  
+        { id: 0, name: myName, icon: `<img src="${myIconStr}">`, cardBack: myCardBack, drinks: 0, loseCount: 0, hand: [], isReal: true, isActive: true, peerId: null, level: myLevelObj.level },
+        { id: 1, name: 'CPU 1', icon: '<img src="icon_default.png">', cardBack: 'back-red', drinks: 0, loseCount: 0, hand: [], isReal: false, isActive: false, peerId: null, level: 1 }, 
+        { id: 2, name: 'CPU 2', icon: '<img src="icon_default.png">', cardBack: 'back-red', drinks: 0, loseCount: 0, hand: [], isReal: false, isActive: false, peerId: null, level: 1 }, 
+        { id: 3, name: 'CPU 3', icon: '<img src="icon_default.png">', cardBack: 'back-red', drinks: 0, loseCount: 0, hand: [], isReal: false, isActive: false, peerId: null, level: 1 }  
     ];
 
     let activePlayers = []; 
@@ -529,6 +600,8 @@
     let ruleType = "KD"; 
     let customLose = 1; let customAsaf = 2; let customAllLose = false;
     let isOfflineMode = false; 
+    let isOniMode = false;
+    let oniModeFailed = false;
     
     let peer = null; let isHost = true; let hostConnection = null; let guestConnections = []; let myNetworkId = 0; 
 
@@ -536,12 +609,7 @@
         document.getElementById('my-name-input').value = myName;
         document.getElementById('uid-display').textContent = myUid;
         
-        const backSel = document.getElementById('back-color-select');
-        Object.keys(cardBackData).forEach(key => {
-            const opt = document.createElement('option');
-            opt.value = key; opt.textContent = cardBackData[key];
-            backSel.appendChild(opt);
-        });
+        refreshBackSelect();
         document.getElementById('back-color-select').value = myCardBack;
         updateCardBack(myCardBack);
         
@@ -550,11 +618,28 @@
         updatePlayerIcon(myIconStr);
         
         updateCurrencyUI();
+        updateLevelUI();
 
         document.getElementById('chat-input-text').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') submitChatMessage();
         });
     };
+
+    function updateLevelUI() {
+        myLevelObj = calcLevel(userXp);
+        document.getElementById('menu-level-display').textContent = myLevelObj.level;
+        document.getElementById('menu-next-xp').textContent = myLevelObj.next - userXp;
+        
+        let progress = ((myLevelObj.current - myLevelObj.base) / (myLevelObj.next - myLevelObj.base)) * 100;
+        document.getElementById('menu-xp-bar').style.width = progress + '%';
+        
+        if(document.getElementById('stats-lv')) {
+            document.getElementById('stats-lv').textContent = myLevelObj.level;
+            document.getElementById('stats-next-xp').textContent = myLevelObj.next - userXp;
+            document.getElementById('stats-xp-bar').style.width = progress + '%';
+        }
+        players[0].level = myLevelObj.level;
+    }
 
     function updateCurrencyUI() {
         document.getElementById('menu-coins').textContent = userCoins;
@@ -566,10 +651,12 @@
     function saveUserData() {
         localStorage.setItem('yaniv_coins', userCoins);
         localStorage.setItem('yaniv_diamonds', userDiamonds);
+        localStorage.setItem('yaniv_xp', userXp);
         localStorage.setItem('yaniv_name', myName);
         localStorage.setItem('yaniv_icon', myIconStr);
         localStorage.setItem('yaniv_card_back', myCardBack);
         updateCurrencyUI();
+        updateLevelUI();
     }
 
     function switchScreen(screenId) {
@@ -605,6 +692,16 @@
             opt.value = icon;
             opt.textContent = iconData[icon] || icon;
             sel.appendChild(opt);
+        });
+    }
+
+    function refreshBackSelect() {
+        const backSel = document.getElementById('back-color-select');
+        backSel.innerHTML = '';
+        unlockedBacks.forEach(key => {
+            const opt = document.createElement('option');
+            opt.value = key; opt.textContent = cardBackData[key] || key;
+            backSel.appendChild(opt);
         });
     }
 
@@ -681,7 +778,8 @@
         let rds = document.getElementById('room-rounds').value;
         
         if(isOfflineMode) {
-            rText = `オフライン戦: 負け-1点 / ヤニブ返し-2点 | ${rds}試合`;
+            if(isOniMode) rText = `鬼モード: 負け-1点 / ヤニブ返し-2点 | ${rds}試合 (全1位で制覇)`;
+            else rText = `通常モード: 負け-1点 / ヤニブ返し-2点 | ${rds}試合`;
         } else {
             if (rType === "KD") rText = `KDルール (負け1${unit} / ヤニブ返し2${unit}) | ${rds}試合`;
             else if (rType === "BENI") rText = `BENIルール (2回負けで1${unit}) | ${rds}試合`;
@@ -707,9 +805,9 @@
     }
 
     function createRoom() {
-        isHost = true; myNetworkId = 0; isOfflineMode = false;
+        isHost = true; myNetworkId = 0; isOfflineMode = false; isOniMode = false;
         players.forEach(p => { p.isActive = false; p.isReal = false; p.peerId = null; p.hand = []; p.drinks = 0; p.loseCount = 0; });
-        players[0].name = myName; players[0].icon = `<img src="${myIconStr}">`; players[0].cardBack = myCardBack; players[0].isReal = true; players[0].isActive = true;
+        players[0].name = myName; players[0].icon = `<img src="${myIconStr}">`; players[0].cardBack = myCardBack; players[0].isReal = true; players[0].isActive = true; players[0].level = myLevelObj.level;
 
         document.getElementById('host-controls').style.display = 'block'; document.getElementById('guest-controls').style.display = 'none';
         document.getElementById('lobby-title').textContent = "待機ロビー (ホスト)"; 
@@ -726,7 +824,7 @@
             guestConnections.push(conn);
             syncRulesToGuests(); 
             conn.on('data', (data) => {
-                if (data.type === 'JOIN_REQUEST') handleGuestJoin(data.name, data.icon, data.cardBack, conn);
+                if (data.type === 'JOIN_REQUEST') handleGuestJoin(data.name, data.icon, data.cardBack, data.level, conn);
                 else if (data.type === 'REQ_ACTION') processActionSync(data.playerIndex, data.cardsToDiscard, data.drawSource);
                 else if (data.type === 'REQ_YANIV') declareYaniv(data.playerIndex);
                 else if (data.type === 'CHAT') {
@@ -743,7 +841,7 @@
 
     function leaveRoom() { 
         if (!gameEnded && currentRound >= 1 && activePlayers.length > 0) {
-            let finalData = activePlayers.map(p => ({ id: p.id, name: p.name, icon: p.icon, drinks: p.drinks }));
+            let finalData = activePlayers.map(p => ({ id: p.id, name: p.name, icon: p.icon, drinks: p.drinks, level: p.level }));
             finalData.sort((a, b) => a.drinks - b.drinks);
             saveHistory(finalData, `ラウンド${currentRound} で中断`);
         }
@@ -756,7 +854,7 @@
     function handleDisconnect(peerId) {
         const p = players.find(x => x.peerId === peerId);
         if(p) {
-            p.isReal = false; p.name = p.name + "(CPU)"; p.peerId = null;
+            p.isReal = false; p.name = p.name + "(CPU)"; p.peerId = null; p.level = 1;
             if(document.getElementById('game-container').style.display === 'flex') {
                 updateUI(); broadcastState();
                 if(currentTurn === p.id && !gameEnded) { setTimeout(() => processCPUTurn(p.id), 1000); }
@@ -764,10 +862,11 @@
         }
     }
 
-    function handleGuestJoin(guestName, guestIcon, guestCardBack, conn) {
+    function handleGuestJoin(guestName, guestIcon, guestCardBack, guestLevel, conn) {
         let slotIndex = players.findIndex(p => p.id !== 0 && !p.isActive);
         if (slotIndex !== -1) {
             players[slotIndex].name = guestName; players[slotIndex].icon = guestIcon; players[slotIndex].cardBack = guestCardBack;
+            players[slotIndex].level = guestLevel || 1;
             players[slotIndex].isReal = true; players[slotIndex].isActive = true; players[slotIndex].peerId = conn.peer;
             conn.send({ type: 'JOIN_ACCEPTED', yourId: slotIndex });
             updateLobbyUI(); broadcastLobbyState(); 
@@ -776,7 +875,7 @@
 
     function addCPU() {
         let added = false;
-        for(let i=1; i<=3; i++){ if(!players[i].isActive) { players[i].name = `CPU ${i}`; players[i].icon = '<img src="icon_default.png">'; players[i].isReal = false; players[i].isActive = true; added = true; break; } }
+        for(let i=1; i<=3; i++){ if(!players[i].isActive) { players[i].name = `CPU ${i}`; players[i].icon = '<img src="icon_default.png">'; players[i].isReal = false; players[i].isActive = true; players[i].level = 1; added = true; break; } }
         if(!added) alert("最大4人です"); updateLobbyUI(); broadcastLobbyState();
     }
     function removeCPU() {
@@ -787,22 +886,32 @@
     }
     function broadcastLobbyState() {
         if(!isHost) return;
-        const cleanPlayers = players.map(p => ({ id: p.id, name: p.name, icon: p.icon, isReal: p.isReal, isActive: p.isActive }));
+        const cleanPlayers = players.map(p => ({ id: p.id, name: p.name, icon: p.icon, isReal: p.isReal, isActive: p.isActive, level: p.level }));
         guestConnections.forEach(conn => conn.send({ type: 'LOBBY_UPDATE', players: cleanPlayers }));
         syncRulesToGuests();
     }
 
-    function setupOfflineLobby() {
+    function setupOfflineLobby(isOni) {
+        if (isOni) {
+            if (userCoins < 100) return alert("コインが足りません！ (100G必要)");
+            userCoins -= 100; saveUserData();
+            isOniMode = true;
+        } else {
+            isOniMode = false;
+        }
+        oniModeFailed = false;
         isHost = true; myNetworkId = 0; ruleType = "KD"; MAX_ROUNDS = 5; currentRound = 1; isOfflineMode = true;
-        players.forEach(p => { p.isActive = false; p.isReal = false; p.peerId = null; p.hand = []; p.drinks = 0; p.loseCount = 0; });
-        players[0].name = myName; players[0].icon = `<img src="${myIconStr}">`; players[0].cardBack = myCardBack; players[0].isReal = true; players[0].isActive = true;
+        
+        players.forEach(p => { p.isActive = false; p.isReal = false; p.peerId = null; p.hand = []; p.drinks = 0; p.loseCount = 0; p.level = 1; });
+        players[0].name = myName; players[0].icon = `<img src="${myIconStr}">`; players[0].cardBack = myCardBack; players[0].isReal = true; players[0].isActive = true; players[0].level = myLevelObj.level;
         
         players[1].name = 'CPU 1'; players[1].icon = '<img src="icon_default.png">'; players[1].isReal = false; players[1].isActive = true;
         players[2].name = 'CPU 2'; players[2].icon = '<img src="icon_default.png">'; players[2].isReal = false; players[2].isActive = true;
         players[3].name = 'CPU 3'; players[3].icon = '<img src="icon_default.png">'; players[3].isReal = false; players[3].isActive = true;
 
         document.getElementById('host-controls').style.display = 'block'; document.getElementById('guest-controls').style.display = 'none';
-        document.getElementById('lobby-title').textContent = "オフラインロビー"; document.getElementById('room-id-display').innerHTML = `ひとりで遊ぶモード`;
+        document.getElementById('lobby-title').textContent = isOniMode ? "鬼モード (準備中)" : "オフラインロビー"; 
+        document.getElementById('room-id-display').innerHTML = `ひとりで遊ぶモード`;
         
         document.getElementById('rule-template').value = "KD";
         document.getElementById('room-rounds').value = 5;
@@ -812,7 +921,7 @@
     }
 
     function joinRoom() {
-        isHost = false; isOfflineMode = false;
+        isHost = false; isOfflineMode = false; isOniMode = false;
         const inputId = document.getElementById('join-room-id').value.trim();
         if(!inputId || inputId.length !== 5) { alert("5桁のIDを入力してください"); return; }
         const hostId = 'ynv-room-' + inputId;
@@ -826,13 +935,13 @@
             hostConnection = peer.connect(hostId);
             hostConnection.on('open', () => {
                 document.getElementById('room-id-display').innerHTML = `ホストに接続完了！`;
-                hostConnection.send({ type: 'JOIN_REQUEST', name: myName, icon: `<img src="${myIconStr}">`, cardBack: myCardBack });
+                hostConnection.send({ type: 'JOIN_REQUEST', name: myName, icon: `<img src="${myIconStr}">`, cardBack: myCardBack, level: myLevelObj.level });
             });
             hostConnection.on('data', (data) => {
                 if (data.type === 'JOIN_ACCEPTED') { myNetworkId = data.yourId; } 
                 else if (data.type === 'JOIN_REJECTED') { alert("入室失敗: " + data.reason); leaveRoom(); }
                 else if (data.type === 'LOBBY_UPDATE') { 
-                    data.players.forEach((dp, i) => { players[i].name = dp.name; players[i].icon = dp.icon; players[i].isReal = dp.isReal; players[i].isActive = dp.isActive; });
+                    data.players.forEach((dp, i) => { players[i].name = dp.name; players[i].icon = dp.icon; players[i].isReal = dp.isReal; players[i].isActive = dp.isActive; players[i].level = dp.level||1; });
                     updateLobbyUI(); 
                 }
                 else if (data.type === 'RULE_UPDATE') {
@@ -865,7 +974,8 @@
             if(p.isActive) {
                 let badge = p.isReal ? `<span style="color:#4caf50;">👤人</span>` : `<span style="color:#9e9e9e;">🤖CPU</span>`;
                 if(p.id === myNetworkId) badge = `<span style="color:#ffeb3b;">⭐あなた</span>`;
-                list.innerHTML += `<div class="player-slot"><div style="display:flex; align-items:center; gap:10px;"><div class="icon-small">${p.icon}</div>${p.name}</div>${badge}</div>`;
+                let displayName = p.isReal ? `${p.name} <span style="font-size:10px; color:#ffeb3b;">(Lv.${p.level})</span>` : p.name;
+                list.innerHTML += `<div class="player-slot"><div style="display:flex; align-items:center; gap:10px;"><div class="icon-small">${p.icon}</div>${displayName}</div>${badge}</div>`;
             } else { list.innerHTML += `<div class="player-slot empty">空き枠</div>`; }
         });
     }
@@ -974,7 +1084,8 @@
                 const areaEl = document.getElementById(`area-${uiIndex}`);
                 areaEl.style.display = 'flex'; 
                 
-                document.getElementById(`name-${uiIndex}`).textContent = p.name;
+                let displayName = p.isReal ? `${p.name} <span style="font-size:10px; color:#ffeb3b;">(Lv.${p.level})</span>` : p.name;
+                document.getElementById(`name-${uiIndex}`).innerHTML = displayName;
                 document.getElementById(`icon-${uiIndex}`).innerHTML = p.icon;
                 
                 let dVal = p.drinks;
@@ -1005,7 +1116,6 @@
 
             const discardContainer = document.getElementById('discard-pile'); discardContainer.innerHTML = '';
             
-            // 山札の裏面更新
             const deckPile = document.getElementById('deck-pile');
             deckPile.className = 'pile card back';
             if(myCardBack.startsWith('back-')) {
@@ -1271,9 +1381,8 @@
 
     function playYanivEvent(data) {
         gameEnded = true; 
-        updateUI(true); // 裏返して表示
+        updateUI(true); 
 
-        // ★ 判定を行う
         const declarerIndex = data.declarerIndex;
         const scores = activePlayers.map(p => ({ id: p.id, score: getHandScore(p.hand) })); 
         const declarerScore = scores.find(s => s.id === declarerIndex).score; 
@@ -1281,7 +1390,12 @@
         const othersMin = Math.min(...otherScores); 
         const isAsaf = othersMin <= declarerScore; 
 
-        // ★ ド派手なオーバーレイ演出
+        if (isOniMode) {
+            let myRankIndex = scores.sort((a,b)=>a.score-b.score).findIndex(s => s.id === myNetworkId);
+            if(isAsaf && declarerIndex === myNetworkId) oniModeFailed = true;
+            else if(!isAsaf && myRankIndex !== 0) oniModeFailed = true;
+        }
+
         const eventOverlay = document.getElementById('event-overlay');
         const eventText = document.getElementById('event-text');
         eventOverlay.style.display = 'flex';
@@ -1298,7 +1412,6 @@
             eventText.style.textShadow = "0 0 20px #ffeb3b";
         }
 
-        // 2秒のタメの後に結果発表へ
         setTimeout(() => {
             eventOverlay.style.display = 'none';
             if(isHost) { calculateAndShowResults(data.declarerIndex); }
@@ -1349,7 +1462,7 @@
 
         let resultsData = activePlayers.map(p => { 
             let s = scores.find(x => x.id === p.id).score;
-            return { id: p.id, name: p.name, icon: p.icon, score: s, loseCount: p.loseCount, change: drinkChanges[p.id], lossChange: lossChanges[p.id], drinks: p.drinks, isDeclarer: p.id === declarerIndex, isMax: s === maxScore }; 
+            return { id: p.id, name: p.name, icon: p.icon, score: s, loseCount: p.loseCount, change: drinkChanges[p.id], lossChange: lossChanges[p.id], drinks: p.drinks, isDeclarer: p.id === declarerIndex, isMax: s === maxScore, level: p.level }; 
         });
 
         if (isAsaf) {
@@ -1371,20 +1484,13 @@
             }
         });
 
-        const isPvP = activePlayers.some(p => p.isReal && p.id !== 0); const coinReward = isPvP ? 50 : 5;
-        const payload = { resultsData, modalSub, isAsaf, coinReward, currentRound, MAX_ROUNDS };
+        const payload = { resultsData, modalSub, isAsaf, currentRound, MAX_ROUNDS };
         guestConnections.forEach(c => c.send({ type: 'SHOW_RESULTS', payload })); showResultsModal(payload);
     }
 
     function showResultsModal(payload) {
-        const { resultsData, modalSub, isAsaf, coinReward } = payload;
+        const { resultsData, modalSub, isAsaf } = payload;
         
-        if (resultsData[0].id === myNetworkId) {
-            userCoins += coinReward; saveUserData();
-            const toast = document.getElementById('coin-toast'); toast.innerHTML = `1位獲得！ <span style="color:#fff;">+${coinReward} G</span>`;
-            toast.style.display = 'block'; setTimeout(() => { toast.style.display = 'none'; }, 3000);
-        }
-
         const tbody = document.getElementById('result-tbody'); tbody.innerHTML = '';
         const unit = isOfflineMode ? "点" : "杯";
 
@@ -1422,6 +1528,76 @@
         if (payload.currentRound === payload.MAX_ROUNDS) { modalActionState = 'show_final'; nextBtn.textContent = "最終結果を見る"; } else { modalActionState = 'next_round'; nextBtn.textContent = "次のラウンドへ"; }
     }
 
+    function showStatsScreen() {
+        switchScreen('stats-screen');
+        document.getElementById('stats-lv').textContent = myLevelObj.level;
+        document.getElementById('stats-next-xp').textContent = myLevelObj.next - userXp;
+        let progress = ((myLevelObj.current - myLevelObj.base) / (myLevelObj.next - myLevelObj.base)) * 100;
+        document.getElementById('stats-xp-bar').style.width = progress + '%';
+        showStatsTab('pvp');
+    }
+
+    function showStatsTab(type) {
+        document.getElementById('tab-pvp').style.opacity = type === 'pvp' ? '1' : '0.5';
+        document.getElementById('tab-cpu').style.opacity = type === 'cpu' ? '1' : '0.5';
+        document.getElementById('tab-history').style.opacity = type === 'history' ? '1' : '0.5';
+        
+        const content = document.getElementById('stats-content');
+        content.innerHTML = '';
+
+        if (type === 'history') {
+            let history = JSON.parse(localStorage.getItem('yaniv_history')) || [];
+            if (history.length === 0) {
+                content.innerHTML = '<div style="text-align:center; color:#999; margin-top:20px;">履歴がありません</div>';
+                return;
+            }
+            history.forEach((match, idx) => {
+                const el = document.createElement('div');
+                el.className = 'history-item';
+                let tableRows = '';
+                const unit = match.isOffline ? "点" : "杯";
+                match.players.forEach((p, rank) => {
+                    let s = match.isOffline ? -p.drinks : p.drinks;
+                    let iconSrc = 'icon_default.png';
+                    if (p.icon) {
+                        if (typeof p.icon === 'string' && p.icon.includes('src=')) {
+                            let m = p.icon.match(/src="([^"]+)"/);
+                            if (m) iconSrc = m[1];
+                        } else if (!p.icon.includes('<')) {
+                            iconSrc = p.icon;
+                        }
+                    }
+                    tableRows += `<tr><td style="width:30px;">${rank+1}位</td><td><span class="icon-small" style="width:16px;height:16px;"><img src="${iconSrc}"></span> ${p.name}</td><td style="text-align:right; font-weight:bold;">${s}${unit}</td></tr>`;
+                });
+                let noteStr = match.note ? `<span class="history-note">${match.note}</span>` : "";
+                el.innerHTML = `
+                    <button class="history-delete" onclick="deleteHistory(${idx})">×</button>
+                    <div><span class="history-date">${idx+1}回前 - ${match.date}</span> ${noteStr}</div>
+                    <table class="history-table">${tableRows}</table>
+                `;
+                content.appendChild(el);
+            });
+        } else {
+            const data = userStats[type];
+            const winRate = data.matches > 0 ? ((data.wins / data.matches) * 100).toFixed(1) : "0.0";
+            const avgRank = data.matches > 0 ? (data.totalRank / data.matches).toFixed(1) : "0.0";
+            
+            let html = `
+                <div style="margin-bottom:8px;"><strong>試合数:</strong> ${data.matches} 試合</div>
+                <div style="margin-bottom:8px;"><strong>勝利数 (1位):</strong> ${data.wins} 回</div>
+                <div style="margin-bottom:8px;"><strong>勝率:</strong> ${winRate} %</div>
+                <div style="margin-bottom:15px;"><strong>平均順位:</strong> ${avgRank} 位</div>
+                <div style="border-top:1px solid #546e7a; padding-top:10px;">
+                    <div style="margin-bottom:4px;">1位: ${data.rankCounts[0]} 回</div>
+                    <div style="margin-bottom:4px;">2位: ${data.rankCounts[1]} 回</div>
+                    <div style="margin-bottom:4px;">3位: ${data.rankCounts[2]} 回</div>
+                    <div style="margin-bottom:4px;">4位: ${data.rankCounts[3]} 回</div>
+                </div>
+            `;
+            content.innerHTML = html;
+        }
+    }
+
     function saveHistory(finalData, note="") {
         let history = JSON.parse(localStorage.getItem('yaniv_history')) || [];
         const dateStr = new Date().toLocaleString();
@@ -1429,52 +1605,63 @@
         if(history.length > 20) history = history.slice(0, 20);
         localStorage.setItem('yaniv_history', JSON.stringify(history));
     }
-
-    function showHistoryScreen() {
-        switchScreen('history-screen');
-        const container = document.getElementById('history-list-container');
-        container.innerHTML = '';
-        let history = JSON.parse(localStorage.getItem('yaniv_history')) || [];
-        
-        if (history.length === 0) {
-            container.innerHTML = '<div style="text-align:center; color:#999; margin-top:20px;">履歴がありません</div>';
-            return;
-        }
-
-        history.forEach((match, idx) => {
-            const el = document.createElement('div');
-            el.className = 'history-item';
-            let tableRows = '';
-            const unit = match.isOffline ? "点" : "杯";
-            match.players.forEach((p, rank) => {
-                let s = match.isOffline ? -p.drinks : p.drinks;
-                tableRows += `<tr><td style="width:30px;">${rank+1}位</td><td><span class="icon-small" style="width:16px;height:16px;">${p.icon}</span> ${p.name}</td><td style="text-align:right; font-weight:bold;">${s}${unit}</td></tr>`;
-            });
-            let noteStr = match.note ? `<span class="history-note">${match.note}</span>` : "";
-            el.innerHTML = `
-                <button class="history-delete" onclick="deleteHistory(${idx})">×</button>
-                <div><span class="history-date">${idx+1}回前 - ${match.date}</span> ${noteStr}</div>
-                <table class="history-table">${tableRows}</table>
-            `;
-            container.appendChild(el);
-        });
-    }
     
     function deleteHistory(idx) {
         let history = JSON.parse(localStorage.getItem('yaniv_history')) || [];
         history.splice(idx, 1);
         localStorage.setItem('yaniv_history', JSON.stringify(history));
-        showHistoryScreen();
+        showStatsTab('history');
     }
 
     function showFinalTotalRanking() {
-        playSound('yaniv');
         document.getElementById('modal-title').textContent = "🏆 最終総合ランキング 🏆"; document.getElementById('modal-title').style.color = "#ffeb3b"; document.getElementById('modal-subtitle').textContent = `${MAX_ROUNDS}ラウンドの全試合が終了しました！`;
         
-        let finalData = activePlayers.map(p => ({ id: p.id, name: p.name, icon: p.icon, drinks: p.drinks })); 
+        let finalData = activePlayers.map(p => ({ id: p.id, name: p.name, icon: p.icon, drinks: p.drinks, level: p.level })); 
         finalData.sort((a, b) => a.drinks - b.drinks); 
         
-        saveHistory(finalData, "完結");
+        let myRankIndex = finalData.findIndex(r => r.id === myNetworkId);
+        let myRank = myRankIndex + 1;
+        let isPvP = activePlayers.some(p => p.isReal && p.id !== 0);
+        let earnCoin = 0; let earnXp = 0;
+
+        if (isPvP) {
+            if (myRank === 1) { earnCoin = 30 * MAX_ROUNDS; earnXp = 10 * MAX_ROUNDS; }
+            else { earnCoin = 10 * MAX_ROUNDS; earnXp = 5 * MAX_ROUNDS; }
+        } else {
+            if (isOniMode) {
+                let oniCoins = [100, 50, 30, 10][myRankIndex] || 0;
+                earnCoin = oniCoins;
+                earnXp = (myRank === 1) ? 3 * MAX_ROUNDS : 1 * MAX_ROUNDS;
+                if (!oniModeFailed && myRank === 1) {
+                    if (!unlockedIcons.includes('icon_oni.png')) {
+                        unlockedIcons.push('icon_oni.png');
+                        localStorage.setItem('yaniv_unlocked_icons', JSON.stringify(unlockedIcons));
+                        refreshIconSelect();
+                        setTimeout(() => alert('【鬼モード制覇！】限定アイコン「鬼」を解放しました！'), 500);
+                    }
+                }
+            } else {
+                if (myRank === 1) { earnCoin = 5 * MAX_ROUNDS; earnXp = 3 * MAX_ROUNDS; }
+                else { earnCoin = 2 * MAX_ROUNDS; earnXp = 1 * MAX_ROUNDS; }
+            }
+        }
+
+        userCoins += earnCoin; userXp += earnXp;
+        saveUserData();
+
+        const statType = isPvP ? 'pvp' : 'cpu';
+        userStats[statType].matches++;
+        userStats[statType].totalRank += myRank;
+        if(myRank >= 1 && myRank <= 4) userStats[statType].rankCounts[myRank - 1]++;
+        if (myRank === 1) userStats[statType].wins++;
+        localStorage.setItem('yaniv_stats', JSON.stringify(userStats));
+
+        if(isHost) saveHistory(finalData, "完結");
+
+        const toast = document.getElementById('coin-toast');
+        toast.innerHTML = `${myRank}位！<br><span style="color:#fff; font-size:16px;">+${earnCoin} G / +${earnXp} xp</span>`;
+        toast.style.display = 'block'; 
+        setTimeout(() => { toast.style.display = 'none'; }, 4000);
 
         const unit = isOfflineMode ? "点" : "杯";
         document.getElementById('table-header-row').innerHTML = `<th>順位</th><th>プレイヤー</th><th colspan="3">最終累計</th>`;
@@ -1524,13 +1711,17 @@
     }
 
     // --- ショップ＆ガチャ ---
-    const gachaIcons = ['icon_pien.png', 'icon_zombie.png', 'icon_happy.png', 'icon_piero.png', 'icon_ringo.png', 'icon_gun.png', 'icon_kaeruman.png', 'icon_miko.png', 'icon_birthday.png'];
+    const gachaIcons = ['icon_pien.png', 'icon_zombie.png', 'icon_happy.png', 'icon_piero.png', 'icon_ringo.png', 'icon_gun.png', 'icon_kaeruman.png', 'icon_miko.png', 'icon_birthday.png', 'icon_hugu.png', 'icon_tekira.png', 'icon_tekira2.png', 'icon_sanchan.png', 'icon_dice.png'];
+    const gachaBacks = ['card_kaeru.png', 'card_pien.png', 'card_zombie.png', 'card_piero.png', 'card_ringo.png', 'card_kaeruman.png', 'card_star.png', 'card_miko.png', 'card_hatena.png'];
     
-    function openGacha() {
+    function openGacha(type) {
         if (userCoins < 100) { alert("コインが足りません！ (100G必要)"); return; }
         
-        const lockedIcons = gachaIcons.filter(k => !unlockedIcons.includes(k));
-        if (lockedIcons.length === 0) { alert("すべてのアイコンを解放済みです！"); return; }
+        let lockedList = [];
+        if (type === 'icon') lockedList = gachaIcons.filter(k => !unlockedIcons.includes(k));
+        else if (type === 'back') lockedList = gachaBacks.filter(k => !unlockedBacks.includes(k));
+
+        if (lockedList.length === 0) { alert("すべてのアイテムを解放済みです！"); return; }
         
         userCoins -= 100; saveUserData();
         
@@ -1549,14 +1740,21 @@
             document.getElementById('gacha-result-text').style.display = 'block';
             document.getElementById('gacha-close-btn').style.display = 'block';
             
-            let newIcon = lockedIcons[Math.floor(Math.random() * lockedIcons.length)];
-            unlockedIcons.push(newIcon);
-            localStorage.setItem('yaniv_unlocked_icons', JSON.stringify(unlockedIcons));
-            refreshIconSelect();
+            let newItem = lockedList[Math.floor(Math.random() * lockedList.length)];
             
-            document.getElementById('gacha-result-icon').innerHTML = `<img src="${newIcon}">`;
-            document.getElementById('gacha-result-text').textContent = `${iconData[newIcon]} をゲット！`;
-            
+            if (type === 'icon') {
+                unlockedIcons.push(newItem);
+                localStorage.setItem('yaniv_unlocked_icons', JSON.stringify(unlockedIcons));
+                refreshIconSelect();
+                document.getElementById('gacha-result-icon').innerHTML = `<img src="${newItem}">`;
+                document.getElementById('gacha-result-text').textContent = `${iconData[newItem]} をゲット！`;
+            } else {
+                unlockedBacks.push(newItem);
+                localStorage.setItem('yaniv_unlocked_backs', JSON.stringify(unlockedBacks));
+                refreshBackSelect();
+                document.getElementById('gacha-result-icon').innerHTML = `<img src="${newItem}" style="border-radius:10px;">`;
+                document.getElementById('gacha-result-text').textContent = `${cardBackData[newItem]} をゲット！`;
+            }
         }, 1500);
     }
     
