@@ -108,7 +108,7 @@
     /* ショップ＆ガチャUI */
     .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
     .shop-item { background: rgba(255,255,255,0.1); border: 2px solid #ffeb3b; border-radius: 10px; padding: 15px 5px; text-align: center; display:flex; flex-direction:column; justify-content:space-between; position:relative; }
-    .shop-item.full-width { grid-column: 1 / -1; border-color:#e91e63; background:rgba(233,30,99,0.1); }
+    .shop-item.full-width { grid-column: 1 / -1; border-color:#f44336; background:rgba(244,67,54,0.1); }
     
     #gacha-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; justify-content:center; align-items:center; flex-direction:column; }
     .gacha-box { font-size: 80px; animation: shake 0.5s infinite; margin-bottom: 20px; }
@@ -214,6 +214,7 @@
 <div id="portrait-warning"><div class="rotate-icon">📱</div><div class="warning-text">スマホを横向きにしてください</div></div>
 <div id="toast-notification"></div>
 
+<!-- 退出確認ダイアログ -->
 <div id="custom-confirm-overlay">
     <div class="confirm-box">
         <h3 style="color:#ffeb3b; margin-top:0; margin-bottom:15px; font-size:16px;" id="custom-confirm-msg"></h3>
@@ -234,6 +235,9 @@
 <div id="in-game-exit-btn" style="display:none;" onclick="confirmLeaveGame()">🚪</div>
 <div id="event-overlay"><div id="event-text"></div></div>
 
+<!-- ============================================== -->
+<!-- 1. メインメニュー                                -->
+<!-- ============================================== -->
 <div id="main-menu" class="menu-screen">
     <div class="coin-ui">
         <div class="coin-g">G</div><span id="menu-coins" style="margin-right:10px;">0</span>
@@ -274,6 +278,9 @@
     </div>
 </div>
 
+<!-- ============================================== -->
+<!-- 2. オフライン選択                                -->
+<!-- ============================================== -->
 <div id="offline-select-screen" class="menu-screen" style="display: none;">
     <div class="menu-panel" style="max-width: 350px;">
         <h3>ひとりで遊ぶ</h3>
@@ -290,6 +297,9 @@
     </div>
 </div>
 
+<!-- ============================================== -->
+<!-- 3. H&L ミニゲーム                               -->
+<!-- ============================================== -->
 <div id="hl-screen" class="menu-screen" style="display: none;">
     <div class="coin-ui"><div class="coin-g">G</div><span id="hl-coins">0</span></div>
     <div class="menu-panel" style="max-width: 350px; text-align:center;">
@@ -319,6 +329,9 @@
     </div>
 </div>
 
+<!-- ============================================== -->
+<!-- 4. ショップ                                     -->
+<!-- ============================================== -->
 <div id="shop-screen" class="menu-screen" style="display: none;">
     <div class="coin-ui">
         <div class="coin-g">G</div><span id="shop-coins" style="margin-right:10px;">0</span>
@@ -357,6 +370,9 @@
     <button class="btn btn-gray" style="width:120px; margin-top:20px; display:none;" id="gacha-close-btn" onclick="closeGacha()">戻る</button>
 </div>
 
+<!-- ============================================== -->
+<!-- 5. 戦績                                        -->
+<!-- ============================================== -->
 <div id="stats-screen" class="menu-screen" style="display: none;">
     <div class="menu-panel" style="max-width: 400px; width:90%; padding:15px; text-align:center;">
         <h3 style="margin-bottom:5px;">戦績プロフィール</h3>
@@ -377,6 +393,9 @@
     </div>
 </div>
 
+<!-- ============================================== -->
+<!-- 6. 設定                                        -->
+<!-- ============================================== -->
 <div id="settings-menu" class="menu-screen" style="display: none;">
     <div class="menu-panel">
         <h3>ゲーム設定</h3>
@@ -402,6 +421,9 @@
     </div>
 </div>
 
+<!-- ============================================== -->
+<!-- 7. ルーム作成                                    -->
+<!-- ============================================== -->
 <div id="room-create-screen" class="menu-screen" style="display: none;">
     <div class="menu-panel">
         <h3>部屋を作成 (ホスト)</h3>
@@ -440,7 +462,7 @@
             
             <div id="custom-diff-area" style="display:none;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <label style="color:#fff;">ヤニブ返し (アサフ時)</label>
+                    <label style="color:#fff;">ヤニブ返し</label>
                     <div><input type="number" id="custom-diff-asaf" value="25" min="0" style="width:60px; padding:4px;"> 点</div>
                 </div>
             </div>
@@ -455,6 +477,9 @@
     </div>
 </div>
 
+<!-- ============================================== -->
+<!-- 8. ゲスト参加                                    -->
+<!-- ============================================== -->
 <div id="room-join-screen" class="menu-screen" style="display: none;">
     <div class="menu-panel">
         <h3>部屋に参加 (ゲスト)</h3>
@@ -467,6 +492,9 @@
     </div>
 </div>
 
+<!-- ============================================== -->
+<!-- 9. 待機ロビー                                    -->
+<!-- ============================================== -->
 <div id="room-waiting-screen" class="menu-screen" style="display: none;">
     <div class="menu-panel">
         <h3 id="lobby-title">待機ロビー</h3>
@@ -492,6 +520,9 @@
     </div>
 </div>
 
+<!-- ============================================== -->
+<!-- 10. ゲーム画面                                   -->
+<!-- ============================================== -->
 <div id="game-container">
     <div id="header-area">
         <div id="turn-indicator">準備中...</div>
@@ -555,6 +586,7 @@
     </div>
 </div>
 
+<!-- 11. リザルトモーダル -->
 <div id="modal-overlay">
     <div id="result-modal">
         <h2 id="modal-title">結果発表</h2>
@@ -583,6 +615,9 @@
     </div>
 </div>
 
+<!-- ============================================== -->
+<!-- JavaScript (圧縮なしで丁寧に記述)                  -->
+<!-- ============================================== -->
 <script>
     // ----------------------------------------------------
     // ダブルタップによるズーム防止（スマホ対策）
@@ -721,6 +756,18 @@
     const gachaBacks = ['card_kaeru.png', 'card_pien.png', 'card_zombie.png', 'card_piero.png', 'card_ringo.png', 'card_kaeruman.png', 'card_star.png', 'card_miko.png', 'card_hatena.png'];
 
     // ----------------------------------------------------
+    // CPUのランダム衣装設定用
+    // ----------------------------------------------------
+    function getRandomCpuIcon() {
+        const icons = ['icon_default.png', ...gachaIcons];
+        return icons[Math.floor(Math.random() * icons.length)];
+    }
+    function getRandomCpuBack() {
+        const backs = ['back-red', 'back-blue', 'back-black', ...gachaBacks];
+        return backs[Math.floor(Math.random() * backs.length)];
+    }
+
+    // ----------------------------------------------------
     // 変数・セーブデータ読み込み
     // ----------------------------------------------------
     let userCoins = parseInt(localStorage.getItem('yaniv_coins')); 
@@ -772,8 +819,9 @@
     let currentTurn = 0; let gameEnded = false; let firstPlayer = 0; 
     let currentRound = 1; let MAX_ROUNDS = 5; let modalActionState = 'next_round'; 
     
+    // ルール設定変数
     let ruleType = "KD"; 
-    let customCalcType = "normal"; 
+    let customCalcType = "normal"; // 'normal' または 'diff'
     let customLose = 1; 
     let customAsaf = 2; 
     let customDiffAsaf = 25; 
@@ -1063,6 +1111,8 @@
         
         if (isCoin) {
             if (userCoins < 100) { showToast("コインが足りません！ (100G必要)", "#f44336"); return; }
+            let lockedList = type === 'icon' ? gachaIcons.filter(k => !unlockedIcons.includes(k)) : gachaBacks.filter(k => !unlockedBacks.includes(k));
+            if (lockedList.length === 0) { showToast("すべてのアイテムを解放済みです！", "#ffeb3b"); return; }
             userCoins -= 100;
         } else {
             if (oniTickets < 1) { showToast("鬼ガチャチケットが足りません！", "#f44336"); return; }
@@ -1174,13 +1224,11 @@
             
             let isDuplicate = false;
             if (Math.random() < 0.5) {
-                // アイコン
                 if (unlockedIcons.includes('icon_hiroto.png')) { isDuplicate = true; } 
                 else { unlockedIcons.push('icon_hiroto.png'); localStorage.setItem('yaniv_unlocked_icons', JSON.stringify(unlockedIcons)); refreshIconSelect(); }
                 documentById('gacha-result-icon').innerHTML = `<img src="icon_hiroto.png">`;
                 documentById('gacha-result-text').textContent = isDuplicate ? `被ってしまった！残念...！` : `限定アイコン「ひろと」をゲット！`;
             } else {
-                // 裏面
                 if (unlockedBacks.includes('card_hiroto.png')) { isDuplicate = true; } 
                 else { unlockedBacks.push('card_hiroto.png'); localStorage.setItem('yaniv_unlocked_backs', JSON.stringify(unlockedBacks)); refreshBackSelect(); }
                 documentById('gacha-result-icon').innerHTML = `<img src="card_hiroto.png" style="border-radius:10px;">`;
@@ -1315,7 +1363,7 @@
             if(isOniMode) {
                 el.textContent = `鬼モード: 負けは1位との差分 / ヤニブ返し-25点 | ${rds}試合`; 
             } else if(isHirotoMode) {
-                el.textContent = `ひろとモード: 初期-30点スタート | ${rds}試合`; 
+                el.textContent = `ひろとモード: 初期-15点スタート | ${rds}試合`; 
             } else {
                 el.textContent = `通常モード: 負け-1点 / ヤニブ返し-2点 | ${rds}試合`;
             }
@@ -1328,7 +1376,7 @@
                 let calcType = documentById('custom-calc-type').value;
                 if(calcType === 'diff') {
                     let dAsaf = documentById('custom-diff-asaf').value;
-                    el.textContent = `カスタム (差分): 負けは差分 / ヤニブ返${dAsaf}${unit} | ${rds}試合`;
+                    el.textContent = `カスタム (差分): 負けは差分 / ヤニブ返し-${dAsaf}${unit} | ${rds}試合`;
                 } else {
                     let cLose = documentById('custom-lose').value;
                     let cAsaf = documentById('custom-asaf').value;
@@ -1392,9 +1440,6 @@
         
         peer = new Peer(internalId);
         
-        // 再接続機能
-        peer.on('disconnected', () => { if (!gameEnded && peer && !peer.destroyed) { peer.reconnect(); } });
-        
         peer.on('open', (id) => { 
             updateLobbyUI(); 
         });
@@ -1438,14 +1483,11 @@
         players.forEach(p => { p.isActive = false; p.isReal = false; p.peerId = null; p.hand = []; p.drinks = 0; p.loseCount = 0; p.level = 1; });
         players[0].name = myName; players[0].icon = `<img src="${myIconStr}">`; players[0].cardBack = myCardBack; players[0].isReal = true; players[0].isActive = true; players[0].level = myLevelObj.level;
         
-        if(isHirotoMode) { players[0].drinks = 30; }
+        if(isHirotoMode) { players[0].drinks = 15; }
 
-        let cpuIcon = isHirotoMode ? 'icon_hiroto.png' : 'icon_default.png';
-        let cpuBack = isHirotoMode ? 'card_hiroto.png' : 'back-red';
-
-        players[1].name = 'CPU 1'; players[1].icon = `<img src="${cpuIcon}">`; players[1].cardBack = cpuBack; players[1].isReal = false; players[1].isActive = true;
-        players[2].name = 'CPU 2'; players[2].icon = `<img src="${cpuIcon}">`; players[2].cardBack = cpuBack; players[2].isReal = false; players[2].isActive = true;
-        players[3].name = 'CPU 3'; players[3].icon = `<img src="${cpuIcon}">`; players[3].cardBack = cpuBack; players[3].isReal = false; players[3].isActive = true;
+        players[1].name = 'CPU 1'; players[1].icon = `<img src="${isHirotoMode ? 'icon_hiroto.png' : getRandomCpuIcon()}">`; players[1].cardBack = isHirotoMode ? 'card_hiroto.png' : getRandomCpuBack(); players[1].isReal = false; players[1].isActive = true;
+        players[2].name = 'CPU 2'; players[2].icon = `<img src="${isHirotoMode ? 'icon_hiroto.png' : getRandomCpuIcon()}">`; players[2].cardBack = isHirotoMode ? 'card_hiroto.png' : getRandomCpuBack(); players[2].isReal = false; players[2].isActive = true;
+        players[3].name = 'CPU 3'; players[3].icon = `<img src="${isHirotoMode ? 'icon_hiroto.png' : getRandomCpuIcon()}">`; players[3].cardBack = isHirotoMode ? 'card_hiroto.png' : getRandomCpuBack(); players[3].isReal = false; players[3].isActive = true;
 
         documentById('rule-template').value = "KD"; 
         documentById('room-rounds').value = 5;
@@ -1569,7 +1611,14 @@
         let added = false; 
         for(let i=1; i<=3; i++){ 
             if(!players[i].isActive) { 
-                players[i].name = `CPU ${i}`; players[i].icon = '<img src="icon_default.png">'; players[i].isReal = false; players[i].isActive = true; players[i].level = 1; added = true; break; 
+                players[i].name = `CPU ${i}`; 
+                players[i].icon = `<img src="${getRandomCpuIcon()}">`; 
+                players[i].cardBack = getRandomCpuBack();
+                players[i].isReal = false; 
+                players[i].isActive = true; 
+                players[i].level = 1; 
+                added = true; 
+                break; 
             } 
         } 
         if(!added) alert("最大4人です"); 
@@ -1669,10 +1718,16 @@
             [0, 1, 2, 3].forEach(i => { if(documentById(`area-${i}`)) documentById(`area-${i}`).style.display = 'none'; }); 
             const unit = isOfflineMode ? "点" : "杯";
             
+            let isDiffMode = isOfflineMode || (ruleType === "CUSTOM" && customCalcType === "diff");
+            
             players.forEach(p => {
                 if (!p.isActive) return; const uiIndex = getUiIndex(p.id); const areaEl = documentById(`area-${uiIndex}`); if(!areaEl) return; areaEl.style.display = 'flex'; 
                 let displayName = p.isReal ? `${p.name} <span style="font-size:10px; color:#ffeb3b;">(Lv.${p.level})</span>` : p.name; documentById(`name-${uiIndex}`).innerHTML = displayName; documentById(`icon-${uiIndex}`).innerHTML = p.icon;
-                let dVal = p.drinks; if (isOfflineMode) documentById(`drink-${uiIndex}`).textContent = `${-dVal}${unit}`; else documentById(`drink-${uiIndex}`).textContent = `${dVal}${unit}`;
+                
+                let dVal = p.drinks; 
+                if (isDiffMode) documentById(`drink-${uiIndex}`).textContent = `${-dVal}${unit}`; 
+                else documentById(`drink-${uiIndex}`).textContent = `${dVal}${unit}`;
+                
                 const isMe = (p.id === myNetworkId); const handContainer = isMe ? documentById('player-hand') : documentById(`cpu${uiIndex}-hand`); handContainer.innerHTML = '';
                 
                 if (isMe) p.hand.sort((a, b) => a.value - b.value);
@@ -1828,31 +1883,27 @@
 
         let drinkChanges = { 0:0, 1:0, 2:0, 3:0 }; let lossChanges = { 0:0, 1:0, 2:0, 3:0 }; let modalSub = "";
 
-        if (isAsaf) { 
-            modalSub = "🚨 ヤニブ返し発生！ 🚨"; 
-            if (isOniMode || isHirotoMode) {
-                scores.forEach(s => { if (s.id === declarerIndex) { drinkChanges[s.id] = 25; } else { drinkChanges[s.id] = 0; } });
-            } else if (isOfflineMode) { drinkChanges[declarerIndex] = 2; }
-            else if (ruleType === "KD") { drinkChanges[declarerIndex] = 2; } 
-            else if (ruleType === "BENI") { lossChanges[declarerIndex] = 2; let p = players.find(x => x.id === declarerIndex); drinkChanges[declarerIndex] = Math.floor(((p.loseCount || 0) + 2) / 2) - Math.floor((p.loseCount || 0) / 2); } 
-            else if (ruleType === "CUSTOM") { 
-                if(customCalcType === 'diff') { drinkChanges[declarerIndex] = customDiffAsaf; }
-                else { drinkChanges[declarerIndex] = customAsaf; }
-            }
-        } else { 
-            modalSub = "✨ ヤニブ成功！ ✨"; let minScore = Math.min(...scores.map(s => s.score)); 
-            
-            if (isOniMode || isHirotoMode) {
+        if (isOniMode || isHirotoMode || (ruleType === "CUSTOM" && customCalcType === "diff")) {
+            if (isAsaf) {
+                modalSub = "🚨 ヤニブ返し発生！ 🚨"; 
+                let asafPen = (ruleType === "CUSTOM" && customCalcType === "diff") ? customDiffAsaf : 25;
+                scores.forEach(s => { if (s.id === declarerIndex) { drinkChanges[s.id] = asafPen; } else { drinkChanges[s.id] = 0; } });
+            } else {
+                modalSub = "✨ ヤニブ成功！ ✨"; 
+                let minScore = Math.min(...scores.map(s => s.score)); 
                 scores.forEach(s => { drinkChanges[s.id] = s.score - minScore; });
-            } else if (isOfflineMode) { scores.forEach(s => { if(s.score === maxScore) drinkChanges[s.id] = 1; }); }
-            else if (ruleType === "KD") { scores.forEach(s => { if(s.score === maxScore) drinkChanges[s.id] = 1; }); } 
-            else if (ruleType === "BENI") { scores.forEach(s => { if(s.score === maxScore) { lossChanges[s.id] = 1; let p = players.find(x => x.id === s.id); drinkChanges[s.id] = Math.floor(((p.loseCount || 0) + 1) / 2) - Math.floor((p.loseCount || 0) / 2); } }); } 
-            else if (ruleType === "CUSTOM") { 
-                if(customCalcType === 'diff') {
-                    scores.forEach(s => { drinkChanges[s.id] = s.score - minScore; });
-                } else {
-                    scores.forEach(s => { if (customAllLose) { if (s.score > minScore) drinkChanges[s.id] = customLose; } else { if (s.score === maxScore) drinkChanges[s.id] = customLose; } });
-                }
+            }
+        } else {
+            if (isAsaf) { 
+                modalSub = "🚨 ヤニブ返し発生！ 🚨"; 
+                if (ruleType === "KD" || isOfflineMode) { drinkChanges[declarerIndex] = 2; } 
+                else if (ruleType === "BENI") { lossChanges[declarerIndex] = 2; let p = players.find(x => x.id === declarerIndex); drinkChanges[declarerIndex] = Math.floor(((p.loseCount || 0) + 2) / 2) - Math.floor((p.loseCount || 0) / 2); } 
+                else if (ruleType === "CUSTOM") { drinkChanges[declarerIndex] = customAsaf; }
+            } else { 
+                modalSub = "✨ ヤニブ成功！ ✨"; 
+                if (ruleType === "KD" || isOfflineMode) { scores.forEach(s => { if(s.score === maxScore) drinkChanges[s.id] = 1; }); } 
+                else if (ruleType === "BENI") { scores.forEach(s => { if(s.score === maxScore) { lossChanges[s.id] = 1; let p = players.find(x => x.id === s.id); drinkChanges[s.id] = Math.floor(((p.loseCount || 0) + 1) / 2) - Math.floor((p.loseCount || 0) / 2); } }); } 
+                else if (ruleType === "CUSTOM") { scores.forEach(s => { if (customAllLose) { if (s.score > othersMin) drinkChanges[s.id] = customLose; } else { if (s.score === maxScore) drinkChanges[s.id] = customLose; } }); }
             }
         }
 
@@ -1874,6 +1925,8 @@
         try {
             const { resultsData, modalSub, isAsaf } = payload;
             const tbody = documentById('result-tbody'); tbody.innerHTML = ''; const unit = isOfflineMode ? "点" : "杯";
+            
+            let isDiffMode = isOfflineMode || (ruleType === "CUSTOM" && customCalcType === "diff");
 
             resultsData.forEach((res, index) => {
                 let displayRank = index + 1; if (isAsaf && res.isDeclarer) displayRank = activePlayers.length; 
@@ -1881,10 +1934,10 @@
                 if (res.id === myNetworkId) tr.className = 'me-row'; else if (res.isDeclarer) tr.style.backgroundColor = "rgba(255,255,255,0.05)";
                 
                 let changeText = ""; let color = 'white';
-                if (isOfflineMode) { changeText = res.change > 0 ? `-${res.change}${unit}` : `±0`; color = res.change > 0 ? '#f44336' : 'white'; } 
+                if (isDiffMode) { changeText = res.change > 0 ? `-${res.change}${unit}` : `±0`; color = res.change > 0 ? '#f44336' : 'white'; } 
                 else if (ruleType === "BENI") { changeText = res.lossChange > 0 ? `+${res.lossChange}負(計${res.loseCount})` : `±0`; color = res.lossChange > 0 ? '#f44336' : 'white'; } 
                 else { changeText = res.change > 0 ? `+${res.change}${unit}` : `±0`; color = res.change > 0 ? '#f44336' : 'white'; }
-                let totalDrinksText = isOfflineMode ? `${-res.drinks}${unit}` : `${res.drinks}${unit}`;
+                let totalDrinksText = isDiffMode ? `${-res.drinks}${unit}` : `${res.drinks}${unit}`;
 
                 tr.innerHTML = `<td>${displayRank}位</td><td><span class="icon-small" style="width:20px; height:20px; vertical-align:middle; margin-right:4px;">${res.icon}</span> ${res.name} ${res.isDeclarer ? '(宣言)' : ''}</td><td>${res.score}</td><td style="color: ${color}; font-weight: bold;">${changeText}</td><td>${totalDrinksText}</td>`;
                 tbody.appendChild(tr);
@@ -1917,6 +1970,12 @@
 
             let oldXp = userXp; userCoins += earnCoin; userXp += earnXp;
             
+            // ★ 鬼モード・チケット付与を確実にローカルストレージへ保存
+            if (isOniMode && myRank === 1) {
+                oniTickets += 1;
+                localStorage.setItem('yaniv_oni_tickets', oniTickets);
+            }
+            
             saveUserData();
 
             const statType = isPvP ? 'pvp' : 'cpu';
@@ -1928,9 +1987,12 @@
             const unit = isOfflineMode ? "点" : "杯"; documentById('table-header-row').innerHTML = `<th>順位</th><th>プレイヤー</th><th colspan="3">最終累計</th>`;
             const tbody = documentById('result-tbody'); tbody.innerHTML = ''; let rank = 1;
             
+            let isDiffMode = isOfflineMode || (ruleType === "CUSTOM" && customCalcType === "diff");
+            
             finalData.forEach((res, index) => {
                 if (index > 0 && res.drinks > finalData[index - 1].drinks) rank = index + 1;
-                const tr = document.createElement('tr'); if (res.id === myNetworkId) tr.className = 'me-row'; let totalText = isOfflineMode ? `${-res.drinks}${unit}` : `${res.drinks}${unit}`;
+                const tr = document.createElement('tr'); if (res.id === myNetworkId) tr.className = 'me-row'; 
+                let totalText = isDiffMode ? `${-res.drinks}${unit}` : `${res.drinks}${unit}`;
                 tr.innerHTML = `<td>${rank}位</td><td><span class="icon-small" style="width:20px; height:20px; vertical-align:middle; margin-right:4px;">${res.icon}</span> ${res.name}</td><td colspan="3" style="font-weight: bold; color: ${rank === 1 ? '#4caf50' : '#ffeb3b'}; font-size: 16px;">${totalText}</td>`;
                 tbody.appendChild(tr);
             });
