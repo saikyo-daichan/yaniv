@@ -211,6 +211,7 @@
 <div id="portrait-warning"><div class="rotate-icon">📱</div><div class="warning-text">スマホを横向きにしてください</div></div>
 <div id="toast-notification"></div>
 
+<!-- 退出確認ダイアログ -->
 <div id="custom-confirm-overlay">
     <div class="confirm-box">
         <h3 style="color:#ffeb3b; margin-top:0; margin-bottom:15px; font-size:16px;" id="custom-confirm-msg"></h3>
@@ -231,6 +232,9 @@
 <div id="in-game-exit-btn" style="display:none;" onclick="confirmLeaveGame()">🚪</div>
 <div id="event-overlay"><div id="event-text"></div></div>
 
+<!-- ============================================== -->
+<!-- 1. メインメニュー                                -->
+<!-- ============================================== -->
 <div id="main-menu" class="menu-screen">
     <div class="coin-ui">
         <div class="coin-g">G</div><span id="menu-coins" style="margin-right:10px;">0</span>
@@ -271,6 +275,9 @@
     </div>
 </div>
 
+<!-- ============================================== -->
+<!-- 2. オフライン選択                                -->
+<!-- ============================================== -->
 <div id="offline-select-screen" class="menu-screen" style="display: none;">
     <div class="menu-panel" style="max-width: 350px;">
         <h3>ひとりで遊ぶ</h3>
@@ -284,6 +291,9 @@
     </div>
 </div>
 
+<!-- ============================================== -->
+<!-- 3. H&L ミニゲーム                               -->
+<!-- ============================================== -->
 <div id="hl-screen" class="menu-screen" style="display: none;">
     <div class="coin-ui"><div class="coin-g">G</div><span id="hl-coins">0</span></div>
     <div class="menu-panel" style="max-width: 350px; text-align:center;">
@@ -313,6 +323,9 @@
     </div>
 </div>
 
+<!-- ============================================== -->
+<!-- 4. ショップ                                     -->
+<!-- ============================================== -->
 <div id="shop-screen" class="menu-screen" style="display: none;">
     <div class="coin-ui">
         <div class="coin-g">G</div><span id="shop-coins" style="margin-right:10px;">0</span>
@@ -334,7 +347,7 @@
             <div class="shop-item full-width">
                 <div style="font-size:30px; margin-bottom:5px;">👹</div>
                 <div style="font-size:14px; font-weight:bold; color:#f44336;">鬼ガチャ (限定)</div>
-                <button class="btn btn-red" style="width:90%; padding:8px; font-size:14px;" onclick="openOniGacha()">1 🎟️</button>
+                <button class="btn btn-red" style="width:90%; padding:8px; font-size:14px; margin-top:10px;" onclick="openOniGacha()">1 🎟️</button>
             </div>
         </div>
         <button class="btn btn-gray" onclick="switchScreen('main-menu')">戻る</button>
@@ -348,6 +361,9 @@
     <button class="btn btn-gray" style="width:120px; margin-top:20px; display:none;" id="gacha-close-btn" onclick="closeGacha()">戻る</button>
 </div>
 
+<!-- ============================================== -->
+<!-- 5. 戦績                                        -->
+<!-- ============================================== -->
 <div id="stats-screen" class="menu-screen" style="display: none;">
     <div class="menu-panel" style="max-width: 400px; width:90%; padding:15px; text-align:center;">
         <h3 style="margin-bottom:5px;">戦績プロフィール</h3>
@@ -368,6 +384,9 @@
     </div>
 </div>
 
+<!-- ============================================== -->
+<!-- 6. 設定                                        -->
+<!-- ============================================== -->
 <div id="settings-menu" class="menu-screen" style="display: none;">
     <div class="menu-panel">
         <h3>ゲーム設定</h3>
@@ -393,6 +412,9 @@
     </div>
 </div>
 
+<!-- ============================================== -->
+<!-- 7. ルーム作成                                    -->
+<!-- ============================================== -->
 <div id="room-create-screen" class="menu-screen" style="display: none;">
     <div class="menu-panel">
         <h3>部屋を作成 (ホスト)</h3>
@@ -429,6 +451,9 @@
     </div>
 </div>
 
+<!-- ============================================== -->
+<!-- 8. ゲスト参加                                    -->
+<!-- ============================================== -->
 <div id="room-join-screen" class="menu-screen" style="display: none;">
     <div class="menu-panel">
         <h3>部屋に参加 (ゲスト)</h3>
@@ -441,6 +466,9 @@
     </div>
 </div>
 
+<!-- ============================================== -->
+<!-- 9. 待機ロビー                                    -->
+<!-- ============================================== -->
 <div id="room-waiting-screen" class="menu-screen" style="display: none;">
     <div class="menu-panel">
         <h3 id="lobby-title">待機ロビー</h3>
@@ -466,6 +494,9 @@
     </div>
 </div>
 
+<!-- ============================================== -->
+<!-- 10. ゲーム画面                                   -->
+<!-- ============================================== -->
 <div id="game-container">
     <div id="header-area">
         <div id="turn-indicator">準備中...</div>
@@ -529,6 +560,7 @@
     </div>
 </div>
 
+<!-- 11. リザルトモーダル -->
 <div id="modal-overlay">
     <div id="result-modal">
         <h2 id="modal-title">結果発表</h2>
@@ -554,6 +586,9 @@
     </div>
 </div>
 
+<!-- ============================================== -->
+<!-- JavaScript (圧縮なしで丁寧に記述)                  -->
+<!-- ============================================== -->
 <script>
     // ----------------------------------------------------
     // ユーティリティ・DOM取得
@@ -609,6 +644,25 @@
         if(confirmAction) confirmAction();
         closeCustomConfirm();
     }
+    
+    // ★ leaveRoom を修正: 通信切断時や退出時に確実に履歴を残すように変更
+    function leaveRoom() { 
+        const isFinalResultShowing = ($('modal-overlay').style.display === 'flex' && $('modal-title').textContent.includes("最終総合ランキング"));
+        
+        if (currentRound >= 1 && activePlayers.length > 0 && $('game-container').style.display !== 'none' && !isFinalResultShowing) {
+            let finalData = activePlayers.map(p => ({ id: p.id, name: p.name, icon: p.icon, drinks: p.drinks, level: p.level })); 
+            finalData.sort((a, b) => a.drinks - b.drinks); 
+            saveHistory(finalData, `ラウンド${currentRound} で通信切断/中断`);
+        }
+        
+        if(peer) peer.destroy(); 
+        peer = null; 
+        hostConnection = null; 
+        guestConnections = []; 
+        gameEnded = true; 
+        switchScreen('main-menu'); 
+    }
+    
     function confirmLeaveRoom() { showCustomConfirm("本当に退出して戻りますか？", leaveRoom); }
     function confirmLeaveGame() { showCustomConfirm("本当にゲームを終了して戻りますか？<br><span style='font-size:12px;color:#f44336;'>(進行状況は破棄されます)</span>", leaveRoom); }
 
@@ -1238,7 +1292,7 @@
         const internalId = 'ynv-room-' + displayId;
         $('room-id-display').innerHTML = `部屋ID: <span style="font-size:28px; color:#e91e63; letter-spacing:4px;">${displayId}</span><br><span style="font-size:10px; color:#555;">友達にこの数字を教えてください</span>`;
         
-        // Timeoutをつけずにそのまま作成
+        // ★通信安定化のため reliable: false に戻す (デフォルト)
         peer = new Peer(internalId);
         
         peer.on('open', (id) => { 
@@ -1319,12 +1373,13 @@
         
         peer = new Peer(); 
         peer.on('open', () => {
-            // 安定化のための500ミリ秒待機 + reliable:trueを外して通信
+            // ★通信安定化: openしてから少し待って繋ぐ
             setTimeout(() => {
                 hostConnection = peer.connect(hostId);
                 
                 hostConnection.on('open', () => { 
                     $('room-id-display').innerHTML = `ホストに接続完了！`; 
+                    // ★通信安定化: 相手が準備できるまで少し待ってから自分のデータを送る
                     setTimeout(() => {
                         hostConnection.send({ type: 'JOIN_REQUEST', name: myName, icon: `<img src="${myIconStr}">`, cardBack: myCardBack, level: myLevelObj.level }); 
                     }, 500);
@@ -1355,7 +1410,11 @@
                     else if (data.type === 'CHAT') { displayChatMessage(data.senderId, data.text); } 
                     else if (data.type === 'RETURN_LOBBY') { gameEnded = true; switchScreen('room-waiting-screen'); }
                 });
-                hostConnection.on('close', () => { alert("ホストとの接続が切れました。解散します。"); leaveRoom(); });
+                
+                hostConnection.on('close', () => { 
+                    alert("ホストとの接続が切れました。解散します。"); 
+                    leaveRoom(); 
+                });
             }, 500);
         });
         
@@ -1384,7 +1443,7 @@
             updateLobbyUI(); 
             setTimeout(() => { 
                 broadcastLobbyState(); syncRulesToGuests(); 
-            }, 500);
+            }, 300);
         } else { 
             conn.send({ type: 'JOIN_REJECTED', reason: '満員です' }); 
         }
@@ -1428,14 +1487,6 @@
                 updateLobbyUI(); broadcastLobbyState(); 
             } 
         }
-    }
-
-    function leaveRoom() { 
-        if (!gameEnded && currentRound >= 1 && activePlayers.length > 0 && $('game-container').style.display !== 'none') {
-            let finalData = activePlayers.map(p => ({ id: p.id, name: p.name, icon: p.icon, drinks: p.drinks, level: p.level })); 
-            finalData.sort((a, b) => a.drinks - b.drinks); saveHistory(finalData, `ラウンド${currentRound} で中断`);
-        }
-        if(peer) peer.destroy(); peer = null; hostConnection = null; guestConnections = []; gameEnded = true; switchScreen('main-menu'); 
     }
 
     function startNetworkGame() {
@@ -1656,19 +1707,15 @@
         if (isAsaf) { 
             modalSub = "🚨 ヤニブ返し発生！ 🚨"; 
             if (isOniMode) {
-                scores.forEach(s => {
-                    if (s.id === declarerIndex) { drinkChanges[s.id] = 25; } else { drinkChanges[s.id] = 0; }
-                });
+                scores.forEach(s => { if (s.id === declarerIndex) { drinkChanges[s.id] = 25; } else { drinkChanges[s.id] = 0; } });
             } else if (isOfflineMode) { drinkChanges[declarerIndex] = 2; }
             else if (ruleType === "KD") { drinkChanges[declarerIndex] = 2; } 
             else if (ruleType === "BENI") { lossChanges[declarerIndex] = 2; let p = players.find(x => x.id === declarerIndex); drinkChanges[declarerIndex] = Math.floor(((p.loseCount || 0) + 2) / 2) - Math.floor((p.loseCount || 0) / 2); } 
             else if (ruleType === "CUSTOM") { drinkChanges[declarerIndex] = customAsaf; }
         } else { 
             modalSub = "✨ ヤニブ成功！ ✨"; let minScore = Math.min(...scores.map(s => s.score)); 
-            
             if (isOniMode) {
-                let topScore = minScore;
-                scores.forEach(s => { drinkChanges[s.id] = s.score - topScore; });
+                scores.forEach(s => { drinkChanges[s.id] = s.score - minScore; });
             } else if (isOfflineMode) { scores.forEach(s => { if(s.score === maxScore) drinkChanges[s.id] = 1; }); }
             else if (ruleType === "KD") { scores.forEach(s => { if(s.score === maxScore) drinkChanges[s.id] = 1; }); } 
             else if (ruleType === "BENI") { scores.forEach(s => { if(s.score === maxScore) { lossChanges[s.id] = 1; let p = players.find(x => x.id === s.id); drinkChanges[s.id] = Math.floor(((p.loseCount || 0) + 1) / 2) - Math.floor((p.loseCount || 0) / 2); } }); } 
@@ -1735,17 +1782,15 @@
 
             let oldXp = userXp; userCoins += earnCoin; userXp += earnXp;
             
-            // 鬼モード総合1位で確実にチケット付与
-            if (isOniMode && myRank === 1) {
-                oniTickets += 1;
-            }
-            
+            if (isOniMode && myRank === 1) { oniTickets += 1; }
             saveUserData();
 
             const statType = isPvP ? 'pvp' : 'cpu';
             userStats[statType].matches++; userStats[statType].totalRank += myRank; if(myRank >= 1 && myRank <= 4) userStats[statType].rankCounts[myRank - 1]++;
             if (myRank === 1) userStats[statType].wins++; localStorage.setItem('yaniv_stats', JSON.stringify(userStats));
-            if(isHost) saveHistory(finalData, "完結");
+            
+            // ★ ゲストでも履歴を残す
+            saveHistory(finalData, "完結");
 
             const unit = isOfflineMode ? "点" : "杯"; $('table-header-row').innerHTML = `<th>順位</th><th>プレイヤー</th><th colspan="3">最終累計</th>`;
             const tbody = $('result-tbody'); tbody.innerHTML = ''; let rank = 1;
@@ -1757,10 +1802,18 @@
                 tbody.appendChild(tr);
             });
             
-            $('modal-btn-single').style.display = 'block'; $('modal-btn-double').style.display = 'none';
-            $('modal-overlay').style.display = 'flex'; $('modal-xp-area').style.display = 'block';
+            // ★ オンライン時はロビーへ戻るボタンを表示
+            if (isOfflineMode) {
+                $('modal-btn-single').style.display = 'block'; 
+                $('modal-btn-double').style.display = 'none';
+                $('modal-next-btn').textContent = "メインメニューへ戻る"; 
+                modalActionState = 'new_game';
+            } else {
+                $('modal-btn-single').style.display = 'none'; 
+                $('modal-btn-double').style.display = 'flex';
+            }
             
-            $('modal-next-btn').textContent = "メインメニューへ戻る"; modalActionState = 'new_game';
+            $('modal-overlay').style.display = 'flex'; $('modal-xp-area').style.display = 'block';
             
             if(earnXp === 0) {
                 let info = calcLevel(Math.floor(userXp)); $('modal-lv').textContent = info.level; $('modal-next-xp').textContent = info.next - Math.floor(userXp);
@@ -1788,8 +1841,20 @@
 
     function returnToLobby() {
         $('modal-overlay').style.display = 'none';
-        if (isHost) { guestConnections.forEach(c => c.send({ type: 'RETURN_LOBBY' })); players.forEach(p => { p.hand = []; p.drinks = 0; p.loseCount = 0; }); gameEnded = true; switchScreen('room-waiting-screen'); updateLobbyUI(); } 
-        else { if(hostConnection) { gameEnded = true; switchScreen('room-waiting-screen'); } else { leaveRoom(); } }
+        if (isHost) { 
+            guestConnections.forEach(c => c.send({ type: 'RETURN_LOBBY' })); 
+            players.forEach(p => { p.hand = []; p.drinks = 0; p.loseCount = 0; }); 
+            gameEnded = true; 
+            switchScreen('room-waiting-screen'); 
+            updateLobbyUI(); 
+        } else { 
+            if(hostConnection) { 
+                gameEnded = true; 
+                switchScreen('room-waiting-screen'); 
+            } else { 
+                leaveRoom(); 
+            } 
+        }
     }
 
     function handleModalNext() { 
