@@ -8,12 +8,13 @@
 <style>
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     html, body { height: 100dvh; width: 100vw; margin: 0; padding: 0; overflow: hidden; background-color: #1b5e20; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; touch-action: none; user-select: none; }
-    input, select, button { touch-action: manipulation; }
+    
+    /* ダブルタップズーム防止をCSSの安全な方法に統一 */
+    input, select, button, .card { touch-action: manipulation; }
 
     #portrait-warning { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background-color: #1b5e20; z-index: 9999; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
     .rotate-icon { font-size: 70px; margin-bottom: 20px; animation: rotatePhone 2s infinite ease-in-out; }
     @keyframes rotatePhone { 0% { transform: rotate(0deg); } 50% { transform: rotate(-90deg); } 100% { transform: rotate(-90deg); } }
-    .warning-text { font-size: 20px; font-weight: bold; line-height: 1.5; margin-bottom: 10px; }
     
     /* 共通クラス */
     .flex-center { display: flex; justify-content: center; align-items: center; }
@@ -620,17 +621,6 @@
 <!-- ============================================== -->
 <script>
     // ----------------------------------------------------
-    // ダブルタップによるズーム防止（スマホ対策）
-    // ----------------------------------------------------
-    document.addEventListener('dblclick', function(e) { e.preventDefault(); }, { passive: false });
-    let lastTouchEnd = 0;
-    document.addEventListener('touchend', function(e) {
-        let now = (new Date()).getTime();
-        if (now - lastTouchEnd <= 300) { e.preventDefault(); }
-        lastTouchEnd = now;
-    }, { passive: false });
-
-    // ----------------------------------------------------
     // ユーティリティ・DOM取得
     // ----------------------------------------------------
     const documentById = id => document.getElementById(id);
@@ -756,14 +746,14 @@
     const gachaBacks = ['card_kaeru.png', 'card_pien.png', 'card_zombie.png', 'card_piero.png', 'card_ringo.png', 'card_kaeruman.png', 'card_star.png', 'card_miko.png', 'card_hatena.png'];
 
     // ----------------------------------------------------
-    // CPUのランダム衣装設定用
+    // CPU衣装のランダム抽出
     // ----------------------------------------------------
     function getRandomCpuIcon() {
-        const icons = ['icon_default.png', ...gachaIcons];
+        const icons = ['icon_default.png', 'icon_kaeru.png', 'icon_kyuuri.png', 'icon_yuuto.png', 'icon_pien.png', 'icon_zombie.png', 'icon_happy.png', 'icon_piero.png', 'icon_ringo.png', 'icon_gun.png', 'icon_kaeruman.png', 'icon_miko.png', 'icon_birthday.png', 'icon_hugu.png', 'icon_tekira.png', 'icon_tekira2.png', 'icon_sanchan.png', 'icon_dice.png'];
         return icons[Math.floor(Math.random() * icons.length)];
     }
     function getRandomCpuBack() {
-        const backs = ['back-red', 'back-blue', 'back-black', ...gachaBacks];
+        const backs = ['back-red', 'back-blue', 'back-black', 'card_kaeru.png', 'card_pien.png', 'card_zombie.png', 'card_piero.png', 'card_ringo.png', 'card_kaeruman.png', 'card_star.png', 'card_miko.png', 'card_hatena.png'];
         return backs[Math.floor(Math.random() * backs.length)];
     }
 
@@ -810,20 +800,19 @@
 
     let players = [
         { id: 0, name: myName, icon: `<img src="${myIconStr}">`, cardBack: myCardBack, drinks: 0, loseCount: 0, hand: [], isReal: true, isActive: true, peerId: null, level: myLevelObj.level },
-        { id: 1, name: 'CPU 1', icon: '<img src="icon_default.png">', cardBack: 'back-red', drinks: 0, loseCount: 0, hand: [], isReal: false, isActive: false, peerId: null, level: 1 }, 
-        { id: 2, name: 'CPU 2', icon: '<img src="icon_default.png">', cardBack: 'back-red', drinks: 0, loseCount: 0, hand: [], isReal: false, isActive: false, peerId: null, level: 1 }, 
-        { id: 3, name: 'CPU 3', icon: '<img src="icon_default.png">', cardBack: 'back-red', drinks: 0, loseCount: 0, hand: [], isReal: false, isActive: false, peerId: null, level: 1 }  
+        { id: 1, name: 'CPU 1', icon: `<img src="${getRandomCpuIcon()}">`, cardBack: getRandomCpuBack(), drinks: 0, loseCount: 0, hand: [], isReal: false, isActive: false, peerId: null, level: 1 }, 
+        { id: 2, name: 'CPU 2', icon: `<img src="${getRandomCpuIcon()}">`, cardBack: getRandomCpuBack(), drinks: 0, loseCount: 0, hand: [], isReal: false, isActive: false, peerId: null, level: 1 }, 
+        { id: 3, name: 'CPU 3', icon: `<img src="${getRandomCpuIcon()}">`, cardBack: getRandomCpuBack(), drinks: 0, loseCount: 0, hand: [], isReal: false, isActive: false, peerId: null, level: 1 }  
     ];
 
     let activePlayers = []; let deck = []; let discardSets = []; let selectedCards = []; let cardIdCounter = 0;
     let currentTurn = 0; let gameEnded = false; let firstPlayer = 0; 
     let currentRound = 1; let MAX_ROUNDS = 5; let modalActionState = 'next_round'; 
     
-    // ルール設定変数
     let ruleType = "KD"; 
-    let customCalcType = "normal"; // 'normal' または 'diff'
+    let customCalcType = "normal"; 
     let customLose = 1; 
-    let customAsaf = 2; 
+    let customAsaf = 25; 
     let customDiffAsaf = 25; 
     let customAllLose = false;
     
@@ -1315,7 +1304,6 @@
                 match.players.forEach((p, rank) => {
                     let s = match.isOffline ? -p.drinks : p.drinks; 
                     let iconHtml = p.icon || '<img src="icon_default.png">';
-                    // 自分がプレイした行に色を付ける
                     let trClass = p.isMe ? 'class="history-my-row"' : '';
                     tableRows += `<tr ${trClass}><td style="width:30px;">${rank+1}位</td><td><span class="icon-small" style="width:16px;height:16px;">${iconHtml}</span> ${p.name}</td><td style="text-align:right; font-weight:bold;">${s}${unit}</td></tr>`;
                 });
@@ -1485,9 +1473,12 @@
         
         if(isHirotoMode) { players[0].drinks = 15; }
 
-        players[1].name = 'CPU 1'; players[1].icon = `<img src="${isHirotoMode ? 'icon_hiroto.png' : getRandomCpuIcon()}">`; players[1].cardBack = isHirotoMode ? 'card_hiroto.png' : getRandomCpuBack(); players[1].isReal = false; players[1].isActive = true;
-        players[2].name = 'CPU 2'; players[2].icon = `<img src="${isHirotoMode ? 'icon_hiroto.png' : getRandomCpuIcon()}">`; players[2].cardBack = isHirotoMode ? 'card_hiroto.png' : getRandomCpuBack(); players[2].isReal = false; players[2].isActive = true;
-        players[3].name = 'CPU 3'; players[3].icon = `<img src="${isHirotoMode ? 'icon_hiroto.png' : getRandomCpuIcon()}">`; players[3].cardBack = isHirotoMode ? 'card_hiroto.png' : getRandomCpuBack(); players[3].isReal = false; players[3].isActive = true;
+        let cpuIcon = isHirotoMode ? 'icon_hiroto.png' : getRandomCpuIcon();
+        let cpuBack = isHirotoMode ? 'card_hiroto.png' : getRandomCpuBack();
+
+        players[1].name = 'CPU 1'; players[1].icon = `<img src="${cpuIcon}">`; players[1].cardBack = cpuBack; players[1].isReal = false; players[1].isActive = true;
+        players[2].name = 'CPU 2'; players[2].icon = `<img src="${cpuIcon}">`; players[2].cardBack = cpuBack; players[2].isReal = false; players[2].isActive = true;
+        players[3].name = 'CPU 3'; players[3].icon = `<img src="${cpuIcon}">`; players[3].cardBack = cpuBack; players[3].isReal = false; players[3].isActive = true;
 
         documentById('rule-template').value = "KD"; 
         documentById('room-rounds').value = 5;
@@ -1607,33 +1598,6 @@
         }
     }
 
-    function addCPU() { 
-        let added = false; 
-        for(let i=1; i<=3; i++){ 
-            if(!players[i].isActive) { 
-                players[i].name = `CPU ${i}`; 
-                players[i].icon = `<img src="${getRandomCpuIcon()}">`; 
-                players[i].cardBack = getRandomCpuBack();
-                players[i].isReal = false; 
-                players[i].isActive = true; 
-                players[i].level = 1; 
-                added = true; 
-                break; 
-            } 
-        } 
-        if(!added) alert("最大4人です"); 
-        updateLobbyUI(); broadcastLobbyState(); 
-    }
-    
-    function removeCPU() { 
-        let count = players.filter(p => p.isActive).length; 
-        if(count <= 2) { alert("最低2人は必要です"); return; } 
-        for(let i=3; i>=1; i--){ 
-            if(players[i].isActive && !players[i].isReal) { players[i].isActive = false; break; } 
-        } 
-        updateLobbyUI(); broadcastLobbyState(); 
-    }
-    
     function broadcastLobbyState() { 
         if(!isHost) return; 
         const cleanPlayers = players.map(p => ({ id: p.id, name: p.name, icon: p.icon, isReal: p.isReal, isActive: p.isActive, level: p.level })); 
@@ -1970,9 +1934,8 @@
 
             let oldXp = userXp; userCoins += earnCoin; userXp += earnXp;
             
-            // ★ 鬼モード・チケット付与を確実にローカルストレージへ保存
-            if (isOniMode && myRank === 1) {
-                oniTickets += 1;
+            if (isOniMode && myRank === 1) { 
+                oniTickets += 1; 
                 localStorage.setItem('yaniv_oni_tickets', oniTickets);
             }
             
@@ -1991,8 +1954,7 @@
             
             finalData.forEach((res, index) => {
                 if (index > 0 && res.drinks > finalData[index - 1].drinks) rank = index + 1;
-                const tr = document.createElement('tr'); if (res.id === myNetworkId) tr.className = 'me-row'; 
-                let totalText = isDiffMode ? `${-res.drinks}${unit}` : `${res.drinks}${unit}`;
+                const tr = document.createElement('tr'); if (res.id === myNetworkId) tr.className = 'me-row'; let totalText = isDiffMode ? `${-res.drinks}${unit}` : `${res.drinks}${unit}`;
                 tr.innerHTML = `<td>${rank}位</td><td><span class="icon-small" style="width:20px; height:20px; vertical-align:middle; margin-right:4px;">${res.icon}</span> ${res.name}</td><td colspan="3" style="font-weight: bold; color: ${rank === 1 ? '#4caf50' : '#ffeb3b'}; font-size: 16px;">${totalText}</td>`;
                 tbody.appendChild(tr);
             });
