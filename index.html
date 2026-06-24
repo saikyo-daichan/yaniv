@@ -15,6 +15,7 @@
     #portrait-warning { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background-color: #1b5e20; z-index: 9999; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
     .rotate-icon { font-size: 70px; margin-bottom: 20px; animation: rotatePhone 2s infinite ease-in-out; }
     @keyframes rotatePhone { 0% { transform: rotate(0deg); } 50% { transform: rotate(-90deg); } 100% { transform: rotate(-90deg); } }
+    .warning-text { font-size: 20px; font-weight: bold; line-height: 1.5; margin-bottom: 10px; }
     
     /* 共通クラス */
     .flex-center { display: flex; justify-content: center; align-items: center; }
@@ -215,7 +216,6 @@
 <div id="portrait-warning"><div class="rotate-icon">📱</div><div class="warning-text">スマホを横向きにしてください</div></div>
 <div id="toast-notification"></div>
 
-<!-- 退出確認ダイアログ -->
 <div id="custom-confirm-overlay">
     <div class="confirm-box">
         <h3 style="color:#ffeb3b; margin-top:0; margin-bottom:15px; font-size:16px;" id="custom-confirm-msg"></h3>
@@ -236,9 +236,6 @@
 <div id="in-game-exit-btn" style="display:none;" onclick="confirmLeaveGame()">🚪</div>
 <div id="event-overlay"><div id="event-text"></div></div>
 
-<!-- ============================================== -->
-<!-- 1. メインメニュー                                -->
-<!-- ============================================== -->
 <div id="main-menu" class="menu-screen">
     <div class="coin-ui">
         <div class="coin-g">G</div><span id="menu-coins" style="margin-right:10px;">0</span>
@@ -279,9 +276,6 @@
     </div>
 </div>
 
-<!-- ============================================== -->
-<!-- 2. オフライン選択                                -->
-<!-- ============================================== -->
 <div id="offline-select-screen" class="menu-screen" style="display: none;">
     <div class="menu-panel" style="max-width: 350px;">
         <h3>ひとりで遊ぶ</h3>
@@ -298,9 +292,6 @@
     </div>
 </div>
 
-<!-- ============================================== -->
-<!-- 3. H&L ミニゲーム                               -->
-<!-- ============================================== -->
 <div id="hl-screen" class="menu-screen" style="display: none;">
     <div class="coin-ui"><div class="coin-g">G</div><span id="hl-coins">0</span></div>
     <div class="menu-panel" style="max-width: 350px; text-align:center;">
@@ -330,9 +321,6 @@
     </div>
 </div>
 
-<!-- ============================================== -->
-<!-- 4. ショップ                                     -->
-<!-- ============================================== -->
 <div id="shop-screen" class="menu-screen" style="display: none;">
     <div class="coin-ui">
         <div class="coin-g">G</div><span id="shop-coins" style="margin-right:10px;">0</span>
@@ -371,9 +359,6 @@
     <button class="btn btn-gray" style="width:120px; margin-top:20px; display:none;" id="gacha-close-btn" onclick="closeGacha()">戻る</button>
 </div>
 
-<!-- ============================================== -->
-<!-- 5. 戦績                                        -->
-<!-- ============================================== -->
 <div id="stats-screen" class="menu-screen" style="display: none;">
     <div class="menu-panel" style="max-width: 400px; width:90%; padding:15px; text-align:center;">
         <h3 style="margin-bottom:5px;">戦績プロフィール</h3>
@@ -394,9 +379,6 @@
     </div>
 </div>
 
-<!-- ============================================== -->
-<!-- 6. 設定                                        -->
-<!-- ============================================== -->
 <div id="settings-menu" class="menu-screen" style="display: none;">
     <div class="menu-panel">
         <h3>ゲーム設定</h3>
@@ -422,9 +404,6 @@
     </div>
 </div>
 
-<!-- ============================================== -->
-<!-- 7. ルーム作成                                    -->
-<!-- ============================================== -->
 <div id="room-create-screen" class="menu-screen" style="display: none;">
     <div class="menu-panel">
         <h3>部屋を作成 (ホスト)</h3>
@@ -478,9 +457,6 @@
     </div>
 </div>
 
-<!-- ============================================== -->
-<!-- 8. ゲスト参加                                    -->
-<!-- ============================================== -->
 <div id="room-join-screen" class="menu-screen" style="display: none;">
     <div class="menu-panel">
         <h3>部屋に参加 (ゲスト)</h3>
@@ -493,9 +469,6 @@
     </div>
 </div>
 
-<!-- ============================================== -->
-<!-- 9. 待機ロビー                                    -->
-<!-- ============================================== -->
 <div id="room-waiting-screen" class="menu-screen" style="display: none;">
     <div class="menu-panel">
         <h3 id="lobby-title">待機ロビー</h3>
@@ -521,9 +494,6 @@
     </div>
 </div>
 
-<!-- ============================================== -->
-<!-- 10. ゲーム画面                                   -->
-<!-- ============================================== -->
 <div id="game-container">
     <div id="header-area">
         <div id="turn-indicator">準備中...</div>
@@ -587,7 +557,6 @@
     </div>
 </div>
 
-<!-- 11. リザルトモーダル -->
 <div id="modal-overlay">
     <div id="result-modal">
         <h2 id="modal-title">結果発表</h2>
@@ -616,9 +585,6 @@
     </div>
 </div>
 
-<!-- ============================================== -->
-<!-- JavaScript (圧縮なしで丁寧に記述)                  -->
-<!-- ============================================== -->
 <script>
     // ----------------------------------------------------
     // ユーティリティ・DOM取得
@@ -1304,6 +1270,7 @@
                 match.players.forEach((p, rank) => {
                     let s = match.isOffline ? -p.drinks : p.drinks; 
                     let iconHtml = p.icon || '<img src="icon_default.png">';
+                    // 自分がプレイした行に色を付ける
                     let trClass = p.isMe ? 'class="history-my-row"' : '';
                     tableRows += `<tr ${trClass}><td style="width:30px;">${rank+1}位</td><td><span class="icon-small" style="width:16px;height:16px;">${iconHtml}</span> ${p.name}</td><td style="text-align:right; font-weight:bold;">${s}${unit}</td></tr>`;
                 });
@@ -1351,7 +1318,7 @@
             if(isOniMode) {
                 el.textContent = `鬼モード: 負けは1位との差分 / ヤニブ返し-25点 | ${rds}試合`; 
             } else if(isHirotoMode) {
-                el.textContent = `ひろとモード: 初期-15点スタート | ${rds}試合`; 
+                el.textContent = `ひろとモード: 初期-20点スタート | ${rds}試合`; 
             } else {
                 el.textContent = `通常モード: 負け-1点 / ヤニブ返し-2点 | ${rds}試合`;
             }
@@ -1471,7 +1438,7 @@
         players.forEach(p => { p.isActive = false; p.isReal = false; p.peerId = null; p.hand = []; p.drinks = 0; p.loseCount = 0; p.level = 1; });
         players[0].name = myName; players[0].icon = `<img src="${myIconStr}">`; players[0].cardBack = myCardBack; players[0].isReal = true; players[0].isActive = true; players[0].level = myLevelObj.level;
         
-        if(isHirotoMode) { players[0].drinks = 15; }
+        if(isHirotoMode) { players[0].drinks = 20; }
 
         let cpuIcon = isHirotoMode ? 'icon_hiroto.png' : getRandomCpuIcon();
         let cpuBack = isHirotoMode ? 'card_hiroto.png' : getRandomCpuBack();
@@ -1598,6 +1565,33 @@
         }
     }
 
+    function addCPU() { 
+        let added = false; 
+        for(let i=1; i<=3; i++){ 
+            if(!players[i].isActive) { 
+                players[i].name = `CPU ${i}`; 
+                players[i].icon = `<img src="${getRandomCpuIcon()}">`; 
+                players[i].cardBack = getRandomCpuBack();
+                players[i].isReal = false; 
+                players[i].isActive = true; 
+                players[i].level = 1; 
+                added = true; 
+                break; 
+            } 
+        } 
+        if(!added) alert("最大4人です"); 
+        updateLobbyUI(); broadcastLobbyState(); 
+    }
+    
+    function removeCPU() { 
+        let count = players.filter(p => p.isActive).length; 
+        if(count <= 2) { alert("最低2人は必要です"); return; } 
+        for(let i=3; i>=1; i--){ 
+            if(players[i].isActive && !players[i].isReal) { players[i].isActive = false; break; } 
+        } 
+        updateLobbyUI(); broadcastLobbyState(); 
+    }
+    
     function broadcastLobbyState() { 
         if(!isHost) return; 
         const cleanPlayers = players.map(p => ({ id: p.id, name: p.name, icon: p.icon, isReal: p.isReal, isActive: p.isActive, level: p.level })); 
@@ -1847,27 +1841,31 @@
 
         let drinkChanges = { 0:0, 1:0, 2:0, 3:0 }; let lossChanges = { 0:0, 1:0, 2:0, 3:0 }; let modalSub = "";
 
-        if (isOniMode || isHirotoMode || (ruleType === "CUSTOM" && customCalcType === "diff")) {
-            if (isAsaf) {
-                modalSub = "🚨 ヤニブ返し発生！ 🚨"; 
-                let asafPen = (ruleType === "CUSTOM" && customCalcType === "diff") ? customDiffAsaf : 25;
-                scores.forEach(s => { if (s.id === declarerIndex) { drinkChanges[s.id] = asafPen; } else { drinkChanges[s.id] = 0; } });
-            } else {
-                modalSub = "✨ ヤニブ成功！ ✨"; 
-                let minScore = Math.min(...scores.map(s => s.score)); 
-                scores.forEach(s => { drinkChanges[s.id] = s.score - minScore; });
+        if (isAsaf) { 
+            modalSub = "🚨 ヤニブ返し発生！ 🚨"; 
+            if (isOniMode || isHirotoMode) {
+                scores.forEach(s => { if (s.id === declarerIndex) { drinkChanges[s.id] = 25; } else { drinkChanges[s.id] = 0; } });
+            } else if (isOfflineMode) { drinkChanges[declarerIndex] = 2; }
+            else if (ruleType === "KD") { drinkChanges[declarerIndex] = 2; } 
+            else if (ruleType === "BENI") { lossChanges[declarerIndex] = 2; let p = players.find(x => x.id === declarerIndex); drinkChanges[declarerIndex] = Math.floor(((p.loseCount || 0) + 2) / 2) - Math.floor((p.loseCount || 0) / 2); } 
+            else if (ruleType === "CUSTOM") { 
+                if(customCalcType === 'diff') { drinkChanges[declarerIndex] = customDiffAsaf; }
+                else { drinkChanges[declarerIndex] = customAsaf; }
             }
-        } else {
-            if (isAsaf) { 
-                modalSub = "🚨 ヤニブ返し発生！ 🚨"; 
-                if (ruleType === "KD" || isOfflineMode) { drinkChanges[declarerIndex] = 2; } 
-                else if (ruleType === "BENI") { lossChanges[declarerIndex] = 2; let p = players.find(x => x.id === declarerIndex); drinkChanges[declarerIndex] = Math.floor(((p.loseCount || 0) + 2) / 2) - Math.floor((p.loseCount || 0) / 2); } 
-                else if (ruleType === "CUSTOM") { drinkChanges[declarerIndex] = customAsaf; }
-            } else { 
-                modalSub = "✨ ヤニブ成功！ ✨"; 
-                if (ruleType === "KD" || isOfflineMode) { scores.forEach(s => { if(s.score === maxScore) drinkChanges[s.id] = 1; }); } 
-                else if (ruleType === "BENI") { scores.forEach(s => { if(s.score === maxScore) { lossChanges[s.id] = 1; let p = players.find(x => x.id === s.id); drinkChanges[s.id] = Math.floor(((p.loseCount || 0) + 1) / 2) - Math.floor((p.loseCount || 0) / 2); } }); } 
-                else if (ruleType === "CUSTOM") { scores.forEach(s => { if (customAllLose) { if (s.score > othersMin) drinkChanges[s.id] = customLose; } else { if (s.score === maxScore) drinkChanges[s.id] = customLose; } }); }
+        } else { 
+            modalSub = "✨ ヤニブ成功！ ✨"; let minScore = Math.min(...scores.map(s => s.score)); 
+            
+            if (isOniMode || isHirotoMode) {
+                scores.forEach(s => { drinkChanges[s.id] = s.score - minScore; });
+            } else if (isOfflineMode) { scores.forEach(s => { if(s.score === maxScore) drinkChanges[s.id] = 1; }); }
+            else if (ruleType === "KD") { scores.forEach(s => { if(s.score === maxScore) drinkChanges[s.id] = 1; }); } 
+            else if (ruleType === "BENI") { scores.forEach(s => { if(s.score === maxScore) { lossChanges[s.id] = 1; let p = players.find(x => x.id === s.id); drinkChanges[s.id] = Math.floor(((p.loseCount || 0) + 1) / 2) - Math.floor((p.loseCount || 0) / 2); } }); } 
+            else if (ruleType === "CUSTOM") { 
+                if(customCalcType === 'diff') {
+                    scores.forEach(s => { drinkChanges[s.id] = s.score - minScore; });
+                } else {
+                    scores.forEach(s => { if (customAllLose) { if (s.score > minScore) drinkChanges[s.id] = customLose; } else { if (s.score === maxScore) drinkChanges[s.id] = customLose; } });
+                }
             }
         }
 
