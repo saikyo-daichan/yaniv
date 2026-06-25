@@ -9,7 +9,7 @@
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     html, body { height: 100dvh; width: 100vw; margin: 0; padding: 0; overflow: hidden; background-color: #1b5e20; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; touch-action: none; user-select: none; }
     
-    /* ダブルタップズーム防止をCSSの安全な方法に統一 */
+    /* ダブルタップズーム防止 */
     input, select, button, .card { touch-action: manipulation; }
 
     #portrait-warning { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background-color: #1b5e20; z-index: 9999; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
@@ -35,7 +35,7 @@
     .menu-screen h1 { font-size: 42px; color: #ffeb3b; text-shadow: 2px 2px 0px #000; margin: 0 0 5px 0; letter-spacing: 2px; }
     .menu-subtitle { font-size: 14px; color: #a5d6a7; margin-bottom: 15px; font-weight: bold; width: 100%; max-width: 250px; text-align: center; }
     
-    /* バージョン表記 (右下に小さく) */
+    /* バージョン表記 */
     .version-info-container { position: absolute; bottom: 15px; right: 20px; text-align: right; color: rgba(255,255,255,0.5); line-height: 1.2; }
     .version-info-container .uid-text { font-size: 10px; font-family: monospace; }
     .version-info-container .ver-text { font-size: 12px; font-weight: bold; margin-top: 2px; }
@@ -61,6 +61,7 @@
     .btn-red { background-color: #f44336; color: white; margin-top: 10px; }
     .btn-gray { background-color: #e0e0e0; color: #333; padding: 10px; font-size: 14px; margin-top: 10px; border-radius: 5px; }
     .btn-purple { background-color: #9c27b0; color: white; margin-top: 10px; }
+    .btn-cyan { background-color: #00bcd4; color: white; margin-top: 10px; }
 
     input[type="text"], input[type="number"], select { padding: 8px; border-radius: 5px; border: 1px solid #ccc; width: 100%; font-size: 14px; color: #000; }
     
@@ -71,18 +72,28 @@
     .player-slot.empty { opacity: 0.5; border: 1px dashed #ccc; background: transparent; justify-content: center; }
     
     /* アイコン・カードプレビュー */
-    .icon { background-color: rgba(255,255,255,0.2); border-radius: 50%; width: 44px; height: 44px; display: flex; justify-content: center; align-items: center; overflow: hidden; flex-shrink: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.4); }
+    .icon { background-color: rgba(255,255,255,0.2); border-radius: 50%; width: 44px; height: 44px; display: flex; justify-content: center; align-items: center; overflow: hidden; flex-shrink: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.4); position: relative; }
     .icon img { width: 100%; height: 100%; object-fit: cover; }
-    .icon-small { width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; overflow: hidden; background: rgba(255,255,255,0.2); }
+    .icon-small { width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; overflow: hidden; background: rgba(255,255,255,0.2); position: relative; }
     .icon-small img { width: 100%; height: 100%; object-fit: cover; }
-    .icon-preview-box { width: 48px; height: 48px; background-color: rgba(255,255,255,0.15); border: 2px solid #ffeb3b; border-radius: 50%; display: flex; justify-content: center; align-items: center; overflow: hidden; flex-shrink: 0; margin-left: auto; }
+    .icon-preview-box { width: 48px; height: 48px; background-color: rgba(255,255,255,0.15); border: 2px solid #ffeb3b; border-radius: 50%; display: flex; justify-content: center; align-items: center; overflow: hidden; flex-shrink: 0; margin-left: auto; position: relative; }
     .icon-preview-box img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* アイコンアイテム */
+    .icon-item-badge { position: absolute; bottom: -2px; right: -6px; font-size: 16px; z-index: 10; filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.8)); pointer-events: none; }
+    .anim-crown { display: inline-block; animation: crownShine 2s infinite; }
+    @keyframes crownShine { 0% { transform: scale(1) rotate(0deg); filter: hue-rotate(0deg); } 50% { transform: scale(1.2) rotate(10deg); filter: hue-rotate(180deg); } 100% { transform: scale(1) rotate(0deg); filter: hue-rotate(360deg); } }
     
     #card-back-preview { width: 40px; height: 60px; border-radius: 4px; margin-left: auto; flex-shrink: 0; border: 2px solid white; background-size: cover; background-position: center; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
     .back-red { background-color: #b71c1c; background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.1) 10px, rgba(255,255,255,0.1) 20px); }
     .back-blue { background-color: #0d47a1; background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.1) 10px, rgba(255,255,255,0.1) 20px); }
     .back-black { background-color: #212121; background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.1) 10px, rgba(255,255,255,0.1) 20px); }
     .back-img { background-size: cover; background-position: center; }
+    
+    /* トロフィー裏面 */
+    .card_bronze { background-color: #cd7f32; background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.2) 10px, rgba(255,255,255,0.2) 20px); border: 1px solid #8c5a1f; }
+    .card_silver { background-color: #c0c0c0; background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.3) 10px, rgba(255,255,255,0.3) 20px); border: 1px solid #a9a9a9; }
+    .card_gold { background-color: #ffd700; background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.4) 10px, rgba(255,255,255,0.4) 20px); border: 1px solid #b8860b; }
 
     /* チャットUI */
     #chat-display-container { position: fixed; top: 40px; left: 10px; z-index: 9999; pointer-events: none; display: flex; flex-direction: column; gap: 6px; width: 250px; }
@@ -140,6 +151,12 @@
     #result-table th, #result-table td { padding: 6px 4px; border-bottom: 1px solid #546e7a; }
     .me-row { background-color: rgba(255, 235, 59, 0.15) !important; outline: 2px solid #ffeb3b; outline-offset: -2px; font-weight: bold; }
 
+    /* モード説明モーダル */
+    #mode-help-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:20000; justify-content:center; align-items:center; padding:20px; }
+    .help-box { background:#37474f; border:2px solid #ffeb3b; border-radius:12px; max-width:400px; max-height:80vh; overflow-y:auto; padding:20px; text-align:left; font-size:13px; line-height:1.6; }
+    .help-title { color:#ffeb3b; font-size:16px; font-weight:bold; margin-bottom:5px; margin-top:15px; border-bottom:1px solid #546e7a; padding-bottom:3px; }
+    .help-title:first-child { margin-top:0; }
+
     /* ゲーム盤面 */
     #game-container { display: none; flex-direction: column; height: 100dvh; width: 100vw; padding: 5px; }
     #header-area { display: flex; justify-content: space-between; align-items: center; padding: 5px 15px; height: 35px; margin-left: 50px; }
@@ -169,7 +186,7 @@
     #center-area .card, .pile { width: 72px; height: 108px; } 
     #area-0 .card-center { font-size: 32px; } #area-0 .card-corner { font-size: 14px; top: 4px; left: 6px; }
     
-    /* カードの間隔調整 (重なりすぎないように) */
+    /* カードの間隔調整 */
     #area-0 .card:not(:first-child) { margin-left: -20px; }
     #area-2 .card:not(:first-child) { margin-left: -10px; } 
     #area-1 .card { transform: rotate(90deg); margin: -10px 15px; } 
@@ -180,7 +197,7 @@
     .card.red { color: #d32f2f; } .card.joker { color: #7b1fa2; }
     
     /* カード裏面 */
-    .card.back { color: transparent !important; border: 1px solid #444; box-shadow: -2px 2px 5px rgba(0,0,0,0.6); cursor: default; }
+    .card.back { color: transparent !important; box-shadow: -2px 2px 5px rgba(0,0,0,0.6); cursor: default; }
     
     .card-corner { position: absolute; top: 3px; left: 4px; font-size: 11px; font-weight: bold; line-height: 1.1; text-align: center; }
     .card-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 22px; font-weight: bold; }
@@ -198,7 +215,6 @@
         
         #area-0 .card { width: 52px; height: 78px; border-radius: 5px; } 
         #area-0 .card-center { font-size: 20px; } #area-0 .card-corner { font-size: 9px; top: 2px; left: 3px; } 
-        /* モバイルでも重なりすぎないように修正 */
         #area-0 .card:not(:first-child) { margin-left: -10px; }
         
         #area-1 .card, #area-2 .card, #area-3 .card { width: 24px; height: 36px; border-radius: 3px; border-width: 1px; } 
@@ -236,6 +252,27 @@
 
 <div id="in-game-exit-btn" style="display:none;" onclick="confirmLeaveGame()">🚪</div>
 <div id="event-overlay"><div id="event-text"></div></div>
+
+<!-- モード説明モーダル -->
+<div id="mode-help-overlay">
+    <div class="help-box">
+        <h2 style="text-align:center; color:#ffeb3b; margin-top:0;">各モードの説明</h2>
+        
+        <div class="help-title">【通常モード】</div>
+        <div>参加費: 無料<br>普通のCPUと対戦ができる一般的なモード</div>
+        
+        <div class="help-title">【鬼モード】<span style="font-size:10px; color:#f44336;">6/30まで</span></div>
+        <div>参加費: 100コイン<br>差分ヤニブで総合1位を取ることができれば<br>鬼ガチャが回せる鬼ガチャチケットを1枚獲得！<br>鬼ガチャからは5%の確率で限定アイコンが出るらしい...</div>
+        
+        <div class="help-title">【ひろとモード】</div>
+        <div>参加費: 100コイン<br>差分ヤニブで総合1位を取ることができれば<br>ひろとアイコンorひろと裏面のどちらかを獲得！<br>ただし最初から-20点というハンデを抱えてるらしい...</div>
+
+        <div class="help-title">【勝ち抜きモード】</div>
+        <div>参加費: 100コイン<br>差分ヤニブの1試合2ラウンド構成<br>勝利していく限り無限に試合は続き<br>10勝/50勝/100勝/300勝/500勝/1000勝達成で<br>限定のアイコンや裏面が貰えるぞ！</div>
+
+        <button class="btn btn-gray" style="margin-top:20px;" onclick="documentById('mode-help-overlay').style.display='none'">閉じる</button>
+    </div>
+</div>
 
 <!-- ============================================== -->
 <!-- 1. メインメニュー                                -->
@@ -295,6 +332,10 @@
         <button class="btn btn-purple" style="padding:15px; margin-bottom:15px; box-shadow:0 4px 0 #6a1b9a;" onclick="setupOfflineLobby('hiroto')">
             ひろとモード (100 G)<br><span style="font-size:11px; font-weight:normal;">総合1位で限定ひろとアイコン/裏面を獲得！</span>
         </button>
+        <button class="btn btn-cyan" style="padding:15px; margin-bottom:15px; box-shadow:0 4px 0 #00838f;" onclick="setupOfflineLobby('survival')">
+            勝ち抜きモード (100 G)<br><span style="font-size:11px; font-weight:normal;">勝ち続ける限り無限に続くモード [最高連勝数: <span id="menu-survival-max">0</span>]</span>
+        </button>
+        <div style="text-align:center; font-size:30px; cursor:pointer; margin-bottom:10px;" onclick="documentById('mode-help-overlay').style.display='flex'">📝</div>
         <button class="btn btn-gray" onclick="switchScreen('main-menu')">戻る</button>
     </div>
 </div>
@@ -360,6 +401,26 @@
                 <div style="font-size:14px; font-weight:bold; color:#f44336;">鬼ガチャ (限定)</div>
                 <button class="btn btn-red" style="width:90%; padding:8px; font-size:14px; margin-top:10px;" onclick="openOniGacha()">1 🎟️</button>
             </div>
+            <div class="shop-item">
+                <div style="margin-bottom:5px; height:40px; display:flex; justify-content:center; align-items:center;"><img src="icon_sabo.png" style="width:40px;height:40px;border-radius:50%;object-fit:cover;box-shadow:0 2px 4px rgba(0,0,0,0.4);"></div>
+                <div style="font-size:13px; font-weight:bold;">サボテン</div>
+                <button class="btn btn-green" id="btn-buy-sabo" style="width:90%; padding:8px; font-size:13px; margin-top:10px;" onclick="buyShopIcon('icon_sabo.png', 500)">500 G</button>
+            </div>
+            <div class="shop-item">
+                <div style="margin-bottom:5px; height:40px; display:flex; justify-content:center; align-items:center;"><img src="icon_piza.png" style="width:40px;height:40px;border-radius:50%;object-fit:cover;box-shadow:0 2px 4px rgba(0,0,0,0.4);"></div>
+                <div style="font-size:13px; font-weight:bold;">ピザ</div>
+                <button class="btn btn-green" id="btn-buy-piza" style="width:90%; padding:8px; font-size:13px; margin-top:10px;" onclick="buyShopIcon('icon_piza.png', 500)">500 G</button>
+            </div>
+            <div class="shop-item">
+                <div style="margin-bottom:5px; height:40px; display:flex; justify-content:center; align-items:center;"><img src="icon_ball.png" style="width:40px;height:40px;border-radius:50%;object-fit:cover;box-shadow:0 2px 4px rgba(0,0,0,0.4);"></div>
+                <div style="font-size:13px; font-weight:bold;">バスケ</div>
+                <button class="btn btn-green" id="btn-buy-ball" style="width:90%; padding:8px; font-size:13px; margin-top:10px;" onclick="buyShopIcon('icon_ball.png', 500)">500 G</button>
+            </div>
+            <div class="shop-item">
+                <div style="margin-bottom:5px; height:40px; display:flex; justify-content:center; align-items:center;"><img src="icon_two.png" style="width:40px;height:40px;border-radius:50%;object-fit:cover;box-shadow:0 2px 4px rgba(0,0,0,0.4);"></div>
+                <div style="font-size:13px; font-weight:bold;">サイコロ</div>
+                <button class="btn btn-green" id="btn-buy-two" style="width:90%; padding:8px; font-size:13px; margin-top:10px;" onclick="buyShopIcon('icon_two.png', 500)">500 G</button>
+            </div>
         </div>
         <button class="btn btn-gray" onclick="switchScreen('main-menu')">戻る</button>
     </div>
@@ -418,6 +479,10 @@
                 <select id="icon-select" onchange="updatePlayerIcon(this.value)"></select>
                 <div id="icon-preview" class="icon-preview-box"></div>
             </div>
+        </div>
+        <div class="setting-item">
+            <label>アイコンアイテム</label>
+            <select id="icon-item-select" onchange="updateIconItem(this.value)"></select>
         </div>
         <button class="btn btn-green" onclick="saveSettingsAndReturn()" style="margin-top:20px;">保存して戻る</button>
     </div>
@@ -618,13 +683,30 @@
 </div>
 
 <!-- ============================================== -->
-<!-- JavaScript (圧縮なしで丁寧に記述)                  -->
+<!-- JavaScript -->
 <!-- ============================================== -->
 <script>
     // ----------------------------------------------------
     // ユーティリティ・DOM取得
     // ----------------------------------------------------
     const documentById = id => document.getElementById(id);
+
+    // ----------------------------------------------------
+    // 新要素: アイコンアイテム関連
+    // ----------------------------------------------------
+    const iconItemData = {
+        'none': 'なし',
+        'item_diamond': 'ダイヤモンド 💎',
+        'item_crown': '王冠 👑',
+        'item_crown_anim': '動く王冠 👑'
+    };
+
+    function getIconItemEmoji(id) {
+        if(id === 'item_diamond') return '💎';
+        if(id === 'item_crown') return '👑';
+        if(id === 'item_crown_anim') return '<span class="anim-crown">👑</span>';
+        return '';
+    }
 
     // ----------------------------------------------------
     // 画面遷移
@@ -656,7 +738,10 @@
                 if(joinInp) joinInp.value = '';
             }
             if (screenId === 'shop-screen') {
-                updateShopProgress();
+                updateShopUI();
+            }
+            if (screenId === 'offline-select-screen') {
+                documentById('menu-survival-max').textContent = parseInt(localStorage.getItem('yaniv_survival_max')) || 0;
             }
         } catch(e) { console.error("switchScreen error:", e); }
     }
@@ -681,9 +766,14 @@
     
     function leaveRoom() { 
         const isFinalResultShowing = (documentById('modal-overlay').style.display === 'flex' && documentById('modal-title').textContent.includes("最終総合ランキング"));
+        const isSurvivalClearShowing = (documentById('modal-overlay').style.display === 'flex' && documentById('modal-title').textContent.includes("試合クリア"));
         
-        if (!gameEnded && currentRound >= 1 && activePlayers.length > 0 && documentById('game-container').style.display !== 'none' && !isFinalResultShowing) {
-            let finalData = activePlayers.map(p => ({ id: p.id, name: p.name, icon: p.icon, drinks: p.drinks, level: p.level, isMe: p.id === myNetworkId })); 
+        if (isSurvivalMode && !gameEnded && !isFinalResultShowing && !isSurvivalClearShowing) {
+            processSurvivalReward(survivalWins);
+        }
+
+        if (!gameEnded && currentRound >= 1 && activePlayers.length > 0 && documentById('game-container').style.display !== 'none' && !isFinalResultShowing && !isSurvivalClearShowing) {
+            let finalData = activePlayers.map(p => ({ id: p.id, name: p.name, icon: p.icon, iconItem: p.iconItem, drinks: p.drinks, level: p.level, isMe: p.id === myNetworkId })); 
             
             let myScore = finalData.find(r => r.id === myNetworkId).drinks;
             let myRank = 1;
@@ -702,7 +792,14 @@
     }
     
     function confirmLeaveRoom() { showCustomConfirm("本当に退出して戻りますか？", leaveRoom); }
-    function confirmLeaveGame() { showCustomConfirm("本当にゲームを終了して戻りますか？<br><span style='font-size:12px;color:#f44336;'>(進行状況は破棄されます)</span>", leaveRoom); }
+    
+    function confirmLeaveGame() { 
+        if (isSurvivalMode) {
+            showCustomConfirm(`現在の連勝数: ${survivalWins}勝<br>終了して報酬を獲得しますか？`, leaveRoom);
+        } else {
+            showCustomConfirm("本当にゲームを終了して戻りますか？<br><span style='font-size:12px;color:#f44336;'>(進行状況は破棄されます)</span>", leaveRoom); 
+        }
+    }
 
     // ----------------------------------------------------
     // データ保護＆定数定義
@@ -731,18 +828,26 @@
         if(Array.isArray(parsed)) unlockedBacks = parsed; 
     } catch(e) {}
 
+    let unlockedIconItems = ['none'];
+    try { 
+        let parsed = JSON.parse(localStorage.getItem('yaniv_unlocked_icon_items')); 
+        if(Array.isArray(parsed)) unlockedIconItems = parsed; 
+    } catch(e) {}
+
     const iconData = {
         'icon_default.png': 'デフォルト', 'icon_kaeru.png': 'かえる', 'icon_kyuuri.png': 'きゅうり', 'icon_yuuto.png': 'ゆうと',
         'icon_pien.png': 'ぴえん', 'icon_zombie.png': 'ゾンビ', 'icon_happy.png': 'ハッピー', 'icon_piero.png': 'ピエロ',
         'icon_ringo.png': 'りんご', 'icon_gun.png': 'ガンナー', 'icon_kaeruman.png': 'マッチョ', 'icon_miko.png': '巫女',
         'icon_birthday.png': 'ケーキ', 'icon_hugu.png': 'ふぐ', 'icon_tekira.png': 'テキーラ', 'icon_tekira2.png': 'テキーラ2',
-        'icon_sanchan.png': '冷やし中華', 'icon_dice.png': 'サイコロ', 'icon_oni.png': '鬼 (限定)', 'icon_hiroto.png': 'ひろと (限定)'
+        'icon_sanchan.png': '冷やし中華', 'icon_dice.png': 'サイコロ', 'icon_oni.png': '鬼 (限定)', 'icon_hiroto.png': 'ひろと (限定)',
+        'icon_sabo.png': 'サボテン', 'icon_piza.png': 'ピザ', 'icon_ball.png': 'バスケ', 'icon_two.png': 'サイコロ', 'icon_yuu.png': 'さつのすけ (限定)'
     };
 
     const cardBackData = {
         'back-red': '色: 赤', 'back-blue': '色: 青', 'back-black': '色: 黒',
         'card_kaeru.png': 'かえる', 'card_pien.png': 'ぴえん', 'card_zombie.png': 'ゾンビ', 'card_piero.png': 'ピエロ',
-        'card_ringo.png': 'リンゴ', 'card_kaeruman.png': 'マッチョ', 'card_star.png': '星', 'card_miko.png': '巫女', 'card_hatena.png': '？？？', 'card_hiroto.png': 'ひろと (限定)'
+        'card_ringo.png': 'リンゴ', 'card_kaeruman.png': 'マッチョ', 'card_star.png': '星', 'card_miko.png': '巫女', 'card_hatena.png': '？？？', 'card_hiroto.png': 'ひろと (限定)',
+        'card_bronze': '銅トロフィー (勝ち抜き報酬)', 'card_silver': '銀トロフィー (勝ち抜き報酬)', 'card_gold': '金トロフィー (勝ち抜き報酬)'
     };
 
     const suits = ['♠', '♥', '♦', '♣'];
@@ -781,6 +886,7 @@
     let myName = localStorage.getItem('yaniv_name') || "あなた"; 
     let myIconStr = localStorage.getItem('yaniv_icon') || 'icon_default.png'; 
     let myCardBack = localStorage.getItem('yaniv_card_back') || 'back-red'; 
+    let myIconItem = localStorage.getItem('yaniv_icon_item') || 'none';
     let masterVolume = 0.8; 
     
     let myUid = localStorage.getItem('yaniv_uid');
@@ -805,10 +911,10 @@
     let myLevelObj = calcLevel(userXp);
 
     let players = [
-        { id: 0, name: myName, icon: `<img src="${myIconStr}">`, cardBack: myCardBack, drinks: 0, loseCount: 0, hand: [], isReal: true, isActive: true, peerId: null, level: myLevelObj.level },
-        { id: 1, name: 'CPU 1', icon: `<img src="${getRandomCpuIcon()}">`, cardBack: getRandomCpuBack(), drinks: 0, loseCount: 0, hand: [], isReal: false, isActive: false, peerId: null, level: 1 }, 
-        { id: 2, name: 'CPU 2', icon: `<img src="${getRandomCpuIcon()}">`, cardBack: getRandomCpuBack(), drinks: 0, loseCount: 0, hand: [], isReal: false, isActive: false, peerId: null, level: 1 }, 
-        { id: 3, name: 'CPU 3', icon: `<img src="${getRandomCpuIcon()}">`, cardBack: getRandomCpuBack(), drinks: 0, loseCount: 0, hand: [], isReal: false, isActive: false, peerId: null, level: 1 }  
+        { id: 0, name: myName, icon: `<img src="${myIconStr}">`, cardBack: myCardBack, iconItem: myIconItem, drinks: 0, loseCount: 0, hand: [], isReal: true, isActive: true, peerId: null, level: myLevelObj.level },
+        { id: 1, name: 'CPU 1', icon: `<img src="${getRandomCpuIcon()}">`, cardBack: getRandomCpuBack(), iconItem: 'none', drinks: 0, loseCount: 0, hand: [], isReal: false, isActive: false, peerId: null, level: 1 }, 
+        { id: 2, name: 'CPU 2', icon: `<img src="${getRandomCpuIcon()}">`, cardBack: getRandomCpuBack(), iconItem: 'none', drinks: 0, loseCount: 0, hand: [], isReal: false, isActive: false, peerId: null, level: 1 }, 
+        { id: 3, name: 'CPU 3', icon: `<img src="${getRandomCpuIcon()}">`, cardBack: getRandomCpuBack(), iconItem: 'none', drinks: 0, loseCount: 0, hand: [], isReal: false, isActive: false, peerId: null, level: 1 }  
     ];
 
     let activePlayers = []; let deck = []; let discardSets = []; let selectedCards = []; let cardIdCounter = 0;
@@ -822,7 +928,8 @@
     let customDiffAsaf = 25; 
     let customAllLose = false;
     
-    let isOfflineMode = false; let isOniMode = false; let isHirotoMode = false;
+    let isOfflineMode = false; let isOniMode = false; let isHirotoMode = false; let isSurvivalMode = false;
+    let survivalWins = 0;
     let peer = null; let isHost = true; let hostConnection = null; let guestConnections = []; let myNetworkId = 0; 
     
     let treasureTimerInter = null; let xpAnimInterval = null;
@@ -843,6 +950,9 @@
             if(documentById('icon-select')) documentById('icon-select').value = myIconStr; 
             updatePlayerIcon(myIconStr);
             
+            refreshIconItemSelect();
+            if(documentById('icon-item-select')) documentById('icon-item-select').value = myIconItem; 
+
             updateCurrencyUI(); 
             updateLevelUI();
             
@@ -906,6 +1016,7 @@
         localStorage.setItem('yaniv_name', myName);
         localStorage.setItem('yaniv_icon', myIconStr);
         localStorage.setItem('yaniv_card_back', myCardBack);
+        localStorage.setItem('yaniv_icon_item', myIconItem);
         updateCurrencyUI(); 
         updateLevelUI();
     }
@@ -1045,6 +1156,49 @@
         if(documentById('shop-back-progress')) documentById('shop-back-progress').textContent = `解放: ${backCount}/${gachaBacks.length}`;
     }
 
+    function updateShopUI() {
+        updateShopProgress();
+        const shopIcons = [
+            { id: 'btn-buy-sabo', name: 'icon_sabo.png', price: 500 },
+            { id: 'btn-buy-piza', name: 'icon_piza.png', price: 500 },
+            { id: 'btn-buy-ball', name: 'icon_ball.png', price: 500 },
+            { id: 'btn-buy-two', name: 'icon_two.png', price: 500 }
+        ];
+        shopIcons.forEach(item => {
+            const btn = documentById(item.id);
+            if(btn) {
+                if(unlockedIcons.includes(item.name)) {
+                    btn.textContent = "購入済み";
+                    btn.className = "btn btn-gray";
+                    btn.disabled = true;
+                } else {
+                    btn.textContent = item.price + " G";
+                    btn.className = "btn btn-green";
+                    btn.disabled = false;
+                }
+            }
+        });
+    }
+
+    function buyShopIcon(iconName, price) {
+        if (unlockedIcons.includes(iconName)) {
+            showToast("既に所持しています！", "#ffeb3b");
+            return;
+        }
+        if (userCoins < price) {
+            showToast("コインが足りません！", "#f44336");
+            return;
+        }
+        userCoins -= price;
+        unlockedIcons.push(iconName);
+        localStorage.setItem('yaniv_unlocked_icons', JSON.stringify(unlockedIcons));
+        saveUserData();
+        refreshIconSelect();
+        updateShopUI();
+        showToast(`${iconData[iconName]} を購入しました！`, "#4caf50");
+        playSound('yaniv');
+    }
+
     function refreshIconSelect() {
         const sel = documentById('icon-select'); if(!sel) return;
         sel.innerHTML = '';
@@ -1058,6 +1212,14 @@
         backSel.innerHTML = '';
         unlockedBacks.forEach(key => {
             const opt = document.createElement('option'); opt.value = key; opt.textContent = cardBackData[key] || key; backSel.appendChild(opt);
+        });
+    }
+    
+    function refreshIconItemSelect() {
+        const sel = documentById('icon-item-select'); if(!sel) return;
+        sel.innerHTML = '';
+        unlockedIconItems.forEach(key => {
+            const opt = document.createElement('option'); opt.value = key; opt.textContent = iconItemData[key] || key; sel.appendChild(opt);
         });
     }
 
@@ -1081,7 +1243,7 @@
         myCardBack = val; 
         const preview = documentById('card-back-preview'); if(!preview) return;
         preview.className = '';
-        if(val.startsWith('back-')) {
+        if(val.startsWith('back-') || val.startsWith('card_bronze') || val.startsWith('card_silver') || val.startsWith('card_gold')) {
             preview.classList.add('back', val);
             preview.style.backgroundImage = 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.1) 10px, rgba(255,255,255,0.1) 20px)';
         } else {
@@ -1095,9 +1257,13 @@
         if(documentById('icon-preview')) documentById('icon-preview').innerHTML = `<img src="${val}" alt="icon">`; 
     }
     
+    function updateIconItem(val) {
+        myIconItem = val;
+    }
+    
     function saveSettingsAndReturn() {
         myName = documentById('my-name-input').value.trim() || "ゲスト";
-        players[0].name = myName; players[0].icon = `<img src="${myIconStr}">`; players[0].cardBack = myCardBack;
+        players[0].name = myName; players[0].icon = `<img src="${myIconStr}">`; players[0].cardBack = myCardBack; players[0].iconItem = myIconItem;
         saveUserData(); switchScreen('main-menu');
     }
 
@@ -1142,26 +1308,32 @@
             
             if (isCoin) {
                 let targetList = type === 'icon' ? gachaIcons : gachaBacks;
-                let newItem = targetList[Math.floor(Math.random() * targetList.length)];
+                let newItem;
                 
                 if (type === 'icon') {
+                    if (Math.random() < 0.05) {
+                        newItem = 'icon_yuu.png';
+                    } else {
+                        newItem = targetList[Math.floor(Math.random() * targetList.length)];
+                    }
                     if(unlockedIcons.includes(newItem)) {
                         isDuplicate = true;
                     } else {
                         unlockedIcons.push(newItem);
                         localStorage.setItem('yaniv_unlocked_icons', JSON.stringify(unlockedIcons));
                     }
-                    refreshIconSelect(); updateShopProgress();
+                    refreshIconSelect(); updateShopUI();
                     documentById('gacha-result-icon').innerHTML = `<img src="${newItem}">`;
                     documentById('gacha-result-text').textContent = isDuplicate ? `被ってしまった！残念...！` : `${iconData[newItem]} をゲット！`;
                 } else {
+                    newItem = targetList[Math.floor(Math.random() * targetList.length)];
                     if(unlockedBacks.includes(newItem)) {
                         isDuplicate = true;
                     } else {
                         unlockedBacks.push(newItem);
                         localStorage.setItem('yaniv_unlocked_backs', JSON.stringify(unlockedBacks));
                     }
-                    refreshBackSelect(); updateShopProgress();
+                    refreshBackSelect(); updateShopUI();
                     documentById('gacha-result-icon').innerHTML = `<img src="${newItem}" style="border-radius:10px;">`;
                     documentById('gacha-result-text').textContent = isDuplicate ? `被ってしまった！残念...！` : `${cardBackData[newItem]} をゲット！`;
                 }
@@ -1310,9 +1482,9 @@
                 match.players.forEach((p, rank) => {
                     let s = match.isOffline ? -p.drinks : p.drinks; 
                     let iconHtml = p.icon || '<img src="icon_default.png">';
-                    // 自分がプレイした行に色を付ける
+                    let iconItemHtml = p.iconItem && p.iconItem !== 'none' ? `<div class="icon-item-badge" style="font-size:12px; top:-4px; right:-4px;">${getIconItemEmoji(p.iconItem)}</div>` : '';
                     let trClass = p.isMe ? 'class="history-my-row"' : '';
-                    tableRows += `<tr ${trClass}><td style="width:30px;">${rank+1}位</td><td><span class="icon-small" style="width:16px;height:16px;">${iconHtml}</span> ${p.name}</td><td style="text-align:right; font-weight:bold;">${s}${unit}</td></tr>`;
+                    tableRows += `<tr ${trClass}><td style="width:30px;">${rank+1}位</td><td><div style="position:relative; display:inline-flex; vertical-align:middle; margin-right:4px;"><span class="icon-small" style="width:16px;height:16px;">${iconHtml}</span>${iconItemHtml}</div> ${p.name}</td><td style="text-align:right; font-weight:bold;">${s}${unit}</td></tr>`;
                 });
                 
                 let noteStr = match.note ? `<span class="history-note">${match.note}</span>` : "";
@@ -1359,6 +1531,8 @@
                 el.textContent = `鬼モード: 負けは1位との差分 / ヤニブ返し-25点 | ${rds}試合`; 
             } else if(isHirotoMode) {
                 el.textContent = `ひろとモード: 初期-20点スタート | ${rds}試合`; 
+            } else if(isSurvivalMode) {
+                el.textContent = `勝ち抜きモード: 差分ルール | 2ラウンド連戦`; 
             } else {
                 el.textContent = `通常モード: 負け-1点 / ヤニブ返し-2点 | ${rds}試合`;
             }
@@ -1407,7 +1581,8 @@
                 let badge = p.isReal ? `<span style="color:#4caf50;">👤人</span>` : `<span style="color:#9e9e9e;">🤖CPU</span>`;
                 if(p.id === myNetworkId) badge = `<span style="color:#ffeb3b;">⭐あなた</span>`;
                 let displayName = p.isReal ? `${p.name} <span style="font-size:10px; color:#ffeb3b;">(Lv.${p.level})</span>` : p.name;
-                list.innerHTML += `<div class="player-slot"><div style="display:flex; align-items:center; gap:10px;"><div class="icon-small">${p.icon}</div>${displayName}</div>${badge}</div>`;
+                let iconItemHtml = p.iconItem && p.iconItem !== 'none' ? `<div class="icon-item-badge" style="font-size:12px; top:-4px; right:-4px;">${getIconItemEmoji(p.iconItem)}</div>` : '';
+                list.innerHTML += `<div class="player-slot"><div style="display:flex; align-items:center; gap:10px;"><div style="position:relative; display:inline-flex;"><div class="icon-small">${p.icon}</div>${iconItemHtml}</div>${displayName}</div>${badge}</div>`;
             } else { 
                 list.innerHTML += `<div class="player-slot empty">空き枠</div>`; 
             }
@@ -1417,9 +1592,9 @@
     function createRoom() {
         if (peer) { peer.destroy(); peer = null; }
         
-        isHost = true; myNetworkId = 0; isOfflineMode = false; isOniMode = false; isHirotoMode = false; guestConnections = [];
+        isHost = true; myNetworkId = 0; isOfflineMode = false; isOniMode = false; isHirotoMode = false; isSurvivalMode = false; guestConnections = [];
         players.forEach(p => { p.isActive = false; p.isReal = false; p.peerId = null; p.hand = []; p.drinks = 0; p.loseCount = 0; });
-        players[0].name = myName; players[0].icon = `<img src="${myIconStr}">`; players[0].cardBack = myCardBack; players[0].isReal = true; players[0].isActive = true; players[0].level = myLevelObj.level;
+        players[0].name = myName; players[0].icon = `<img src="${myIconStr}">`; players[0].cardBack = myCardBack; players[0].iconItem = myIconItem; players[0].isReal = true; players[0].isActive = true; players[0].level = myLevelObj.level;
         
         documentById('host-controls').style.display = 'block'; 
         documentById('guest-controls').style.display = 'none'; 
@@ -1447,7 +1622,7 @@
                 syncRulesToGuests(); 
             });
             conn.on('data', (data) => {
-                if (data.type === 'JOIN_REQUEST') handleGuestJoin(data.name, data.icon, data.cardBack, data.level, conn);
+                if (data.type === 'JOIN_REQUEST') handleGuestJoin(data.name, data.icon, data.cardBack, data.iconItem, data.level, conn);
                 else if (data.type === 'REQ_ACTION') processActionSync(data.playerIndex, data.cardsToDiscard, data.drawSource);
                 else if (data.type === 'REQ_YANIV') { if(!gameEnded) declareYaniv(data.playerIndex); }
                 else if (data.type === 'CHAT') { 
@@ -1463,34 +1638,37 @@
     }
 
     function setupOfflineLobby(mode) {
-        if (mode === true || mode === 'oni') {
+        if (mode === 'oni') {
             if (userCoins < 100) return showToast("コインが足りません！ (100G必要)", "#f44336");
-            userCoins -= 100; saveUserData(); isOniMode = true; isHirotoMode = false;
+            userCoins -= 100; saveUserData(); isOniMode = true; isHirotoMode = false; isSurvivalMode = false;
         } else if (mode === 'hiroto') {
             if (userCoins < 100) return showToast("コインが足りません！ (100G必要)", "#f44336");
-            userCoins -= 100; saveUserData(); isOniMode = false; isHirotoMode = true;
+            userCoins -= 100; saveUserData(); isOniMode = false; isHirotoMode = true; isSurvivalMode = false;
+        } else if (mode === 'survival') {
+            if (userCoins < 100) return showToast("コインが足りません！ (100G必要)", "#f44336");
+            userCoins -= 100; saveUserData(); isOniMode = false; isHirotoMode = false; isSurvivalMode = true; survivalWins = 0;
         } else { 
-            isOniMode = false; isHirotoMode = false; 
+            isOniMode = false; isHirotoMode = false; isSurvivalMode = false; 
         }
         
-        isHost = true; myNetworkId = 0; ruleType = "KD"; MAX_ROUNDS = 5; currentRound = 1; isOfflineMode = true;
+        isHost = true; myNetworkId = 0; ruleType = "KD"; MAX_ROUNDS = isSurvivalMode ? 2 : 5; currentRound = 1; isOfflineMode = true;
         
         players.forEach(p => { p.isActive = false; p.isReal = false; p.peerId = null; p.hand = []; p.drinks = 0; p.loseCount = 0; p.level = 1; });
-        players[0].name = myName; players[0].icon = `<img src="${myIconStr}">`; players[0].cardBack = myCardBack; players[0].isReal = true; players[0].isActive = true; players[0].level = myLevelObj.level;
+        players[0].name = myName; players[0].icon = `<img src="${myIconStr}">`; players[0].cardBack = myCardBack; players[0].iconItem = myIconItem; players[0].isReal = true; players[0].isActive = true; players[0].level = myLevelObj.level;
         
         if(isHirotoMode) { players[0].drinks = 20; }
 
         let cpuIcon = isHirotoMode ? 'icon_hiroto.png' : getRandomCpuIcon();
         let cpuBack = isHirotoMode ? 'card_hiroto.png' : getRandomCpuBack();
 
-        players[1].name = 'CPU 1'; players[1].icon = `<img src="${cpuIcon}">`; players[1].cardBack = cpuBack; players[1].isReal = false; players[1].isActive = true;
-        players[2].name = 'CPU 2'; players[2].icon = `<img src="${cpuIcon}">`; players[2].cardBack = cpuBack; players[2].isReal = false; players[2].isActive = true;
-        players[3].name = 'CPU 3'; players[3].icon = `<img src="${cpuIcon}">`; players[3].cardBack = cpuBack; players[3].isReal = false; players[3].isActive = true;
+        players[1].name = 'CPU 1'; players[1].icon = `<img src="${cpuIcon}">`; players[1].cardBack = cpuBack; players[1].iconItem = 'none'; players[1].isReal = false; players[1].isActive = true;
+        players[2].name = 'CPU 2'; players[2].icon = `<img src="${cpuIcon}">`; players[2].cardBack = cpuBack; players[2].iconItem = 'none'; players[2].isReal = false; players[2].isActive = true;
+        players[3].name = 'CPU 3'; players[3].icon = `<img src="${cpuIcon}">`; players[3].cardBack = cpuBack; players[3].iconItem = 'none'; players[3].isReal = false; players[3].isActive = true;
 
         documentById('rule-template').value = "KD"; 
-        documentById('room-rounds').value = 5;
+        documentById('room-rounds').value = MAX_ROUNDS;
         
-        if(isOniMode || isHirotoMode) {
+        if(isOniMode || isHirotoMode || isSurvivalMode) {
             switchScreen('game-container'); startRound();
         } else {
             documentById('host-controls').style.display = 'block'; 
@@ -1506,7 +1684,7 @@
     function joinRoom() {
         if (peer) { peer.destroy(); peer = null; }
         
-        isHost = false; isOfflineMode = false; isOniMode = false; isHirotoMode = false;
+        isHost = false; isOfflineMode = false; isOniMode = false; isHirotoMode = false; isSurvivalMode = false;
         
         const inputId = documentById('join-room-id').value.trim(); 
         if(!inputId || inputId.length !== 5) { alert("5桁のIDを入力してください"); return; } 
@@ -1514,7 +1692,7 @@
         const hostId = 'ynv-room-' + inputId;
         
         players.forEach(p => { p.isActive = false; p.isReal = false; p.peerId = null; p.hand = []; p.drinks = 0; p.loseCount = 0; p.level = 1; });
-        players[0].name = myName; players[0].icon = `<img src="${myIconStr}">`; players[0].cardBack = myCardBack; players[0].isReal = true; players[0].isActive = true; players[0].level = myLevelObj.level;
+        players[0].name = myName; players[0].icon = `<img src="${myIconStr}">`; players[0].cardBack = myCardBack; players[0].iconItem = myIconItem; players[0].isReal = true; players[0].isActive = true; players[0].level = myLevelObj.level;
 
         documentById('host-controls').style.display = 'none'; 
         documentById('guest-controls').style.display = 'block'; 
@@ -1532,7 +1710,7 @@
                 hostConnection.on('open', () => { 
                     documentById('room-id-display').innerHTML = `ホストに接続完了！`; 
                     setTimeout(() => {
-                        hostConnection.send({ type: 'JOIN_REQUEST', name: myName, icon: `<img src="${myIconStr}">`, cardBack: myCardBack, level: myLevelObj.level }); 
+                        hostConnection.send({ type: 'JOIN_REQUEST', name: myName, icon: `<img src="${myIconStr}">`, cardBack: myCardBack, iconItem: myIconItem, level: myLevelObj.level }); 
                     }, 500);
                 });
                 
@@ -1545,7 +1723,7 @@
                     } 
                     else if (data.type === 'LOBBY_UPDATE') { 
                         data.players.forEach((dp, i) => { 
-                            players[i].name = dp.name; players[i].icon = dp.icon; players[i].isReal = dp.isReal; players[i].isActive = dp.isActive; players[i].level = dp.level||1; 
+                            players[i].name = dp.name; players[i].icon = dp.icon; players[i].iconItem = dp.iconItem || 'none'; players[i].isReal = dp.isReal; players[i].isActive = dp.isActive; players[i].level = dp.level||1; 
                         }); 
                         updateLobbyUI(); 
                     } 
@@ -1581,12 +1759,13 @@
         });
     }
 
-    function handleGuestJoin(guestName, guestIcon, guestCardBack, guestLevel, conn) {
+    function handleGuestJoin(guestName, guestIcon, guestCardBack, guestIconItem, guestLevel, conn) {
         let slotIndex = players.findIndex(p => p.id !== 0 && !p.isActive);
         if (slotIndex !== -1) {
             players[slotIndex].name = guestName; 
             players[slotIndex].icon = guestIcon; 
             players[slotIndex].cardBack = guestCardBack; 
+            players[slotIndex].iconItem = guestIconItem || 'none';
             players[slotIndex].level = guestLevel || 1; 
             players[slotIndex].isReal = true; 
             players[slotIndex].isActive = true; 
@@ -1599,7 +1778,7 @@
             updateLobbyUI(); 
             setTimeout(() => { 
                 broadcastLobbyState(); syncRulesToGuests(); 
-            }, 500);
+            }, 300);
         } else { 
             conn.send({ type: 'JOIN_REJECTED', reason: '満員です' }); 
         }
@@ -1612,6 +1791,7 @@
                 players[i].name = `CPU ${i}`; 
                 players[i].icon = `<img src="${getRandomCpuIcon()}">`; 
                 players[i].cardBack = getRandomCpuBack();
+                players[i].iconItem = 'none';
                 players[i].isReal = false; 
                 players[i].isActive = true; 
                 players[i].level = 1; 
@@ -1634,7 +1814,7 @@
     
     function broadcastLobbyState() { 
         if(!isHost) return; 
-        const cleanPlayers = players.map(p => ({ id: p.id, name: p.name, icon: p.icon, isReal: p.isReal, isActive: p.isActive, level: p.level })); 
+        const cleanPlayers = players.map(p => ({ id: p.id, name: p.name, icon: p.icon, iconItem: p.iconItem, isReal: p.isReal, isActive: p.isActive, level: p.level })); 
         guestConnections.forEach(conn => conn.send({ type: 'LOBBY_UPDATE', players: cleanPlayers })); 
         syncRulesToGuests(); 
     }
@@ -1688,7 +1868,13 @@
         try {
             gameEnded = false; createDeck(); activePlayers = players.filter(p => p.isActive === true); activePlayers.forEach(p => p.hand = deck.splice(0, 5));
             let firstCard = deck.pop(); while (firstCard && firstCard.type === 'joker') { deck.unshift(firstCard); firstCard = deck.pop(); } discardSets = [ [firstCard] ]; selectedCards = [];
-            let activeIds = activePlayers.map(p => p.id); if (currentRound === 1) currentTurn = activeIds[Math.floor(Math.random() * activeIds.length)]; else currentTurn = activeIds.includes(firstPlayer) ? firstPlayer : activeIds[0];
+            
+            let activeIds = activePlayers.map(p => p.id); 
+            if (currentRound === 1 || isSurvivalMode) {
+                currentTurn = activeIds[Math.floor(Math.random() * activeIds.length)]; 
+            } else {
+                currentTurn = activeIds.includes(firstPlayer) ? firstPlayer : activeIds[0];
+            }
             
             documentById('round-counter').textContent = `第 ${currentRound} / ${MAX_ROUNDS} ラウンド`;
             broadcastState(); updateUI(); setTurn(currentTurn);
@@ -1720,7 +1906,10 @@
             
             players.forEach(p => {
                 if (!p.isActive) return; const uiIndex = getUiIndex(p.id); const areaEl = documentById(`area-${uiIndex}`); if(!areaEl) return; areaEl.style.display = 'flex'; 
-                let displayName = p.isReal ? `${p.name} <span style="font-size:10px; color:#ffeb3b;">(Lv.${p.level})</span>` : p.name; documentById(`name-${uiIndex}`).innerHTML = displayName; documentById(`icon-${uiIndex}`).innerHTML = p.icon;
+                let displayName = p.isReal ? `${p.name} <span style="font-size:10px; color:#ffeb3b;">(Lv.${p.level})</span>` : p.name; 
+                let iconItemHtml = p.iconItem && p.iconItem !== 'none' ? `<div class="icon-item-badge">${getIconItemEmoji(p.iconItem)}</div>` : '';
+                documentById(`name-${uiIndex}`).innerHTML = displayName; 
+                documentById(`icon-${uiIndex}`).innerHTML = `<div style="position:relative; display:inline-flex;">${p.icon}${iconItemHtml}</div>`;
                 
                 let dVal = p.drinks; 
                 if (isDiffMode) documentById(`drink-${uiIndex}`).textContent = `${-dVal}${unit}`; 
@@ -1740,7 +1929,11 @@
 
             const discardContainer = documentById('discard-pile'); discardContainer.innerHTML = '';
             const deckPile = documentById('deck-pile'); deckPile.className = 'pile card back';
-            if(myCardBack.startsWith('back-')) { deckPile.classList.add(myCardBack); deckPile.style.backgroundImage = 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.1) 10px, rgba(255,255,255,0.1) 20px)'; } else { deckPile.classList.add('back-img'); deckPile.style.backgroundImage = `url('${myCardBack}')`; }
+            if(myCardBack.startsWith('back-') || myCardBack.startsWith('card_bronze') || myCardBack.startsWith('card_silver') || myCardBack.startsWith('card_gold')) { 
+                deckPile.classList.add(myCardBack); deckPile.style.backgroundImage = 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.1) 10px, rgba(255,255,255,0.1) 20px)'; 
+            } else { 
+                deckPile.classList.add('back-img'); deckPile.style.backgroundImage = `url('${myCardBack}')`; 
+            }
 
             if (discardSets.length > 0) {
                 const prm = getCardParams(); const topSet = discardSets[discardSets.length - 1]; const totalWidth = prm.w + (topSet.length - 1) * prm.offset; const startX = -(totalWidth / 2) + (prm.w / 2);
@@ -1754,7 +1947,9 @@
         const cardEl = document.createElement('div'); cardEl.id = `card-${card.id}`; const owner = players.find(p => p.id === ownerIndex); const backVal = owner ? (owner.cardBack || 'back-red') : 'back-red'; 
         if (!isFaceUp) { 
             cardEl.className = `card back`; 
-            if(backVal.startsWith('back-')) { cardEl.classList.add(backVal); cardEl.style.backgroundImage = 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.1) 10px, rgba(255,255,255,0.1) 20px)'; } 
+            if(backVal.startsWith('back-') || backVal.startsWith('card_bronze') || backVal.startsWith('card_silver') || backVal.startsWith('card_gold')) { 
+                cardEl.classList.add(backVal); cardEl.style.backgroundImage = 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.1) 10px, rgba(255,255,255,0.1) 20px)'; 
+            } 
             else { cardEl.classList.add('back-img'); cardEl.style.backgroundImage = `url('${backVal}')`; }
             return cardEl; 
         }
@@ -1881,7 +2076,7 @@
 
         let drinkChanges = { 0:0, 1:0, 2:0, 3:0 }; let lossChanges = { 0:0, 1:0, 2:0, 3:0 }; let modalSub = "";
 
-        if (isOniMode || isHirotoMode || (ruleType === "CUSTOM" && customCalcType === "diff")) {
+        if (isOniMode || isHirotoMode || isSurvivalMode || (ruleType === "CUSTOM" && customCalcType === "diff")) {
             if (isAsaf) {
                 modalSub = "🚨 ヤニブ返し発生！ 🚨"; 
                 let asafPen = (ruleType === "CUSTOM" && customCalcType === "diff") ? customDiffAsaf : 25;
@@ -1936,8 +2131,9 @@
                 else if (ruleType === "BENI") { changeText = res.lossChange > 0 ? `+${res.lossChange}負(計${res.loseCount})` : `±0`; color = res.lossChange > 0 ? '#f44336' : 'white'; } 
                 else { changeText = res.change > 0 ? `+${res.change}${unit}` : `±0`; color = res.change > 0 ? '#f44336' : 'white'; }
                 let totalDrinksText = isDiffMode ? `${-res.drinks}${unit}` : `${res.drinks}${unit}`;
+                let iconItemHtml = res.iconItem && res.iconItem !== 'none' ? `<div class="icon-item-badge" style="font-size:12px; top:-4px; right:-4px;">${getIconItemEmoji(res.iconItem)}</div>` : '';
 
-                tr.innerHTML = `<td>${displayRank}位</td><td><span class="icon-small" style="width:20px; height:20px; vertical-align:middle; margin-right:4px;">${res.icon}</span> ${res.name} ${res.isDeclarer ? '(宣言)' : ''}</td><td>${res.score}</td><td style="color: ${color}; font-weight: bold;">${changeText}</td><td>${totalDrinksText}</td>`;
+                tr.innerHTML = `<td>${displayRank}位</td><td><div style="position:relative; display:inline-flex; width:20px; height:20px; vertical-align:middle; margin-right:4px;"><span class="icon-small">${res.icon}</span>${iconItemHtml}</div> ${res.name} ${res.isDeclarer ? '(宣言)' : ''}</td><td>${res.score}</td><td style="color: ${color}; font-weight: bold;">${changeText}</td><td>${totalDrinksText}</td>`;
                 tbody.appendChild(tr);
             });
 
@@ -1954,9 +2150,8 @@
     function showFinalTotalRanking() {
         try {
             documentById('modal-title').textContent = "🏆 最終総合ランキング 🏆"; documentById('modal-title').style.color = "#ffeb3b"; documentById('modal-subtitle').textContent = `${MAX_ROUNDS}ラウンドの全試合が終了しました！`;
-            let finalData = activePlayers.map(p => ({ id: p.id, name: p.name, icon: p.icon, drinks: p.drinks, level: p.level, isMe: p.id === myNetworkId })); 
+            let finalData = activePlayers.map(p => ({ id: p.id, name: p.name, icon: p.icon, iconItem: p.iconItem, drinks: p.drinks, level: p.level, isMe: p.id === myNetworkId })); 
             
-            // ★順位計算を同点対応の正確なものに修正！
             let myScore = finalData.find(r => r.id === myNetworkId).drinks;
             let myRank = 1;
             finalData.forEach(r => { if (r.drinks < myScore) myRank++; });
@@ -1964,7 +2159,50 @@
             finalData.sort((a, b) => a.drinks - b.drinks); 
             
             let isPvP = activePlayers.some(p => p.isReal && p.id !== 0); let earnCoin = 0; let earnXp = 0;
-
+            
+            // ★ 勝ち抜きモードの特殊処理 ★
+            if (isSurvivalMode) {
+                if (myRank === 1) {
+                    survivalWins++;
+                    documentById('modal-title').textContent = "🏆 試合クリア！ 🏆"; 
+                    documentById('modal-subtitle').textContent = `現在 ${survivalWins}連勝中！`;
+                    
+                    documentById('modal-btn-single').style.display = 'none'; 
+                    documentById('modal-btn-double').style.display = 'flex';
+                    
+                    const leftBtn = documentById('modal-btn-double').children[0];
+                    const rightBtn = documentById('modal-btn-double').children[1];
+                    leftBtn.textContent = `次の試合へ (${survivalWins+1}勝目)`;
+                    leftBtn.setAttribute('onclick', 'nextSurvivalGame()');
+                    rightBtn.textContent = "退出して報酬獲得";
+                    rightBtn.setAttribute('onclick', 'exitSurvivalAndReward()');
+                } else {
+                    documentById('modal-title').textContent = "💀 ゲームオーバー 💀"; 
+                    documentById('modal-subtitle').textContent = `連勝記録: ${survivalWins}勝`;
+                    
+                    documentById('modal-btn-single').style.display = 'block'; 
+                    documentById('modal-btn-double').style.display = 'none';
+                    
+                    const nextBtn = documentById('modal-next-btn');
+                    nextBtn.textContent = "報酬を受け取って戻る";
+                    nextBtn.setAttribute('onclick', 'exitSurvivalAndReward()');
+                }
+                
+                const unit = "点"; documentById('table-header-row').innerHTML = `<th>順位</th><th>プレイヤー</th><th colspan="3">最終累計</th>`;
+                const tbody = documentById('result-tbody'); tbody.innerHTML = ''; let rank = 1;
+                
+                finalData.forEach((res, index) => {
+                    if (index > 0 && res.drinks > finalData[index - 1].drinks) rank = index + 1;
+                    const tr = document.createElement('tr'); if (res.id === myNetworkId) tr.className = 'me-row'; let totalText = `${-res.drinks}${unit}`;
+                    let iconItemHtml = res.iconItem && res.iconItem !== 'none' ? `<div class="icon-item-badge" style="font-size:12px; top:-4px; right:-4px;">${getIconItemEmoji(res.iconItem)}</div>` : '';
+                    tr.innerHTML = `<td>${rank}位</td><td><div style="position:relative; display:inline-flex; width:20px; height:20px; vertical-align:middle; margin-right:4px;"><span class="icon-small">${res.icon}</span>${iconItemHtml}</div> ${res.name}</td><td colspan="3" style="font-weight: bold; color: ${rank === 1 ? '#4caf50' : '#ffeb3b'}; font-size: 16px;">${totalText}</td>`;
+                    tbody.appendChild(tr);
+                });
+                documentById('modal-overlay').style.display = 'flex'; documentById('modal-xp-area').style.display = 'none'; documentById('modal-btn-hiroto-reward').style.display = 'none';
+                return; // 勝ち抜きモード時はここでストップ
+            }
+            
+            // 通常の処理
             if (isPvP) {
                 if (myName === "さにるせぬ") { earnCoin = 500; earnXp = 50; } else if (myRank === 1) { earnCoin = 30 * MAX_ROUNDS; earnXp = 10 * MAX_ROUNDS; } else { earnCoin = 10 * MAX_ROUNDS; earnXp = 5 * MAX_ROUNDS; }
             } else {
@@ -1973,8 +2211,7 @@
 
             let oldXp = userXp; userCoins += earnCoin; userXp += earnXp;
             
-            // ★ 鬼モード・チケット付与を確実にローカルストレージへ保存
-            if (isOniMode && myRank === 1) {
+            if (isOniMode && myRank === 1) { 
                 oniTickets = Number(oniTickets) + 1;
                 localStorage.setItem('yaniv_oni_tickets', oniTickets);
             }
@@ -1995,7 +2232,8 @@
             finalData.forEach((res, index) => {
                 if (index > 0 && res.drinks > finalData[index - 1].drinks) rank = index + 1;
                 const tr = document.createElement('tr'); if (res.id === myNetworkId) tr.className = 'me-row'; let totalText = isDiffMode ? `${-res.drinks}${unit}` : `${res.drinks}${unit}`;
-                tr.innerHTML = `<td>${rank}位</td><td><span class="icon-small" style="width:20px; height:20px; vertical-align:middle; margin-right:4px;">${res.icon}</span> ${res.name}</td><td colspan="3" style="font-weight: bold; color: ${rank === 1 ? '#4caf50' : '#ffeb3b'}; font-size: 16px;">${totalText}</td>`;
+                let iconItemHtml = res.iconItem && res.iconItem !== 'none' ? `<div class="icon-item-badge" style="font-size:12px; top:-4px; right:-4px;">${getIconItemEmoji(res.iconItem)}</div>` : '';
+                tr.innerHTML = `<td>${rank}位</td><td><div style="position:relative; display:inline-flex; width:20px; height:20px; vertical-align:middle; margin-right:4px;"><span class="icon-small">${res.icon}</span>${iconItemHtml}</div> ${res.name}</td><td colspan="3" style="font-weight: bold; color: ${rank === 1 ? '#4caf50' : '#ffeb3b'}; font-size: 16px;">${totalText}</td>`;
                 tbody.appendChild(tr);
             });
             
@@ -2011,6 +2249,11 @@
                 modalActionState = 'new_game';
             } else {
                 documentById('modal-btn-double').style.display = 'flex';
+                // 既存のイベントを再セット
+                const leftBtn = documentById('modal-btn-double').children[0];
+                const rightBtn = documentById('modal-btn-double').children[1];
+                leftBtn.setAttribute('onclick', 'returnToLobby()');
+                rightBtn.setAttribute('onclick', 'confirmLeaveRoom()');
             }
             
             documentById('modal-overlay').style.display = 'flex'; documentById('modal-xp-area').style.display = 'block';
@@ -2037,6 +2280,84 @@
                 }, 30);
             }
         } catch(e) { console.error("showFinalTotalRanking error:", e); alert("最終結果の表示中にエラーが発生しました。"); leaveRoom(); }
+    }
+
+    // 勝ち抜きモード関連の関数
+    function nextSurvivalGame() {
+        documentById('modal-overlay').style.display = 'none';
+        
+        players.forEach(p => { 
+            if(!p.isReal) { 
+                p.icon = `<img src="${getRandomCpuIcon()}">`; 
+                p.cardBack = getRandomCpuBack(); 
+            } 
+        });
+
+        currentRound = 1;
+        activePlayers.forEach(p => { p.drinks = 0; p.loseCount = 0; });
+        startRound();
+    }
+    
+    function exitSurvivalAndReward() {
+        processSurvivalReward(survivalWins);
+        documentById('modal-overlay').style.display = 'none';
+        
+        // UIを元に戻す
+        const leftBtn = documentById('modal-btn-double').children[0];
+        const rightBtn = documentById('modal-btn-double').children[1];
+        leftBtn.setAttribute('onclick', 'returnToLobby()');
+        rightBtn.setAttribute('onclick', 'confirmLeaveRoom()');
+        documentById('modal-next-btn').setAttribute('onclick', 'handleModalNext()');
+        
+        leaveRoom();
+    }
+    
+    function processSurvivalReward(wins) {
+        if (wins <= 0) {
+            showToast("残念！報酬なし...", "#f44336");
+            return;
+        }
+
+        let earnCoin = 0, earnXp = 0;
+        if(wins <= 9) { earnCoin = wins * 25; earnXp = wins * 3; }
+        else if(wins <= 29) { earnCoin = wins * 50; earnXp = wins * 5; }
+        else if(wins <= 49) { earnCoin = wins * 75; earnXp = wins * 7; }
+        else if(wins <= 99) { earnCoin = wins * 100; earnXp = wins * 9; }
+        else if(wins <= 299) { earnCoin = wins * 200; earnXp = wins * 13; }
+        else if(wins <= 499) { earnCoin = wins * 300; earnXp = wins * 17; }
+        else if(wins <= 999) { earnCoin = wins * 500; earnXp = wins * 21; }
+        else { earnCoin = wins * 1000; earnXp = wins * 29; }
+
+        userCoins += earnCoin;
+        userXp += earnXp;
+
+        let unlockedBacks = JSON.parse(localStorage.getItem('yaniv_unlocked_backs')) || ['back-red', 'back-blue', 'back-black'];
+        let unlockedIconItems = JSON.parse(localStorage.getItem('yaniv_unlocked_icon_items')) || ['none'];
+        let unlockedAny = false;
+
+        if(wins >= 10 && !unlockedBacks.includes('card_bronze')) { unlockedBacks.push('card_bronze'); unlockedAny = true; }
+        if(wins >= 50 && !unlockedBacks.includes('card_silver')) { unlockedBacks.push('card_silver'); unlockedAny = true; }
+        if(wins >= 100 && !unlockedBacks.includes('card_gold')) { unlockedBacks.push('card_gold'); unlockedAny = true; }
+        if(wins >= 300 && !unlockedIconItems.includes('item_diamond')) { unlockedIconItems.push('item_diamond'); unlockedAny = true; }
+        if(wins >= 500 && !unlockedIconItems.includes('item_crown')) { unlockedIconItems.push('item_crown'); unlockedAny = true; }
+        if(wins >= 1000 && !unlockedIconItems.includes('item_crown_anim')) { unlockedIconItems.push('item_crown_anim'); unlockedAny = true; }
+
+        if (unlockedAny) {
+            localStorage.setItem('yaniv_unlocked_backs', JSON.stringify(unlockedBacks));
+            localStorage.setItem('yaniv_unlocked_icon_items', JSON.stringify(unlockedIconItems));
+        }
+
+        let maxS = parseInt(localStorage.getItem('yaniv_survival_max')) || 0;
+        if (wins > maxS) {
+            localStorage.setItem('yaniv_survival_max', wins);
+        }
+
+        saveUserData();
+        
+        let msg = `🏆 ${wins}連勝の報酬！<br>+${earnCoin} G / +${earnXp} xp`;
+        if(unlockedAny) msg += `<br><span style="color:#ffeb3b; font-size:12px;">限定アイテムを解放しました！</span>`;
+        showToast(msg, "#4caf50");
+        playSound('yaniv');
     }
 
     function returnToLobby() {
