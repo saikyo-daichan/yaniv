@@ -94,6 +94,7 @@
     .card_bronze { background-color: #cd7f32; background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.2) 10px, rgba(255,255,255,0.2) 20px); border: 1px solid #8c5a1f; }
     .card_silver { background-color: #c0c0c0; background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.3) 10px, rgba(255,255,255,0.3) 20px); border: 1px solid #a9a9a9; }
     .card_gold { background-color: #ffd700; background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.4) 10px, rgba(255,255,255,0.4) 20px); border: 1px solid #b8860b; }
+    .card_rainbow { background: linear-gradient(135deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3); border: 1px solid #fff; }
 
     /* チャットUI */
     #chat-display-container { position: fixed; top: 40px; left: 10px; z-index: 9999; pointer-events: none; display: flex; flex-direction: column; gap: 6px; width: 250px; }
@@ -847,7 +848,8 @@
         'back-red': '色: 赤', 'back-blue': '色: 青', 'back-black': '色: 黒',
         'card_kaeru.png': 'かえる', 'card_pien.png': 'ぴえん', 'card_zombie.png': 'ゾンビ', 'card_piero.png': 'ピエロ',
         'card_ringo.png': 'リンゴ', 'card_kaeruman.png': 'マッチョ', 'card_star.png': '星', 'card_miko.png': '巫女', 'card_hatena.png': '？？？', 'card_hiroto.png': 'ひろと (限定)',
-        'card_bronze': '銅トロフィー (勝ち抜き報酬)', 'card_silver': '銀トロフィー (勝ち抜き報酬)', 'card_gold': '金トロフィー (勝ち抜き報酬)'
+        'card_bronze': '銅トロフィー (勝ち抜き報酬)', 'card_silver': '銀トロフィー (勝ち抜き報酬)', 'card_gold': '金トロフィー (勝ち抜き報酬)',
+        'card_rainbow': '虹トロフィー (勝ち抜き報酬)'
     };
 
     const suits = ['♠', '♥', '♦', '♣'];
@@ -1243,7 +1245,7 @@
         myCardBack = val; 
         const preview = documentById('card-back-preview'); if(!preview) return;
         preview.className = '';
-        if(val.startsWith('back-') || val.startsWith('card_bronze') || val.startsWith('card_silver') || val.startsWith('card_gold')) {
+        if(val.startsWith('back-') || val.startsWith('card_bronze') || val.startsWith('card_silver') || val.startsWith('card_gold') || val.startsWith('card_rainbow')) {
             preview.classList.add('back', val);
             preview.style.backgroundImage = 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.1) 10px, rgba(255,255,255,0.1) 20px)';
         } else {
@@ -1870,7 +1872,7 @@
             let firstCard = deck.pop(); while (firstCard && firstCard.type === 'joker') { deck.unshift(firstCard); firstCard = deck.pop(); } discardSets = [ [firstCard] ]; selectedCards = [];
             
             let activeIds = activePlayers.map(p => p.id); 
-            if (currentRound === 1 || isSurvivalMode) {
+            if (currentRound === 1) {
                 currentTurn = activeIds[Math.floor(Math.random() * activeIds.length)]; 
             } else {
                 currentTurn = activeIds.includes(firstPlayer) ? firstPlayer : activeIds[0];
@@ -1929,7 +1931,7 @@
 
             const discardContainer = documentById('discard-pile'); discardContainer.innerHTML = '';
             const deckPile = documentById('deck-pile'); deckPile.className = 'pile card back';
-            if(myCardBack.startsWith('back-') || myCardBack.startsWith('card_bronze') || myCardBack.startsWith('card_silver') || myCardBack.startsWith('card_gold')) { 
+            if(myCardBack.startsWith('back-') || myCardBack.startsWith('card_bronze') || myCardBack.startsWith('card_silver') || myCardBack.startsWith('card_gold') || myCardBack.startsWith('card_rainbow')) { 
                 deckPile.classList.add(myCardBack); deckPile.style.backgroundImage = 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.1) 10px, rgba(255,255,255,0.1) 20px)'; 
             } else { 
                 deckPile.classList.add('back-img'); deckPile.style.backgroundImage = `url('${myCardBack}')`; 
@@ -1947,7 +1949,7 @@
         const cardEl = document.createElement('div'); cardEl.id = `card-${card.id}`; const owner = players.find(p => p.id === ownerIndex); const backVal = owner ? (owner.cardBack || 'back-red') : 'back-red'; 
         if (!isFaceUp) { 
             cardEl.className = `card back`; 
-            if(backVal.startsWith('back-') || backVal.startsWith('card_bronze') || backVal.startsWith('card_silver') || backVal.startsWith('card_gold')) { 
+            if(backVal.startsWith('back-') || backVal.startsWith('card_bronze') || backVal.startsWith('card_silver') || backVal.startsWith('card_gold') || backVal.startsWith('card_rainbow')) { 
                 cardEl.classList.add(backVal); cardEl.style.backgroundImage = 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.1) 10px, rgba(255,255,255,0.1) 20px)'; 
             } 
             else { cardEl.classList.add('back-img'); cardEl.style.backgroundImage = `url('${backVal}')`; }
@@ -2340,7 +2342,7 @@
         if(wins >= 100 && !unlockedBacks.includes('card_gold')) { unlockedBacks.push('card_gold'); unlockedAny = true; }
         if(wins >= 300 && !unlockedIconItems.includes('item_diamond')) { unlockedIconItems.push('item_diamond'); unlockedAny = true; }
         if(wins >= 500 && !unlockedIconItems.includes('item_crown')) { unlockedIconItems.push('item_crown'); unlockedAny = true; }
-        if(wins >= 1000 && !unlockedIconItems.includes('item_crown_anim')) { unlockedIconItems.push('item_crown_anim'); unlockedAny = true; }
+        if(wins >= 1000 && !unlockedBacks.includes('card_rainbow')) { unlockedBacks.push('card_rainbow'); unlockedAny = true; }
 
         if (unlockedAny) {
             localStorage.setItem('yaniv_unlocked_backs', JSON.stringify(unlockedBacks));
