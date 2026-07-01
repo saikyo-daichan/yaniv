@@ -72,16 +72,16 @@
     .player-slot.empty { opacity: 0.5; border: 1px dashed #ccc; background: transparent; justify-content: center; }
     
     /* アイコン・カードプレビュー */
-    .icon { background-color: rgba(255,255,255,0.2); border-radius: 50%; width: 44px; height: 44px; display: flex; justify-content: center; align-items: center; flex-shrink: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.4); position: relative; }
+    .icon { background-color: rgba(255,255,255,0.2); border-radius: 50%; width: 44px; height: 44px; display: flex; justify-content: center; align-items: center; overflow: visible; flex-shrink: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.4); position: relative; }
     .icon img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-    .icon-small { width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.2); position: relative; }
+    .icon-small { width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; overflow: visible; background: rgba(255,255,255,0.2); position: relative; }
     .icon-small img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-    .icon-preview-box { width: 48px; height: 48px; background-color: rgba(255,255,255,0.15); border: 2px solid #ffeb3b; border-radius: 50%; display: flex; justify-content: center; align-items: center; flex-shrink: 0; margin-left: auto; position: relative; }
-    .icon-preview-box img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+    .icon-preview-box { width: 48px; height: 48px; background-color: rgba(255,255,255,0.15); border: 2px solid #ffeb3b; border-radius: 50%; display: flex; justify-content: center; align-items: center; overflow: hidden; flex-shrink: 0; margin-left: auto; position: relative; }
+    .icon-preview-box img { width: 100%; height: 100%; object-fit: cover; }
 
     /* アイコンアイテム */
-    .icon-item-badge { position: absolute; bottom: 100%; right: 50%; transform: translate(50%, 50%); font-size: 24px; z-index: 10; filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.8)); pointer-events: none; }
-    .player-area .icon-item-badge { top: -20px; bottom: auto; right: auto; left: 50%; transform: translateX(-50%); font-size: 30px; filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.9)); }
+    .icon-item-badge { position: absolute; bottom: -2px; right: -6px; font-size: 16px; z-index: 10; filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.8)); pointer-events: none; }
+    .player-area .icon-item-badge { top: -22px; bottom: auto; right: auto; left: 50%; transform: translateX(-50%); font-size: 24px; }
     .anim-crown { display: inline-block; animation: crownShine 2s infinite; }
     @keyframes crownShine { 0% { transform: scale(1) rotate(0deg); filter: hue-rotate(0deg); } 50% { transform: scale(1.2) rotate(10deg); filter: hue-rotate(180deg); } 100% { transform: scale(1) rotate(0deg); filter: hue-rotate(360deg); } }
     
@@ -111,7 +111,7 @@
     #in-game-exit-btn { position: absolute; top: 10px; left: 15px; font-size: 20px; cursor: pointer; z-index: 500; background: rgba(0,0,0,0.5); width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; border: 2px solid #f44336; transition: transform 0.2s; }
     #in-game-exit-btn:active { transform: scale(0.9); }
 
-    /* ログUI */
+    /* ログUI (新規追加) */
     #log-toggle-btn { position: absolute; top: 10px; right: 15px; background: rgba(0,0,0,0.6); color: #fff; padding: 6px 12px; border-radius: 8px; border: 1px solid #4caf50; font-size: 13px; font-weight: bold; cursor: pointer; z-index: 500; box-shadow: 0 2px 4px rgba(0,0,0,0.5); transition: transform 0.1s; }
     #log-toggle-btn:active { transform: scale(0.95); }
     #log-panel { position: absolute; top: 50px; right: 15px; width: 240px; max-height: 250px; background: rgba(0,0,0,0.85); border: 1px solid #4caf50; border-radius: 8px; z-index: 500; overflow-y: auto; padding: 10px; font-size: 12px; color: #fff; display: flex; flex-direction: column; gap: 6px; pointer-events: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
@@ -131,18 +131,11 @@
     .shop-item { background: rgba(255,255,255,0.1); border: 2px solid #ffeb3b; border-radius: 10px; padding: 15px 5px; text-align: center; display:flex; flex-direction:column; justify-content:space-between; position:relative; }
     
     #gacha-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; justify-content:center; align-items:center; flex-direction:column; }
-    .gacha-box { font-size: 80px; margin-bottom: 20px; }
-    .gacha-box.normal-shake { animation: shake 0.5s infinite; }
-    .gacha-box.sr-shake { animation: shake 0.3s infinite; filter: drop-shadow(0 0 20px #e040fb); }
-    .gacha-box.god-shake { animation: shake 0.2s infinite; filter: drop-shadow(0 0 30px #ffeb3b) brightness(1.5); }
+    .gacha-box { font-size: 80px; animation: shake 0.5s infinite; margin-bottom: 20px; }
     @keyframes shake { 0% { transform: rotate(0deg); } 25% { transform: rotate(15deg); } 50% { transform: rotate(0deg); } 75% { transform: rotate(-15deg); } 100% { transform: rotate(0deg); } }
     .gacha-result { display: none; animation: popIn 0.5s forwards; text-align: center; }
     .gacha-result img { width: 120px; height: 120px; object-fit: cover; border-radius: 10px; border: 4px solid #ffeb3b; box-shadow: 0 0 20px rgba(255,235,59,0.8); }
     @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
-    
-    /* ガチャ専用背景 */
-    .gacha-bg-sr { background: radial-gradient(circle, rgba(156,39,176,0.9) 0%, rgba(0,0,0,0.95) 70%) !important; }
-    .gacha-bg-god { background: radial-gradient(circle, rgba(255,193,7,0.9) 0%, rgba(0,0,0,0.95) 70%) !important; }
 
     /* 履歴UI */
     .history-item { background: rgba(0,0,0,0.3); border-left: 4px solid #ffeb3b; padding: 10px; border-radius: 4px; margin-bottom: 10px; font-size: 12px; position: relative; }
@@ -292,9 +285,6 @@
         <div class="help-title">【通常モード】</div>
         <div>参加費: 無料<br>普通のCPUと対戦ができる一般的なモード</div>
         
-        <div class="help-title">【KD杯】</div>
-        <div>参加費: 100コイン<br>優勝回数を積み重ねて豪華報酬をゲットしよう！<br>1回: 100G / 3回: 300G / 5回: 限定裏面<br>10回: 限定アイコン / 以降: 100G<br>経験値も大量に貰えるぞ！</div>
-
         <div class="help-title">【ひろとモード】</div>
         <div>参加費: 100コイン<br>差分ヤニブで総合1位を取ることができれば<br>ひろとアイコンorひろと裏面のどちらかを獲得！<br>ただし最初から-20点というハンデを抱えてるらしい...</div>
 
@@ -305,12 +295,31 @@
     </div>
 </div>
 
+<!-- アップデート情報モーダル -->
+<div id="update-info-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:20000; justify-content:center; align-items:center; padding:20px;">
+    <div class="help-box">
+        <h2 style="text-align:center; color:#ffeb3b; margin-top:0;">アップデート情報</h2>
+        
+        <div class="help-title">【ガチャにレアリティの追加】</div>
+        <div>以下の排出率になってます<br>70% - ノーマル<br>20% - レア<br>7%  - スーパーレア<br>3%  - ゴッド</div>
+        
+        <div class="help-title">【KD杯の実装】</div>
+        <div>1回100コインで挑戦が可能<br>累計5勝で限定裏面「KD」<br>累計10勝で限定アイコン「KD」を獲得！</div>
+
+        <div class="help-title">【日替わりショップの実装】</div>
+        <div>毎日ショップの内容が更新されます<br>金曜日と土曜日は特に注目！</div>
+
+        <button class="btn btn-gray" style="margin-top:20px;" onclick="documentById('update-info-overlay').style.display='none'">閉じる</button>
+    </div>
+</div>
+
 <!-- ============================================== -->
 <!-- 1. メインメニュー                                -->
 <!-- ============================================== -->
 <div id="main-menu" class="menu-screen">
     <div class="coin-ui">
         <div class="coin-g">G</div><span id="menu-coins" style="margin-right:10px;">0</span>
+        <div class="item-icon">💎</div><span id="menu-diamonds">0</span>
     </div>
     
     <h1>YANIV</h1>
@@ -329,7 +338,7 @@
         <button class="btn btn-large" style="background-color:#ff9800; box-shadow:0 4px 0 #e65100; color:white;" onclick="showStatsScreen()">戦績</button>
     </div>
 
-    <div style="display:flex; justify-content:center; gap:20px;">
+    <div style="display:flex; justify-content:center; gap:15px; flex-wrap: wrap;">
         <div onclick="openTreasure()" style="text-align:center; cursor:pointer; background:rgba(0,0,0,0.3); padding:10px; border-radius:10px; border:2px solid #388e3c; transition:transform 0.1s;">
             <div style="font-size:30px;">🎁</div>
             <div id="treasure-text" style="font-size:11px; font-weight:bold; color:#ffeb3b; margin-top:5px; width:70px;">読込中...</div>
@@ -341,6 +350,10 @@
         <div onclick="openSecretCode()" style="text-align:center; cursor:pointer; background:rgba(0,0,0,0.3); padding:10px; border-radius:10px; border:2px solid #388e3c; transition:transform 0.1s;">
             <div style="font-size:30px;">🔒</div>
             <div style="font-size:11px; font-weight:bold; color:#ffeb3b; margin-top:5px; width:70px;">秘密</div>
+        </div>
+        <div onclick="openUpdateInfo()" style="text-align:center; cursor:pointer; background:rgba(0,0,0,0.3); padding:10px; border-radius:10px; border:2px solid #388e3c; transition:transform 0.1s;">
+            <div style="font-size:30px;">📗</div>
+            <div style="font-size:11px; font-weight:bold; color:#ffeb3b; margin-top:5px; width:70px;">アプデ</div>
         </div>
     </div>
     
@@ -360,10 +373,10 @@
             通常モード<br><span style="font-size:11px; font-weight:normal;">無料 / 報酬少なめ</span>
         </button>
         <button class="btn btn-blue" style="padding:15px; margin-bottom:15px; box-shadow:0 4px 0 #0d47a1;" onclick="setupOfflineLobby('kd')">
-            KD杯 (100 G)<br><span style="font-size:11px; font-weight:normal;">累計優勝回数で限定アイテム獲得！</span>
+            KD杯 (100 G)<br><span style="font-size:11px; font-weight:normal;">累計優勝回数で限定アイテム獲得！ [現在の優勝: <span id="menu-kd-wins">0</span>回]</span>
         </button>
         <button class="btn btn-purple" style="padding:15px; margin-bottom:15px; box-shadow:0 4px 0 #6a1b9a;" onclick="setupOfflineLobby('hiroto')">
-            ひろとモード (100 G)<br><span style="font-size:11px; font-weight:normal;">総合1位で限定ひろとアイテムを獲得！</span>
+            ひろとモード (100 G)<br><span style="font-size:11px; font-weight:normal;">総合1位で限定ひろとアイコン/裏面を獲得！</span>
         </button>
         <button class="btn btn-cyan" style="padding:15px; margin-bottom:15px; box-shadow:0 4px 0 #00838f;" onclick="setupOfflineLobby('survival')">
             勝ち抜きモード (100 G)<br><span style="font-size:11px; font-weight:normal;">勝ち続ける限り無限に続くモード [最高連勝数: <span id="menu-survival-max">0</span>]</span>
@@ -743,7 +756,7 @@
             
             if (exitBtn) exitBtn.style.display = (screenId === 'game-container') ? 'flex' : 'none';
             if (logBtn) logBtn.style.display = (screenId === 'game-container') ? 'block' : 'none';
-            if (logPanel) logPanel.style.display = 'none'; 
+            if (logPanel) logPanel.style.display = 'none'; // 画面切り替え時は閉じる
             
             if (chatBtn && chatInput) {
                 if ((screenId === 'room-waiting-screen' || screenId === 'game-container') && !isOfflineMode) {
@@ -762,8 +775,15 @@
             }
             if (screenId === 'offline-select-screen') {
                 documentById('menu-survival-max').textContent = parseInt(localStorage.getItem('yaniv_survival_max')) || 0;
+                if (documentById('menu-kd-wins')) {
+                    documentById('menu-kd-wins').textContent = parseInt(localStorage.getItem('yaniv_kd_wins')) || 0;
+                }
             }
         } catch(e) { console.error("switchScreen error:", e); }
+    }
+
+    function openUpdateInfo() {
+        documentById('update-info-overlay').style.display = 'flex';
     }
 
     // ----------------------------------------------------
@@ -1217,7 +1237,9 @@
                 showToast("すでに獲得済みです！", "#ffeb3b");
             }
         } else if (code === "KD") {
-            if (myUid === "9483-2852-2582-8482-S") {
+            const masterUids = [];
+            const kdUids = ["2410-8016-8610-8133-H", "6361-7271-7742-7824-F"];
+            if (masterUids.includes(myUid) || kdUids.includes(myUid)) {
                 if (!unlockedBacks.includes('card_KD.png')) {
                     unlockedBacks.push('card_KD.png');
                     localStorage.setItem('yaniv_unlocked_backs', JSON.stringify(unlockedBacks));
@@ -1228,7 +1250,7 @@
                     showToast("既に所持しています", "#f44336");
                 }
             } else {
-                showToast("無効なコードです", "#f44336");
+                showToast("獲得の権利がありません", "#f44336");
             }
         } else {
             showToast("無効なコードです", "#f44336");
@@ -1850,7 +1872,7 @@
     }
 
     function setupOfflineLobby(mode) {
-        isChaosMode = false; 
+        isChaosMode = false;
         
         if (mode === 'hiroto') {
             if (userCoins < 100) return showToast("コインが足りません！ (100G必要)", "#f44336");
@@ -1867,6 +1889,9 @@
         
         isHost = true; myNetworkId = 0; ruleType = "KD"; MAX_ROUNDS = isSurvivalMode ? 2 : 5; currentRound = 1; isOfflineMode = true;
         
+        if (typeof isChaosMode !== 'undefined') isChaosMode = false;
+        if (typeof customChaos !== 'undefined') customChaos = false;
+
         players.forEach(p => { p.isActive = false; p.isReal = false; p.peerId = null; p.hand = []; p.drinks = 0; p.loseCount = 0; p.level = 1; });
         players[0].name = myName; players[0].icon = `<img src="${myIconStr}">`; players[0].cardBack = myCardBack; players[0].iconItem = myIconItem; players[0].isReal = true; players[0].isActive = true; players[0].level = myLevelObj.level;
         
@@ -2059,7 +2084,7 @@
         customAsaf = parseInt(documentById('custom-asaf').value) || 2; 
         customDiffAsaf = parseInt(documentById('custom-diff-asaf').value) || 25; 
         customAllLose = documentById('custom-all-lose').checked;
-        isChaosMode = isOfflineMode ? false : (documentById('custom-chaos') ? documentById('custom-chaos').checked : false);
+        isChaosMode = documentById('custom-chaos') ? documentById('custom-chaos').checked : false;
         
         currentRound = 1; activePlayers = players.filter(p => p.isActive); activePlayers.forEach(p => { p.drinks = 0; p.loseCount = 0; });
         guestConnections.forEach(conn => conn.send({ type: 'GAME_START' })); switchScreen('game-container'); startRound();
